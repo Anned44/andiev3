@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hub — Andy.net</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+
+<!-- Base styles -->
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/hub-layout.css">
+<link rel="stylesheet" href="css/hub-dashboard.css">
+<!-- Módulos (se agregan conforme se construyen) -->
+<!-- <link rel="stylesheet" href="css/hub-planner.css"> -->
+<!-- <link rel="stylesheet" href="css/hub-inbox.css"> -->
+<!-- <link rel="stylesheet" href="css/hub-metas.css"> -->
+<!-- <link rel="stylesheet" href="css/hub-finanzas.css"> -->
+<!-- <link rel="stylesheet" href="css/hub-health.css"> -->
+
+<style>
+/* Estilos temporales inline hasta que cada módulo tenga su CSS */
+
+/* FAB campos condicionales */
+.fab-conditional { max-height:0; overflow:hidden; transition:max-height .3s ease, opacity .25s ease; opacity:0; }
+.fab-conditional.visible { max-height:200px; opacity:1; }
+.fab-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.fab-toggle-row { display:flex; align-items:center; gap:10px; }
+.fab-toggle { background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--muted2);font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;cursor:pointer;transition:all .15s; }
+.fab-toggle.on { background:var(--s3);border-color:rgba(155,122,184,.4);color:var(--muse); }
+.fab-toggle-hint { font-family:var(--mono);font-size:9px;color:var(--muted); }
+
+/* Stub pages */
+.stub-page { padding:40px 0; text-align:center; font-family:var(--mono); font-size:10px; color:var(--muted); letter-spacing:.1em; }
+
+/* Metas full (temporal) */
+.meta-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:14px;}
+.meta-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.meta-card-name{font-size:14px;color:var(--text2);}
+.meta-card-cat{font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;padding:3px 8px;border-radius:5px;background:var(--s3);color:var(--muted2);}
+.meta-card-bar{height:6px;background:var(--s3);border-radius:3px;overflow:hidden;margin-bottom:12px;}
+.meta-card-fill{height:100%;border-radius:3px;transition:width .9s cubic-bezier(.4,0,.2,1);width:0;}
+.meta-card-footer{display:flex;align-items:center;gap:12px;}
+input[type=range]{flex:1;accent-color:var(--hub);}
+
+/* Health trackers (temporal) */
+.health-trackers{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px;}
+.tracker-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;}
+.tracker-icon{font-size:1.8rem;display:block;margin-bottom:8px;}
+.tracker-name{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+.tracker-val{font-family:var(--mono);font-size:2rem;font-weight:400;color:var(--text2);display:block;margin-bottom:10px;}
+.tracker-unit{font-family:var(--mono);font-size:9px;color:var(--muted);}
+.tracker-btns{display:flex;gap:6px;margin-bottom:14px;}
+.tracker-btn{background:var(--s2);border:1px solid var(--border);border-radius:7px;color:var(--muted2);font-family:var(--mono);font-size:13px;padding:5px 14px;cursor:pointer;transition:all .15s;}
+.tracker-btn:hover{color:var(--text);border-color:var(--bord2);}
+.tracker-week{display:flex;gap:4px;}
+.tracker-day{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.tracker-day-bar-wrap{width:100%;height:44px;background:var(--s3);border-radius:4px;overflow:hidden;display:flex;align-items:flex-end;}
+.tracker-day-bar{width:100%;border-radius:4px;transition:height .6s ease;}
+.tracker-day-lbl{font-family:var(--mono);font-size:7px;color:var(--muted);}
+
+/* Finanzas full (temporal) */
+.fin-month-nav{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.fin-month-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted2);font-family:var(--mono);font-size:12px;padding:6px 14px;cursor:pointer;transition:all .15s;}
+.fin-month-btn:hover{color:var(--text);border-color:var(--bord2);}
+.fin-month-label{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text);min-width:160px;text-align:center;}
+.fin-overview{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:24px;}
+.fin-ov-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;}
+.fin-ov-val{font-family:var(--mono);font-size:1.6rem;font-weight:400;color:var(--text2);display:block;margin-bottom:4px;}
+.fin-ov-lbl{font-family:var(--mono);font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;}
+.fin-add-form{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px;}
+.fin-form-title{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.fin-form-row{display:flex;gap:10px;flex-wrap:wrap;}
+.fin-input{background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--sans);font-size:12px;padding:9px 12px;outline:none;transition:border-color .15s;}
+.fin-input:focus{border-color:var(--bord2);}
+.fin-input::placeholder{color:var(--muted);}
+.fin-select{background:var(--s2);border:1px solid var(--border);border-radius:8px;color:var(--muted2);font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:9px 12px;outline:none;cursor:pointer;appearance:none;-webkit-appearance:none;}
+.fin-submit{background:var(--s3);border:1px solid var(--bord2);border-radius:8px;color:var(--hub);font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:9px 16px;cursor:pointer;transition:all .15s;}
+.fin-submit:hover{background:rgba(90,122,170,.15);color:var(--text2);}
+.fin-movs-list{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;}
+.fin-movs-title{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:14px;}
+.fin-mov-item{display:flex;align-items:center;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);}
+.fin-mov-item:last-child{border-bottom:none;}
+.fin-mov-cat{font-family:var(--mono);font-size:7px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:var(--s3);color:var(--muted2);flex-shrink:0;}
+.fin-mov-desc{flex:1;font-size:12px;color:var(--text);}
+.fin-mov-date{font-family:var(--mono);font-size:8px;color:var(--muted);flex-shrink:0;}
+
+/* Inbox full (temporal) */
+.inbox-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.istat{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;}
+.istat-num{font-family:var(--mono);font-size:1.8rem;font-weight:400;color:var(--text2);display:block;margin-bottom:5px;}
+.istat-lbl{font-family:var(--mono);font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;}
+.inbox-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
+.ifilter{background:var(--s2);border:1px solid var(--border);border-radius:20px;color:var(--muted2);font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;cursor:pointer;transition:all .15s;}
+.ifilter:hover{color:var(--text);border-color:var(--bord2);}
+.ifilter.active{background:var(--s3);color:var(--hub);border-color:rgba(90,122,170,.4);}
+.inbox-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:10px;transition:border-color .2s;}
+.inbox-card:hover{border-color:var(--bord2);}
+.inbox-card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
+.inbox-card-text{flex:1;font-size:13px;color:var(--text);line-height:1.5;}
+.inbox-card-date{font-family:var(--mono);font-size:8px;color:var(--muted);flex-shrink:0;}
+.inbox-card-actions{display:flex;gap:6px;flex-wrap:wrap;}
+.iaction{background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--muted2);font-family:var(--mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;cursor:pointer;transition:all .15s;}
+.iaction:hover{color:var(--text);border-color:var(--bord2);}
+.iaction.procesar:hover{color:var(--green);border-color:rgba(90,138,106,.4);}
+.iaction.eliminar:hover{color:var(--pink);border-color:rgba(200,110,138,.4);}
+
+/* Planner full (temporal — se reemplaza con hub-planner.css) */
+.pln-nav{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+.pln-nav-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted2);font-family:var(--mono);font-size:12px;padding:6px 14px;cursor:pointer;transition:all .15s;}
+.pln-nav-btn:hover{color:var(--text);border-color:var(--bord2);}
+.pln-nav-date{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text);min-width:220px;text-align:center;}
+.pln-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
+.pln-stat{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;}
+.pln-stat-num{font-family:var(--mono);font-size:1.8rem;font-weight:400;color:var(--text2);display:block;margin-bottom:5px;}
+.pln-stat-lbl{font-family:var(--mono);font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;}
+.pln-intencion{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:20px;}
+.pln-intencion-label{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.pln-intencion-input{width:100%;background:none;border:none;outline:none;font-family:var(--serif);font-style:italic;font-size:1.1rem;color:var(--text);line-height:1.6;}
+.pln-intencion-input::placeholder{color:var(--muted);}
+.pln-block-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:16px;}
+.pln-block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
+.pln-block-title{display:flex;align-items:center;gap:10px;}
+.pln-block-icon{font-size:1.2rem;}
+.pln-block-name{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text);}
+.pln-block-time{font-family:var(--mono);font-size:9px;color:var(--muted);}
+.pln-block-count{font-family:var(--mono);font-size:9px;color:var(--muted);}
+.pln-block-collapse{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:0 4px;transition:color .15s;}
+.pln-block-collapse:hover{color:var(--text);}
+.pln-items-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;min-height:32px;}
+.pln-entry{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--s2);border-radius:10px;transition:background .15s;cursor:default;}
+.pln-entry:hover{background:var(--s3);}
+.pln-entry-check{width:16px;height:16px;border:1px solid var(--bord2);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all .15s;color:var(--hub);}
+.pln-entry-check.done{background:rgba(90,122,170,.2);border-color:var(--hub);}
+.pln-entry-main{flex:1;}
+.pln-entry-text{font-size:12px;color:var(--text);margin-bottom:3px;}
+.pln-entry-text.done{text-decoration:line-through;color:var(--muted);}
+.pln-entry-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.pln-entry-type{font-family:var(--mono);font-size:7px;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:4px;}
+.pln-entry-prio{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
+.pln-entry-time{font-family:var(--mono);font-size:8px;color:var(--muted);}
+.pln-entry-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0 2px;transition:color .15s;}
+.pln-entry-del:hover{color:var(--pink);}
+.pln-add-form{background:var(--s2);border-radius:12px;padding:14px 16px;}
+.pln-add-row1{display:flex;gap:8px;margin-bottom:12px;}
+.pln-add-input{flex:1;background:var(--s3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--sans);font-size:12px;padding:9px 12px;outline:none;transition:border-color .15s;}
+.pln-add-input:focus{border-color:var(--bord2);}
+.pln-add-input::placeholder{color:var(--muted);}
+.pln-add-submit{background:var(--s3);border:1px solid var(--bord2);border-radius:8px;color:var(--hub);font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:9px 16px;cursor:pointer;transition:all .15s;flex-shrink:0;}
+.pln-add-submit:hover{background:rgba(90,122,170,.15);color:var(--text2);}
+.pln-add-row2{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.pln-chip-label{font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
+.pln-chip{background:var(--s3);border:1px solid var(--border);border-radius:6px;color:var(--muted2);font-family:var(--mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;cursor:pointer;transition:all .15s;}
+.pln-chip:hover{color:var(--text);border-color:var(--bord2);}
+.pln-chip.sel{background:rgba(90,122,170,.15);color:var(--hub);border-color:rgba(90,122,170,.4);}
+.pln-chip.prio-alta.sel{background:rgba(200,110,138,.15);color:var(--pink);border-color:rgba(200,110,138,.4);}
+.pln-chip.prio-media.sel{background:rgba(200,150,90,.15);color:var(--studio);border-color:rgba(200,150,90,.4);}
+.pln-chip.prio-baja.sel{background:rgba(90,138,106,.15);color:var(--green);border-color:rgba(90,138,106,.4);}
+.pln-sep{color:var(--muted);font-size:10px;padding:0 2px;}
+</style>
+</head>
+<body>
+
+<!-- ── HEADER ── -->
+<header class="hub-header">
+  <div class="header-left">
+    <div class="header-logo" onclick="HubCore.navTo(null,'dashboard')" title="Dashboard">
+      <span class="header-logo-glyph">❖</span>
+    </div>
+    <span class="header-title">Hub</span>
+  </div>
+  <div class="header-right">
+    <span class="autosave-indicator" id="autosaveIndicator">guardado ✓</span>
+    <button class="btn-ghost" onclick="HubCore.goPortal()">← Portal</button>
+  </div>
+</header>
+
+<div class="body-wrap">
+
+<!-- ── SIDEBAR ── -->
+<nav class="sidebar">
+  <button class="nav-btn active" onclick="HubCore.navTo(this,'dashboard')" title="Dashboard">
+    <span class="nav-icon">⌂</span>
+    <span class="nav-label">Dashboard</span>
+  </button>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'planner')" title="Planner">
+    <span class="nav-icon">◧</span>
+    <span class="nav-label">Planner</span>
+  </button>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'inbox')" title="Inbox">
+    <span class="nav-icon">✉︎</span>
+    <span class="nav-label">Inbox</span>
+  </button>
+  <div class="nav-sep"></div>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'metas')" title="Metas">
+    <span class="nav-icon">◎</span>
+    <span class="nav-label">Metas</span>
+  </button>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'health')" title="Health">
+    <span class="nav-icon">✤</span>
+    <span class="nav-label">Health</span>
+  </button>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'finanzas')" title="Finanzas">
+    <span class="nav-icon">₿</span>
+    <span class="nav-label">Finanzas</span>
+  </button>
+  <div class="nav-sep"></div>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'diario')" title="Diario">
+    <span class="nav-icon">✎</span>
+    <span class="nav-label">Diario</span>
+  </button>
+  <div class="nav-spacer"></div>
+</nav>
+
+<!-- ── MAIN ── -->
+<main class="hub-main">
+
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="hub-page active">
+    <div class="welcome-bar">
+      <div>
+        <div class="welcome-greeting" id="hubGreeting"></div>
+        <div class="welcome-date"     id="hubDate"></div>
+        <div class="welcome-quote"    id="hubQuote"></div>
+      </div>
+      <div class="clima-card">
+        <span class="clima-emoji" id="climaEmoji">⋯</span>
+        <span class="clima-temp"  id="climaTemp">—°</span>
+        <span class="clima-desc"  id="climaDesc">cargando</span>
+        <span class="clima-city">Chihuahua, MX</span>
+      </div>
+    </div>
+
+    <div class="wgrid">
+      <div class="widget w7">
+        <div class="wtitle">
+          <span>◧ planner de hoy</span>
+          <button class="wlink" onclick="HubCore.navTo(document.querySelector('[title=Planner]'),'planner')">ver completo →</button>
+        </div>
+        <div id="dashPlannerBlocks"></div>
+      </div>
+
+      <div class="widget w5">
+        <div class="wtitle">
+          <span>✉︎ inbox reciente</span>
+          <button class="wlink" onclick="HubCore.navTo(document.querySelector('[title=Inbox]'),'inbox')">ver todos →</button>
+        </div>
+        <div id="dashInboxItems"></div>
+      </div>
+
+      <div class="widget w5">
+        <div class="wtitle"><span>⊛ proyectos</span></div>
+        <div id="dashProyItems"></div>
+      </div>
+
+      <div class="widget w4">
+        <div class="wtitle">
+          <span>◎ metas</span>
+          <button class="wlink" onclick="HubCore.navTo(document.querySelector('[title=Metas]'),'metas')">ver todas →</button>
+        </div>
+        <div id="dashMetasList"></div>
+      </div>
+
+      <div class="widget w3">
+        <div class="wtitle">
+          <span>₿ finanzas</span>
+          <button class="wlink" onclick="HubCore.navTo(document.querySelector('[title=Finanzas]'),'finanzas')">detalle →</button>
+        </div>
+        <div class="dash-fin-grid" id="dashFinGrid"></div>
+      </div>
+
+      <div class="widget w12">
+        <div class="wtitle">
+          <span>calendario</span>
+          <div class="cal-toggle">
+            <button class="cal-vbtn active" onclick="HubDashboard.setCalView('mes',this)">mes</button>
+            <button class="cal-vbtn" onclick="HubDashboard.setCalView('semana',this)">semana</button>
+            <button class="cal-vbtn" onclick="HubDashboard.setCalView('3dias',this)">3 días</button>
+          </div>
+        </div>
+        <div class="cal-nav-row">
+          <button class="cal-nbtn" onclick="HubDashboard.calNav(-1)">‹</button>
+          <div class="cal-nav-title" id="hubCalTitle"></div>
+          <button class="cal-nbtn" onclick="HubDashboard.calNav(1)">›</button>
+        </div>
+        <div id="hubCalGrid"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLANNER -->
+  <div id="page-planner" class="hub-page">
+    <div class="page-h1">Planner</div>
+    <div class="page-sub">organiza tu día · bloque a bloque</div>
+    <div class="pln-nav">
+      <button class="pln-nav-btn" onclick="HubPlanner.navDay(-1)">‹</button>
+      <div class="pln-nav-date" id="plnNavDate"></div>
+      <button class="pln-nav-btn" onclick="HubPlanner.navDay(1)">›</button>
+      <button class="pln-nav-btn" onclick="HubPlanner.goToday()" style="font-size:9px;letter-spacing:.1em">hoy</button>
+    </div>
+    <div class="pln-stats">
+      <div class="pln-stat"><span class="pln-stat-num" id="plnStatE">0</span><span class="pln-stat-lbl">Entradas</span></div>
+      <div class="pln-stat"><span class="pln-stat-num" id="plnStatC" style="color:var(--green)">0</span><span class="pln-stat-lbl">Completadas</span></div>
+      <div class="pln-stat"><span class="pln-stat-num" id="plnStatP" style="color:var(--hub)">0%</span><span class="pln-stat-lbl">Progreso</span></div>
+    </div>
+    <div class="pln-intencion">
+      <div class="pln-intencion-label">✦ intención del día</div>
+      <input class="pln-intencion-input" id="plnIntencion" placeholder="hoy quiero..." oninput="HubPlanner.saveIntencion()">
+    </div>
+    <div id="plnBlocksContainer"></div>
+  </div>
+
+  <!-- INBOX -->
+  <div id="page-inbox" class="hub-page">
+    <div class="page-h1">Inbox</div>
+    <div class="page-sub">capturas · procesa · actúa</div>
+    <div class="inbox-stats">
+      <div class="istat"><span class="istat-num" id="istatPend">0</span><span class="istat-lbl">Pendientes</span></div>
+      <div class="istat"><span class="istat-num" id="istatTodos">0</span><span class="istat-lbl">Todos</span></div>
+      <div class="istat"><span class="istat-num" id="istatProc" style="color:var(--green)">0</span><span class="istat-lbl">Procesados</span></div>
+    </div>
+    <div class="inbox-filters">
+      <button class="ifilter active" data-f="todas" onclick="HubInbox.setFilter(this)">todas</button>
+      <button class="ifilter" data-f="captura" onclick="HubInbox.setFilter(this)">captura</button>
+      <button class="ifilter" data-f="idea" onclick="HubInbox.setFilter(this)">idea</button>
+      <button class="ifilter" data-f="tarea" onclick="HubInbox.setFilter(this)">tarea</button>
+      <button class="ifilter" data-f="nota" onclick="HubInbox.setFilter(this)">nota</button>
+      <button class="ifilter" data-f="evento" onclick="HubInbox.setFilter(this)">evento</button>
+    </div>
+    <div id="inboxList"></div>
+  </div>
+
+  <!-- METAS -->
+  <div id="page-metas" class="hub-page">
+    <div class="page-h1">Metas</div>
+    <div class="page-sub">objetivos · progreso · logros</div>
+    <button onclick="HubMetas.showAddForm()" class="btn-primary" style="margin-bottom:20px">+ nueva meta</button>
+    <div id="addMetaForm" style="display:none;background:var(--s1);border:1px solid var(--bord2);border-radius:16px;padding:22px;margin-bottom:20px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px">
+        <input id="metaNombre" class="fin-input" style="width:100%" placeholder="nombre de la meta...">
+        <select id="metaCat" class="fin-select" style="width:100%">
+          <option value="personal">personal</option>
+          <option value="negocio">negocio</option>
+          <option value="salud">salud</option>
+          <option value="creativo">creativo</option>
+        </select>
+      </div>
+      <div style="display:flex;gap:10px;margin-bottom:12px">
+        <input id="metaDeadline" type="date" class="fin-input" style="flex:1">
+        <input id="metaColor" type="color" value="#9b7ab8" style="width:44px;height:40px;border:1px solid var(--border);border-radius:8px;background:var(--s2);cursor:pointer;padding:2px">
+      </div>
+      <div style="display:flex;gap:8px">
+        <button onclick="HubMetas.save()" class="btn-primary">guardar</button>
+        <button onclick="document.getElementById('addMetaForm').style.display='none'" class="btn-ghost">cancelar</button>
+      </div>
+    </div>
+    <div id="metasList"></div>
+  </div>
+
+  <!-- HEALTH -->
+  <div id="page-health" class="hub-page">
+    <div class="page-h1">Health</div>
+    <div class="page-sub">bienestar · hábitos · cuerpo · mente</div>
+    <div class="health-trackers" id="healthTrackers"></div>
+    <div style="background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px">
+      <div style="font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:12px">✎ notas del día</div>
+      <textarea id="healthNotas" class="fin-input" style="resize:vertical;min-height:80px;line-height:1.6" placeholder="¿cómo te sientes hoy?..." oninput="HubHealth.saveNotas()"></textarea>
+    </div>
+  </div>
+
+  <!-- FINANZAS -->
+  <div id="page-finanzas" class="hub-page">
+    <div class="page-h1">Finanzas</div>
+    <div class="page-sub">gastos · ingresos · balance</div>
+    <div class="fin-month-nav">
+      <button class="fin-month-btn" onclick="HubFinanzas.navMonth(-1)">‹</button>
+      <div class="fin-month-label" id="finMonthLabel"></div>
+      <button class="fin-month-btn" onclick="HubFinanzas.navMonth(1)">›</button>
+    </div>
+    <div class="fin-overview" id="finOverview"></div>
+    <div class="fin-add-form">
+      <div class="fin-form-title">+ nuevo movimiento</div>
+      <div class="fin-form-row">
+        <input id="finDesc" class="fin-input" style="flex:2;min-width:150px" placeholder="descripción...">
+        <input id="finAmt" type="number" class="fin-input" style="width:120px" placeholder="monto...">
+        <select id="finTipo" class="fin-select"><option value="gasto">gasto</option><option value="ingreso">ingreso</option></select>
+        <select id="finCat" class="fin-select">
+          <option>comida</option><option>transporte</option><option>negocio</option>
+          <option>salud</option><option>hogar</option><option>personal</option><option>otro</option>
+        </select>
+        <button class="fin-submit" onclick="HubFinanzas.addMovimiento()">guardar</button>
+      </div>
+    </div>
+    <div class="fin-movs-list">
+      <div class="fin-movs-title">movimientos del mes</div>
+      <div id="finMovsList"></div>
+    </div>
+  </div>
+
+  <!-- DIARIO -->
+  <div id="page-diario" class="hub-page">
+    <div class="page-h1">Diario</div>
+    <div class="page-sub">reflexiones · intención · journaling</div>
+    <div class="stub-page">próximamente ✦</div>
+  </div>
+
+</main>
+</div>
+
+<!-- FAB -->
+<button class="hub-fab" id="hubFab" onclick="HubCore.openFab()" title="Captura rápida (Ctrl+Space)">✦</button>
+
+<!-- FAB Modal -->
+<div id="fabOverlay" class="fab-overlay" onclick="HubCore.closeFabIfOutside(event)">
+  <div class="fab-modal">
+    <div class="fab-modal-title">Captura rápida</div>
+
+    <div class="fab-field">
+      <span class="fab-field-label">Tipo</span>
+      <div class="fab-select-wrap">
+        <select class="select-base" id="fabTipo" onchange="HubCore.onTipoChange()">
+          <option value="nota">Nota</option>
+          <option value="tarea">Tarea</option>
+          <option value="evento">Evento / Recordatorio</option>
+          <option value="proyecto">Proyecto</option>
+        </select>
+        <span class="fab-select-arrow">▾</span>
+      </div>
+    </div>
+
+    <div class="fab-field">
+      <textarea class="input-base" id="fabText" placeholder="¿Qué tienes en mente?..." style="resize:none;min-height:80px;line-height:1.65"></textarea>
+    </div>
+
+    <!-- Campos: Evento -->
+    <div class="fab-conditional" id="fabEventoFields">
+      <div class="fab-row-2" style="margin-bottom:.8rem">
+        <div class="fab-field">
+          <span class="fab-field-label">Fecha</span>
+          <input type="date" class="input-base" id="fabFecha">
+        </div>
+        <div class="fab-field">
+          <span class="fab-field-label">Hora</span>
+          <input type="time" class="input-base" id="fabHora">
+        </div>
+      </div>
+      <div class="fab-field">
+        <span class="fab-field-label">¿Recordatorio?</span>
+        <div class="fab-toggle-row">
+          <button class="fab-toggle" id="fabRecordatorio" onclick="HubCore.toggleFabRecordatorio()">No</button>
+          <span class="fab-toggle-hint" id="fabRecordatorioHint"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Campos: Proyecto -->
+    <div class="fab-conditional" id="fabProyectoFields">
+      <div class="fab-field">
+        <span class="fab-field-label">Nombre del proyecto</span>
+        <input type="text" class="input-base" id="fabProyNombre" placeholder="nombre corto...">
+      </div>
+    </div>
+
+    <div class="fab-field" id="fabPrioField">
+      <span class="fab-field-label">Prioridad</span>
+      <div class="fab-select-wrap">
+        <select class="select-base" id="fabPrio">
+          <option value="">Sin prioridad</option>
+          <option value="alta">Alta</option>
+          <option value="media">Media</option>
+          <option value="baja">Baja</option>
+        </select>
+        <span class="fab-select-arrow">▾</span>
+      </div>
+    </div>
+
+    <div class="fab-field">
+      <span class="fab-field-label">Destino</span>
+      <div class="fab-dest-row">
+        <button class="fab-dest-chip sel" data-dest="inbox" onclick="HubCore.selectFabDest(this)">
+          <span class="chip-dot"></span> Inbox
+        </button>
+        <button class="fab-dest-chip" data-dest="planner" onclick="HubCore.selectFabDest(this)">
+          <span class="chip-dot"></span> → Planner
+        </button>
+      </div>
+    </div>
+
+    <div class="fab-actions">
+      <button class="btn-ghost" onclick="HubCore.closeFab()">cancelar</button>
+      <button class="btn-primary" onclick="HubCore.submitFab()">guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Scripts — orden importante -->
+<script src="js/hub-core.js"></script>
+<script src="js/hub-dashboard.js"></script>
+<!-- Módulos (se agregan conforme se construyen) -->
+<!-- <script src="js/hub-planner.js"></script> -->
+<!-- <script src="js/hub-inbox.js"></script> -->
+<!-- <script src="js/hub-metas.js"></script> -->
+<!-- <script src="js/hub-finanzas.js"></script> -->
+<!-- <script src="js/hub-health.js"></script> -->
+
+<script>
+// Stubs temporales para módulos aún no construidos
+window.HubPlanner  = { init(){}, refresh(){}, navDay(){}, goToday(){}, saveIntencion(){} };
+window.HubInbox    = { init(){}, refresh(){}, setFilter(){} };
+window.HubMetas    = { init(){}, refresh(){}, showAddForm(){ document.getElementById('addMetaForm').style.display='block'; }, save(){} };
+window.HubHealth   = { init(){}, refresh(){}, saveNotas(){} };
+window.HubFinanzas = { init(){}, refresh(){}, navMonth(){}, addMovimiento(){} };
+
+// Inicializar
+document.addEventListener('DOMContentLoaded', () => {
+  HubCore.init();
+  HubDashboard.init();
+});
+</script>
+
+</body>
+</html>
