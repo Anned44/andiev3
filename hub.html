@@ -11,7 +11,7 @@
 <link rel="stylesheet" href="css/hub-layout.css">
 <link rel="stylesheet" href="css/hub-dashboard.css">
 <!-- Módulos (se agregan conforme se construyen) -->
-<!-- <link rel="stylesheet" href="css/hub-planner.css"> -->
+<link rel="stylesheet" href="css/hub-planner.css">
 <!-- <link rel="stylesheet" href="css/hub-inbox.css"> -->
 <!-- <link rel="stylesheet" href="css/hub-metas.css"> -->
 <!-- <link rel="stylesheet" href="css/hub-finanzas.css"> -->
@@ -499,7 +499,7 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 <script src="js/hub-core.js"></script>
 <script src="js/hub-dashboard.js"></script>
 <!-- Módulos (se agregan conforme se construyen) -->
-<!-- <script src="js/hub-planner.js"></script> -->
+<script src="js/hub-planner.js"></script>
 <!-- <script src="js/hub-inbox.js"></script> -->
 <!-- <script src="js/hub-metas.js"></script> -->
 <!-- <script src="js/hub-finanzas.js"></script> -->
@@ -507,7 +507,6 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 
 <script>
 // Stubs temporales para módulos aún no construidos
-window.HubPlanner  = { init(){}, refresh(){}, navDay(){}, goToday(){}, saveIntencion(){} };
 window.HubInbox    = { init(){}, refresh(){}, setFilter(){} };
 window.HubMetas    = { init(){}, refresh(){}, showAddForm(){ document.getElementById('addMetaForm').style.display='block'; }, save(){} };
 window.HubHealth   = { init(){}, refresh(){}, saveNotas(){} };
