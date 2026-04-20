@@ -234,12 +234,7 @@ window.HubCore = (function () {
   function init() {
     initKeyboard();
 
-    // Restaurar última página
-    const lastPage = lg('hub_last_page', 'dashboard');
-    if (lastPage && lastPage !== 'dashboard') {
-      navTo(null, lastPage);
-    }
-
+  
     // Bind FAB
     const fab = document.getElementById('hubFab');
     if (fab) fab.addEventListener('click', openFab);
