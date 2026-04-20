@@ -62,15 +62,11 @@ window.HubCore = (function () {
     // Inicializar módulo
     const modules = {
       planner:  () => window.HubPlanner?.init(),
-      inbox:    () => window.HubInbox?.init(),
       metas:    () => window.HubMetas?.init(),
       health:   () => window.HubHealth?.init(),
       finanzas: () => window.HubFinanzas?.init(),
     };
     if (modules[page]) modules[page]();
-
-    // Guardar última página visitada
-    ls('hub_last_page', page);
   }
 
   function goPortal() {
