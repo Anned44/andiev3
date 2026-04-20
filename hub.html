@@ -12,6 +12,7 @@
 <link rel="stylesheet" href="css/hub-dashboard.css">
 <link rel="stylesheet" href="css/hub-planner.css">
 <link rel="stylesheet" href="css/hub-inbox.css">
+
 <!-- Próximamente -->
 <!-- <link rel="stylesheet" href="css/hub-metas.css"> -->
 <!-- <link rel="stylesheet" href="css/hub-finanzas.css"> -->
@@ -368,6 +369,7 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 <script src="js/hub-core.js" defer></script>
 <script src="js/hub-dashboard.js" defer></script>
 <script src="js/hub-planner.js" defer></script>
+
 <script src="js/hub-inbox.js" defer></script>
 <!-- Próximamente -->
 <!-- <script src="js/hub-metas.js" defer></script> -->
@@ -389,7 +391,7 @@ window.addEventListener('load', () => {
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     const dashBtn = document.querySelector('[title="Dashboard"]');
     if (dashBtn) dashBtn.classList.add('active');
-  }, 50);
+  }, 500);
 });
 </script>
 
