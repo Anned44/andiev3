@@ -380,14 +380,16 @@ window.HubHealth   = { init(){}, refresh(){}, saveNotas(){} };
 window.HubFinanzas = { init(){}, refresh(){}, navMonth(){}, addMovimiento(){} };
 
 window.addEventListener('load', () => {
-  // Forzar dashboard antes de init
-  document.querySelectorAll('.hub-page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-dashboard').classList.add('active');
-  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
-  document.querySelector('[title="Dashboard"]').classList.add('active');
-
   HubCore.init();
   HubDashboard.init();
+  // Forzar dashboard después de que todos los módulos inicialicen
+  setTimeout(() => {
+    document.querySelectorAll('.hub-page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-dashboard').classList.add('active');
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    const dashBtn = document.querySelector('[title="Dashboard"]');
+    if (dashBtn) dashBtn.classList.add('active');
+  }, 50);
 });
 </script>
 
