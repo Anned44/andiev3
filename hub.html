@@ -10,29 +10,25 @@
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/hub-layout.css">
 <link rel="stylesheet" href="css/hub-dashboard.css">
-<!-- Módulos (se agregan conforme se construyen) -->
 <link rel="stylesheet" href="css/hub-planner.css">
-<!-- <link rel="stylesheet" href="css/hub-inbox.css"> -->
+<link rel="stylesheet" href="css/hub-inbox.css">
+<!-- Próximamente -->
 <!-- <link rel="stylesheet" href="css/hub-metas.css"> -->
 <!-- <link rel="stylesheet" href="css/hub-finanzas.css"> -->
 <!-- <link rel="stylesheet" href="css/hub-health.css"> -->
 
 <style>
-/* Estilos temporales inline hasta que cada módulo tenga su CSS */
-
 /* FAB campos condicionales */
-.fab-conditional { max-height:0; overflow:hidden; transition:max-height .3s ease, opacity .25s ease; opacity:0; }
-.fab-conditional.visible { max-height:200px; opacity:1; }
-.fab-row-2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
-.fab-toggle-row { display:flex; align-items:center; gap:10px; }
-.fab-toggle { background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--muted2);font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;cursor:pointer;transition:all .15s; }
-.fab-toggle.on { background:var(--s3);border-color:rgba(155,122,184,.4);color:var(--muse); }
-.fab-toggle-hint { font-family:var(--mono);font-size:9px;color:var(--muted); }
+.fab-conditional{max-height:0;overflow:hidden;transition:max-height .3s ease,opacity .25s ease;opacity:0;}
+.fab-conditional.visible{max-height:200px;opacity:1;}
+.fab-row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.fab-toggle-row{display:flex;align-items:center;gap:10px;}
+.fab-toggle{background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--muted2);font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;cursor:pointer;transition:all .15s;}
+.fab-toggle.on{background:var(--s3);border-color:rgba(155,122,184,.4);color:var(--muse);}
+.fab-toggle-hint{font-family:var(--mono);font-size:9px;color:var(--muted);}
+.stub-page{padding:40px 0;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;}
 
-/* Stub pages */
-.stub-page { padding:40px 0; text-align:center; font-family:var(--mono); font-size:10px; color:var(--muted); letter-spacing:.1em; }
-
-/* Metas full (temporal) */
+/* Metas (temporal) */
 .meta-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:14px;}
 .meta-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .meta-card-name{font-size:14px;color:var(--text2);}
@@ -42,7 +38,7 @@
 .meta-card-footer{display:flex;align-items:center;gap:12px;}
 input[type=range]{flex:1;accent-color:var(--hub);}
 
-/* Health trackers (temporal) */
+/* Health (temporal) */
 .health-trackers{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-bottom:20px;}
 .tracker-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;}
 .tracker-icon{font-size:1.8rem;display:block;margin-bottom:8px;}
@@ -58,7 +54,7 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 .tracker-day-bar{width:100%;border-radius:4px;transition:height .6s ease;}
 .tracker-day-lbl{font-family:var(--mono);font-size:7px;color:var(--muted);}
 
-/* Finanzas full (temporal) */
+/* Finanzas (temporal) */
 .fin-month-nav{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
 .fin-month-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted2);font-family:var(--mono);font-size:12px;padding:6px 14px;cursor:pointer;transition:all .15s;}
 .fin-month-btn:hover{color:var(--text);border-color:var(--bord2);}
@@ -83,84 +79,11 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 .fin-mov-cat{font-family:var(--mono);font-size:7px;letter-spacing:.08em;text-transform:uppercase;padding:2px 7px;border-radius:4px;background:var(--s3);color:var(--muted2);flex-shrink:0;}
 .fin-mov-desc{flex:1;font-size:12px;color:var(--text);}
 .fin-mov-date{font-family:var(--mono);font-size:8px;color:var(--muted);flex-shrink:0;}
-
-/* Inbox full (temporal) */
-.inbox-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
-.istat{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;}
-.istat-num{font-family:var(--mono);font-size:1.8rem;font-weight:400;color:var(--text2);display:block;margin-bottom:5px;}
-.istat-lbl{font-family:var(--mono);font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;}
-.inbox-filters{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:20px;}
-.ifilter{background:var(--s2);border:1px solid var(--border);border-radius:20px;color:var(--muted2);font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;padding:5px 12px;cursor:pointer;transition:all .15s;}
-.ifilter:hover{color:var(--text);border-color:var(--bord2);}
-.ifilter.active{background:var(--s3);color:var(--hub);border-color:rgba(90,122,170,.4);}
-.inbox-card{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:16px 18px;margin-bottom:10px;transition:border-color .2s;}
-.inbox-card:hover{border-color:var(--bord2);}
-.inbox-card-top{display:flex;align-items:flex-start;gap:12px;margin-bottom:12px;}
-.inbox-card-text{flex:1;font-size:13px;color:var(--text);line-height:1.5;}
-.inbox-card-date{font-family:var(--mono);font-size:8px;color:var(--muted);flex-shrink:0;}
-.inbox-card-actions{display:flex;gap:6px;flex-wrap:wrap;}
-.iaction{background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--muted2);font-family:var(--mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:5px 11px;cursor:pointer;transition:all .15s;}
-.iaction:hover{color:var(--text);border-color:var(--bord2);}
-.iaction.procesar:hover{color:var(--green);border-color:rgba(90,138,106,.4);}
-.iaction.eliminar:hover{color:var(--pink);border-color:rgba(200,110,138,.4);}
-
-/* Planner full (temporal — se reemplaza con hub-planner.css) */
-.pln-nav{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
-.pln-nav-btn{background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted2);font-family:var(--mono);font-size:12px;padding:6px 14px;cursor:pointer;transition:all .15s;}
-.pln-nav-btn:hover{color:var(--text);border-color:var(--bord2);}
-.pln-nav-date{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text);min-width:220px;text-align:center;}
-.pln-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;}
-.pln-stat{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:20px;text-align:center;}
-.pln-stat-num{font-family:var(--mono);font-size:1.8rem;font-weight:400;color:var(--text2);display:block;margin-bottom:5px;}
-.pln-stat-lbl{font-family:var(--mono);font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);display:block;}
-.pln-intencion{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:18px 20px;margin-bottom:20px;}
-.pln-intencion-label{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
-.pln-intencion-input{width:100%;background:none;border:none;outline:none;font-family:var(--serif);font-style:italic;font-size:1.1rem;color:var(--text);line-height:1.6;}
-.pln-intencion-input::placeholder{color:var(--muted);}
-.pln-block-card{background:var(--s1);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:16px;}
-.pln-block-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;}
-.pln-block-title{display:flex;align-items:center;gap:10px;}
-.pln-block-icon{font-size:1.2rem;}
-.pln-block-name{font-family:var(--mono);font-size:10px;letter-spacing:.15em;text-transform:uppercase;color:var(--text);}
-.pln-block-time{font-family:var(--mono);font-size:9px;color:var(--muted);}
-.pln-block-count{font-family:var(--mono);font-size:9px;color:var(--muted);}
-.pln-block-collapse{background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;padding:0 4px;transition:color .15s;}
-.pln-block-collapse:hover{color:var(--text);}
-.pln-items-list{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;min-height:32px;}
-.pln-entry{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--s2);border-radius:10px;transition:background .15s;cursor:default;}
-.pln-entry:hover{background:var(--s3);}
-.pln-entry-check{width:16px;height:16px;border:1px solid var(--bord2);border-radius:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:9px;flex-shrink:0;transition:all .15s;color:var(--hub);}
-.pln-entry-check.done{background:rgba(90,122,170,.2);border-color:var(--hub);}
-.pln-entry-main{flex:1;}
-.pln-entry-text{font-size:12px;color:var(--text);margin-bottom:3px;}
-.pln-entry-text.done{text-decoration:line-through;color:var(--muted);}
-.pln-entry-meta{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
-.pln-entry-type{font-family:var(--mono);font-size:7px;letter-spacing:.06em;text-transform:uppercase;padding:2px 6px;border-radius:4px;}
-.pln-entry-prio{width:6px;height:6px;border-radius:50%;flex-shrink:0;}
-.pln-entry-time{font-family:var(--mono);font-size:8px;color:var(--muted);}
-.pln-entry-del{background:none;border:none;color:var(--muted);cursor:pointer;font-size:13px;padding:0 2px;transition:color .15s;}
-.pln-entry-del:hover{color:var(--pink);}
-.pln-add-form{background:var(--s2);border-radius:12px;padding:14px 16px;}
-.pln-add-row1{display:flex;gap:8px;margin-bottom:12px;}
-.pln-add-input{flex:1;background:var(--s3);border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:var(--sans);font-size:12px;padding:9px 12px;outline:none;transition:border-color .15s;}
-.pln-add-input:focus{border-color:var(--bord2);}
-.pln-add-input::placeholder{color:var(--muted);}
-.pln-add-submit{background:var(--s3);border:1px solid var(--bord2);border-radius:8px;color:var(--hub);font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:9px 16px;cursor:pointer;transition:all .15s;flex-shrink:0;}
-.pln-add-submit:hover{background:rgba(90,122,170,.15);color:var(--text2);}
-.pln-add-row2{display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
-.pln-chip-label{font-family:var(--mono);font-size:8px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);}
-.pln-chip{background:var(--s3);border:1px solid var(--border);border-radius:6px;color:var(--muted2);font-family:var(--mono);font-size:8px;letter-spacing:.08em;text-transform:uppercase;padding:4px 10px;cursor:pointer;transition:all .15s;}
-.pln-chip:hover{color:var(--text);border-color:var(--bord2);}
-.pln-chip.sel{background:rgba(90,122,170,.15);color:var(--hub);border-color:rgba(90,122,170,.4);}
-.pln-chip.prio-alta.sel{background:rgba(200,110,138,.15);color:var(--pink);border-color:rgba(200,110,138,.4);}
-.pln-chip.prio-media.sel{background:rgba(200,150,90,.15);color:var(--studio);border-color:rgba(200,150,90,.4);}
-.pln-chip.prio-baja.sel{background:rgba(90,138,106,.15);color:var(--green);border-color:rgba(90,138,106,.4);}
-.pln-sep{color:var(--muted);font-size:10px;padding:0 2px;}
 </style>
 </head>
 <body>
 
-<!-- ── HEADER ── -->
+<!-- HEADER -->
 <header class="hub-header">
   <div class="header-left">
     <div class="header-logo" onclick="HubCore.navTo(null,'dashboard')" title="Dashboard">
@@ -176,42 +99,20 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 
 <div class="body-wrap">
 
-<!-- ── SIDEBAR ── -->
+<!-- SIDEBAR -->
 <nav class="sidebar">
-  <button class="nav-btn active" onclick="HubCore.navTo(this,'dashboard')" title="Dashboard">
-    <span class="nav-icon">⌂</span>
-    <span class="nav-label">Dashboard</span>
-  </button>
-  <button class="nav-btn" onclick="HubCore.navTo(this,'planner')" title="Planner">
-    <span class="nav-icon">◧</span>
-    <span class="nav-label">Planner</span>
-  </button>
-  <button class="nav-btn" onclick="HubCore.navTo(this,'inbox')" title="Inbox">
-    <span class="nav-icon">✉︎</span>
-    <span class="nav-label">Inbox</span>
-  </button>
+  <button class="nav-btn active" onclick="HubCore.navTo(this,'dashboard')" title="Dashboard"><span class="nav-icon">⌂</span><span class="nav-label">Dashboard</span></button>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'planner')" title="Planner"><span class="nav-icon">◧</span><span class="nav-label">Planner</span></button>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'inbox')" title="Inbox"><span class="nav-icon">✉︎</span><span class="nav-label">Inbox</span></button>
   <div class="nav-sep"></div>
-  <button class="nav-btn" onclick="HubCore.navTo(this,'metas')" title="Metas">
-    <span class="nav-icon">◎</span>
-    <span class="nav-label">Metas</span>
-  </button>
-  <button class="nav-btn" onclick="HubCore.navTo(this,'health')" title="Health">
-    <span class="nav-icon">✤</span>
-    <span class="nav-label">Health</span>
-  </button>
-  <button class="nav-btn" onclick="HubCore.navTo(this,'finanzas')" title="Finanzas">
-    <span class="nav-icon">₿</span>
-    <span class="nav-label">Finanzas</span>
-  </button>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'metas')" title="Metas"><span class="nav-icon">◎</span><span class="nav-label">Metas</span></button>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'health')" title="Health"><span class="nav-icon">✤</span><span class="nav-label">Health</span></button>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'finanzas')" title="Finanzas"><span class="nav-icon">₿</span><span class="nav-label">Finanzas</span></button>
   <div class="nav-sep"></div>
-  <button class="nav-btn" onclick="HubCore.navTo(this,'diario')" title="Diario">
-    <span class="nav-icon">✎</span>
-    <span class="nav-label">Diario</span>
-  </button>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'diario')" title="Diario"><span class="nav-icon">✎</span><span class="nav-label">Diario</span></button>
   <div class="nav-spacer"></div>
 </nav>
 
-<!-- ── MAIN ── -->
 <main class="hub-main">
 
   <!-- DASHBOARD -->
@@ -219,55 +120,37 @@ input[type=range]{flex:1;accent-color:var(--hub);}
     <div class="welcome-bar">
       <div>
         <div class="welcome-greeting" id="hubGreeting"></div>
-        <div class="welcome-date"     id="hubDate"></div>
-        <div class="welcome-quote"    id="hubQuote"></div>
+        <div class="welcome-date" id="hubDate"></div>
+        <div class="welcome-quote" id="hubQuote"></div>
       </div>
       <div class="clima-card">
         <span class="clima-emoji" id="climaEmoji">⋯</span>
-        <span class="clima-temp"  id="climaTemp">—°</span>
-        <span class="clima-desc"  id="climaDesc">cargando</span>
+        <span class="clima-temp" id="climaTemp">—°</span>
+        <span class="clima-desc" id="climaDesc">cargando</span>
         <span class="clima-city">Chihuahua, MX</span>
       </div>
     </div>
-
     <div class="wgrid">
       <div class="widget w7">
-        <div class="wtitle">
-          <span>◧ planner de hoy</span>
-          <button class="wlink" onclick="HubCore.navTo(document.querySelector('[title=Planner]'),'planner')">ver completo →</button>
-        </div>
+        <div class="wtitle"><span>◧ planner de hoy</span><button class="wlink" onclick="HubCore.navTo(document.querySelector('[title=Planner]'),'planner')">ver completo →</button></div>
         <div id="dashPlannerBlocks"></div>
       </div>
-
       <div class="widget w5">
-        <div class="wtitle">
-          <span>✉︎ inbox reciente</span>
-          <button class="wlink" onclick="HubCore.navTo(document.querySelector('[title=Inbox]'),'inbox')">ver todos →</button>
-        </div>
+        <div class="wtitle"><span>✉︎ inbox reciente</span><button class="wlink" onclick="HubCore.navTo(document.querySelector('[title=Inbox]'),'inbox')">ver todos →</button></div>
         <div id="dashInboxItems"></div>
       </div>
-
       <div class="widget w5">
         <div class="wtitle"><span>⊛ proyectos</span></div>
         <div id="dashProyItems"></div>
       </div>
-
       <div class="widget w4">
-        <div class="wtitle">
-          <span>◎ metas</span>
-          <button class="wlink" onclick="HubCore.navTo(document.querySelector('[title=Metas]'),'metas')">ver todas →</button>
-        </div>
+        <div class="wtitle"><span>◎ metas</span><button class="wlink" onclick="HubCore.navTo(document.querySelector('[title=Metas]'),'metas')">ver todas →</button></div>
         <div id="dashMetasList"></div>
       </div>
-
       <div class="widget w3">
-        <div class="wtitle">
-          <span>₿ finanzas</span>
-          <button class="wlink" onclick="HubCore.navTo(document.querySelector('[title=Finanzas]'),'finanzas')">detalle →</button>
-        </div>
+        <div class="wtitle"><span>₿ finanzas</span><button class="wlink" onclick="HubCore.navTo(document.querySelector('[title=Finanzas]'),'finanzas')">detalle →</button></div>
         <div class="dash-fin-grid" id="dashFinGrid"></div>
       </div>
-
       <div class="widget w12">
         <div class="wtitle">
           <span>calendario</span>
@@ -413,7 +296,6 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 <div id="fabOverlay" class="fab-overlay" onclick="HubCore.closeFabIfOutside(event)">
   <div class="fab-modal">
     <div class="fab-modal-title">Captura rápida</div>
-
     <div class="fab-field">
       <span class="fab-field-label">Tipo</span>
       <div class="fab-select-wrap">
@@ -426,12 +308,9 @@ input[type=range]{flex:1;accent-color:var(--hub);}
         <span class="fab-select-arrow">▾</span>
       </div>
     </div>
-
     <div class="fab-field">
       <textarea class="input-base" id="fabText" placeholder="¿Qué tienes en mente?..." style="resize:none;min-height:80px;line-height:1.65"></textarea>
     </div>
-
-    <!-- Campos: Evento -->
     <div class="fab-conditional" id="fabEventoFields">
       <div class="fab-row-2" style="margin-bottom:.8rem">
         <div class="fab-field">
@@ -451,15 +330,12 @@ input[type=range]{flex:1;accent-color:var(--hub);}
         </div>
       </div>
     </div>
-
-    <!-- Campos: Proyecto -->
     <div class="fab-conditional" id="fabProyectoFields">
       <div class="fab-field">
         <span class="fab-field-label">Nombre del proyecto</span>
         <input type="text" class="input-base" id="fabProyNombre" placeholder="nombre corto...">
       </div>
     </div>
-
     <div class="fab-field" id="fabPrioField">
       <span class="fab-field-label">Prioridad</span>
       <div class="fab-select-wrap">
@@ -472,19 +348,13 @@ input[type=range]{flex:1;accent-color:var(--hub);}
         <span class="fab-select-arrow">▾</span>
       </div>
     </div>
-
     <div class="fab-field">
       <span class="fab-field-label">Destino</span>
       <div class="fab-dest-row">
-        <button class="fab-dest-chip sel" data-dest="inbox" onclick="HubCore.selectFabDest(this)">
-          <span class="chip-dot"></span> Inbox
-        </button>
-        <button class="fab-dest-chip" data-dest="planner" onclick="HubCore.selectFabDest(this)">
-          <span class="chip-dot"></span> → Planner
-        </button>
+        <button class="fab-dest-chip sel" data-dest="inbox" onclick="HubCore.selectFabDest(this)"><span class="chip-dot"></span> Inbox</button>
+        <button class="fab-dest-chip" data-dest="planner" onclick="HubCore.selectFabDest(this)"><span class="chip-dot"></span> → Planner</button>
       </div>
     </div>
-
     <div class="fab-actions">
       <button class="btn-ghost" onclick="HubCore.closeFab()">cancelar</button>
       <button class="btn-primary" onclick="HubCore.submitFab()">guardar</button>
@@ -492,28 +362,26 @@ input[type=range]{flex:1;accent-color:var(--hub);}
   </div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
-<!-- Scripts — orden importante -->
-<script src="js/hub-core.js"></script>
-<script src="js/hub-dashboard.js"></script>
-<!-- Módulos (se agregan conforme se construyen) -->
-<script src="js/hub-planner.js"></script>
-<!-- <script src="js/hub-inbox.js"></script> -->
-<!-- <script src="js/hub-metas.js"></script> -->
-<!-- <script src="js/hub-finanzas.js"></script> -->
-<!-- <script src="js/hub-health.js"></script> -->
+<!-- Scripts — defer garantiza orden de carga -->
+<script src="js/hub-core.js" defer></script>
+<script src="js/hub-dashboard.js" defer></script>
+<script src="js/hub-planner.js" defer></script>
+<script src="js/hub-inbox.js" defer></script>
+<!-- Próximamente -->
+<!-- <script src="js/hub-metas.js" defer></script> -->
+<!-- <script src="js/hub-finanzas.js" defer></script> -->
+<!-- <script src="js/hub-health.js" defer></script> -->
 
 <script>
-// Stubs temporales para módulos aún no construidos
-window.HubInbox    = { init(){}, refresh(){}, setFilter(){} };
+// Stubs para módulos aún no construidos
 window.HubMetas    = { init(){}, refresh(){}, showAddForm(){ document.getElementById('addMetaForm').style.display='block'; }, save(){} };
 window.HubHealth   = { init(){}, refresh(){}, saveNotas(){} };
 window.HubFinanzas = { init(){}, refresh(){}, navMonth(){}, addMovimiento(){} };
 
-// Inicializar
-document.addEventListener('DOMContentLoaded', () => {
+// Init — espera a que todos los defer hayan cargado
+window.addEventListener('load', () => {
   HubCore.init();
   HubDashboard.init();
 });
