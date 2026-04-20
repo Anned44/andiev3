@@ -103,7 +103,7 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 <nav class="sidebar">
   <button class="nav-btn active" onclick="HubCore.navTo(this,'dashboard')" title="Dashboard"><span class="nav-icon">⌂</span><span class="nav-label">Dashboard</span></button>
   <button class="nav-btn" onclick="HubCore.navTo(this,'planner')" title="Planner"><span class="nav-icon">◧</span><span class="nav-label">Planner</span></button>
-  <button class="nav-btn" onclick="HubCore.navTo(this,'inbox')" title="Inbox"><span class="nav-icon">✉︎</span><span class="nav-label">Inbox</span></button>
+  <button class="nav-btn" onclick="HubCore.navTo(this,'inbox');HubInbox.init();" title="Inbox"><span class="nav-icon">✉︎</span><span class="nav-label">Inbox</span></button>
   <div class="nav-sep"></div>
   <button class="nav-btn" onclick="HubCore.navTo(this,'metas')" title="Metas"><span class="nav-icon">◎</span><span class="nav-label">Metas</span></button>
   <button class="nav-btn" onclick="HubCore.navTo(this,'health')" title="Health"><span class="nav-icon">✤</span><span class="nav-label">Health</span></button>
