@@ -375,17 +375,19 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 <!-- <script src="js/hub-health.js" defer></script> -->
 
 <script>
-// Stubs para módulos aún no construidos
 window.HubMetas    = { init(){}, refresh(){}, showAddForm(){ document.getElementById('addMetaForm').style.display='block'; }, save(){} };
 window.HubHealth   = { init(){}, refresh(){}, saveNotas(){} };
 window.HubFinanzas = { init(){}, refresh(){}, navMonth(){}, addMovimiento(){} };
 
-// Init — espera a que todos los defer hayan cargado
 window.addEventListener('load', () => {
+  // Forzar dashboard antes de init
+  document.querySelectorAll('.hub-page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-dashboard').classList.add('active');
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('[title="Dashboard"]').classList.add('active');
+
   HubCore.init();
   HubDashboard.init();
-  // Siempre arrancar en dashboard
-  HubCore.navTo(document.querySelector('[title="Dashboard"]'), 'dashboard');
 });
 </script>
 
