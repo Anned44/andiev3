@@ -384,6 +384,8 @@ window.HubFinanzas = { init(){}, refresh(){}, navMonth(){}, addMovimiento(){} };
 window.addEventListener('load', () => {
   HubCore.init();
   HubDashboard.init();
+  // Siempre arrancar en dashboard
+  HubCore.navTo(document.querySelector('[title="Dashboard"]'), 'dashboard');
 });
 </script>
 
