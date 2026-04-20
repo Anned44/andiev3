@@ -233,9 +233,6 @@ window.HubCore = (function () {
   /* ── Init ── */
   function init() {
     initKeyboard();
-
-  
-    // Bind FAB
     const fab = document.getElementById('hubFab');
     if (fab) fab.addEventListener('click', openFab);
   }
