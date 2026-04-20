@@ -1,0 +1,116 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   HUB-PLANNER.CSS — Andy.net v3
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ── Entries ── */
+.pln-entry {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 11px 14px;
+  background: var(--s2);
+  border-radius: 10px;
+  transition: background .15s, opacity .2s;
+  cursor: default;
+  border: 1px solid transparent;
+}
+.pln-entry:hover { background: var(--s3); border-color: var(--border); }
+.pln-entry.done-entry { opacity: .6; }
+.pln-entry[draggable="true"] { cursor: grab; }
+.pln-entry[draggable="true"]:active { cursor: grabbing; }
+
+/* drag over state */
+.pln-items-list.drag-over {
+  background: rgba(90,122,170,.06);
+  border-radius: 10px;
+  outline: 1px dashed rgba(90,122,170,.3);
+}
+
+/* ── Entry meta ── */
+.pln-entry-notes {
+  font-size: 11px;
+  color: var(--muted2);
+  font-style: italic;
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+/* ── Tags ── */
+.pln-tag {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  background: rgba(155,122,184,.15);
+  color: var(--muse);
+  padding: 2px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background .15s;
+}
+.pln-tag:hover { background: rgba(155,122,184,.3); }
+
+/* ── Subtasks mini ── */
+.pln-subtasks-mini {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.pln-subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.pln-subtask-check {
+  width: 13px; height: 13px;
+  border: 1px solid var(--bord2);
+  border-radius: 3px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 7px; flex-shrink: 0;
+  transition: all .15s;
+  color: var(--hub);
+}
+.pln-subtask-check.done { background: rgba(90,122,170,.2); border-color: var(--hub); }
+.pln-subtask-text { font-size: 11px; color: var(--muted2); }
+.pln-subtask-text.done { text-decoration: line-through; color: var(--muted); }
+
+/* ── Entry actions (hover) ── */
+.pln-entry-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity .15s;
+  flex-shrink: 0;
+}
+.pln-entry:hover .pln-entry-actions { opacity: 1; }
+
+/* ── Extra fields ── */
+.pln-extra-fields {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px solid var(--border);
+  animation: fadeIn .2s ease;
+}
+.pln-extra-section {
+  margin-bottom: 10px;
+}
+.pln-extra-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 640px) {
+  .pln-stats { grid-template-columns: 1fr !important; }
+  .health-trackers { grid-template-columns: 1fr !important; }
+  .pln-add-row2 { gap: 4px; }
+  .pln-chip { padding: 3px 7px; }
+}
