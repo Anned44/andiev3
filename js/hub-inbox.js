@@ -1,148 +1,157 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    HUB-INBOX.JS — Andy.net v3
-   Inbox completo: filtros, contadores,
-   procesar, enviar al planner, eliminar
+   Estilo basado en app original
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 window.HubInbox = (function () {
   'use strict';
 
-  // Acceso lazy a HubCore para evitar problemas de orden de carga
   const _core = () => window.HubCore;
   const lg = (k, f) => _core().lg(k, f);
   const ls = (k, v) => _core().ls(k, v);
   const showToast = (m) => _core().showToast(m);
   const triggerAutosave = () => _core().triggerAutosave();
 
-  const MN = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+  const MN = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 
-  let currentFilter = 'todas';
+  const IBX_TAGS = {
+    captura: { color:'#9a8aaa', border:'rgba(154,138,170,.4)', emoji:'📥' },
+    idea:    { color:'#c8965a', border:'rgba(200,150,90,.4)',  emoji:'💡' },
+    tarea:   { color:'#5a7aaa', border:'rgba(90,122,170,.4)', emoji:'☐'  },
+    nota:    { color:'#7a9a7a', border:'rgba(122,154,122,.4)',emoji:'✎'  },
+    evento:  { color:'#9b7ab8', border:'rgba(155,122,184,.4)',emoji:'◈'  },
+  };
 
-  /* ━━ STORAGE ━━ */
+  let ibxFilter    = 'todas';
+  let ibxTagFilter = 'all';
+
+  /* ━━ DATA ━━ */
   function getInbox() { return lg('dash_inbox', []); }
   function saveInbox(data) { ls('dash_inbox', data); triggerAutosave(); }
 
   /* ━━ STATS ━━ */
   function updateStats() {
-    const inbox = getInbox();
-    const pend  = inbox.filter(i => i.status === 'pendiente').length;
-    const proc  = inbox.filter(i => i.status === 'procesado').length;
-    const set   = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-    set('istatPend',  pend);
-    set('istatTodos', inbox.length);
-    set('istatProc',  proc);
-  }
-
-  /* ━━ FILTROS ━━ */
-  function setFilter(btn) {
-    document.querySelectorAll('.ifilter').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
-    currentFilter = btn.dataset.f;
-    renderList();
+    const all  = getInbox();
+    const pend = all.filter(i => i.status !== 'procesado').length;
+    const proc = all.filter(i => i.status === 'procesado').length;
+    const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    s('ibxNumPend', pend);
+    s('ibxNumTodos', all.length);
+    s('ibxNumProc', proc);
+    // legacy ids
+    s('istatPend', pend);
+    s('istatTodos', all.length);
+    s('istatProc', proc);
   }
 
   /* ━━ RENDER ━━ */
-  function renderList() {
+  function render() {
     const container = document.getElementById('inboxList');
     if (!container) return;
 
-    const inbox = getInbox();
-    let items = currentFilter === 'todas'
-      ? inbox
-      : inbox.filter(i => (i.type || 'nota') === currentFilter);
+    let items = getInbox();
+    if (ibxFilter === 'pendientes') items = items.filter(i => i.status !== 'procesado');
+    if (ibxFilter === 'procesados') items = items.filter(i => i.status === 'procesado');
+    if (ibxTagFilter !== 'all')     items = items.filter(i => (i.type || 'captura') === ibxTagFilter);
 
     if (!items.length) {
-      container.innerHTML = '<div class="empty-state">sin items ✓</div>';
+      container.innerHTML = `<div class="ibxs-empty">
+        <div class="ibxs-empty-ico">📥</div>
+        <div class="ibxs-empty-txt">nada aquí</div>
+      </div>`;
       return;
     }
 
-    container.innerHTML = items.map(i => renderCard(i)).join('');
+    container.innerHTML = items.map(item => {
+      const tag = IBX_TAGS[item.type || 'captura'] || IBX_TAGS.captura;
+      const d = new Date(item.time || Date.now());
+      const dateStr = isNaN(d) ? '' : d.getDate() + ' ' + MN[d.getMonth()];
+      const isDone  = item.status === 'procesado';
+      return `<div class="ibxs-card${isDone ? ' processed' : ''}" id="ibxcard-${item.id}">
+        <div class="ibxs-card-top">
+          <span class="ibxs-card-tag" style="color:${tag.color};border-color:${tag.border}" title="tipo">${tag.emoji} ${item.type || 'captura'}</span>
+          <span class="ibxs-card-text">${escHtml(item.text)}</span>
+          <span class="ibxs-card-date">${dateStr}</span>
+        </div>
+        <div class="ibxs-card-actions">
+          <button class="ibxs-act a-done" onclick="HubInbox.markDone(${item.id})">${isDone ? '↩ restaurar' : '✓ procesar'}</button>
+          <button class="ibxs-act a-pln"  onclick="HubInbox.openPicker('ibxpln-${item.id}')">📅 planner</button>
+          <button class="ibxs-act a-del"  onclick="HubInbox.del(${item.id})">🗑 eliminar</button>
+        </div>
+        <div class="ibxs-picker" id="ibxpln-${item.id}">
+          <span class="ibxs-pick-label">día</span>
+          <select class="ibxs-pick-sel" id="ibxDay-${item.id}">
+            <option value="0">hoy</option>
+            <option value="1">mañana</option>
+          </select>
+          <span class="ibxs-pick-label">bloque</span>
+          <select class="ibxs-pick-sel" id="ibxBlock-${item.id}">
+            <option value="morning">🌅 Mañana</option>
+            <option value="afternoon">🌤 Tarde</option>
+            <option value="night">🌙 Noche</option>
+          </select>
+          <button class="ibxs-pick-go" onclick="HubInbox.sendToPlanner(${item.id})">→ enviar</button>
+        </div>
+      </div>`;
+    }).join('');
   }
 
-  function renderCard(i) {
-    const d = new Date(i.time);
-    const dateStr = d.getDate() + ' ' + MN[d.getMonth()].slice(0, 3);
-    const isProcesado = i.status === 'procesado';
-
-    return `<div class="inbox-card${isProcesado ? ' procesado' : ''}" id="ic-${i.id}">
-      <div class="inbox-card-top">
-        <span class="badge badge-${i.type||'nota'}">${i.type||'nota'}</span>
-        <div class="inbox-card-body">
-          <div class="inbox-card-text">${i.text}</div>
-          <div class="inbox-card-meta">
-            ${i.prio ? `<span class="inbox-meta-prio" style="background:${PRIO_BG[i.prio]};color:${PRIO_COLOR[i.prio]}">↑ ${i.prio}</span>` : ''}
-            <span class="inbox-meta-date">${dateStr}</span>
-            ${isProcesado ? '<span class="inbox-meta-done">✓ procesado</span>' : ''}
-          </div>
-        </div>
-      </div>
-      <div class="inbox-card-actions">
-        ${!isProcesado ? `
-          <button class="iaction procesar" onclick="HubInbox.procesar(${i.id})">✓ procesar</button>
-          <button class="iaction planner"  onclick="HubInbox.toPlanner(${i.id})">◧ planner</button>
-        ` : ''}
-        <button class="iaction eliminar" onclick="HubInbox.eliminar(${i.id})">× eliminar</button>
-      </div>
-
-      <!-- Mini picker de planner (oculto por defecto) -->
-      <div class="inbox-planner-picker" id="picker-${i.id}" style="display:none">
-        <div class="picker-label">enviar a planner</div>
-        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
-          <div>
-            <div class="picker-sub-label">día</div>
-            <input type="date" class="picker-input" id="picker-date-${i.id}" value="${todayKey()}">
-          </div>
-          <div>
-            <div class="picker-sub-label">bloque</div>
-            <select class="picker-input" id="picker-block-${i.id}" style="appearance:none;-webkit-appearance:none">
-              <option value="morning">🌅 Mañana</option>
-              <option value="afternoon">🌤 Tarde</option>
-              <option value="night">🌙 Noche</option>
-            </select>
-          </div>
-        </div>
-        <div style="display:flex;gap:6px;margin-top:10px">
-          <button class="iaction procesar" onclick="HubInbox.confirmToPlanner(${i.id})">→ enviar</button>
-          <button class="iaction" onclick="HubInbox.closePicker(${i.id})">cancelar</button>
-        </div>
-      </div>
-    </div>`;
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
-  const PRIO_BG    = { alta:'rgba(200,110,138,.15)', media:'rgba(200,150,90,.15)', baja:'rgba(90,138,106,.15)' };
-  const PRIO_COLOR = { alta:'var(--pink)', media:'var(--studio)', baja:'var(--green)' };
+  /* ━━ FILTROS ━━ */
+  function setStatusFilter(btn, filter) {
+    document.querySelectorAll('.ibxs-stat').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ibxFilter = filter;
+    render();
+  }
+
+  function setTagFilter(btn, tag) {
+    document.querySelectorAll('.ibxs-tag').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ibxTagFilter = tag;
+    render();
+  }
+
+  // compatibilidad con filtros viejos
+  function setFilter(btn) {
+    document.querySelectorAll('.ifilter').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    ibxTagFilter = btn.dataset.f === 'todas' ? 'all' : btn.dataset.f;
+    render();
+  }
 
   /* ━━ ACCIONES ━━ */
-  function procesar(id) {
+  function markDone(id) {
     const inbox = getInbox();
     const it = inbox.find(i => i.id === id);
-    if (it) it.status = 'procesado';
+    if (!it) return;
+    it.status = it.status === 'procesado' ? 'pendiente' : 'procesado';
     saveInbox(inbox);
     updateStats();
-    renderList();
+    render();
     window.HubDashboard?.renderDashInbox?.();
-    showToast('✓ procesado');
+    showToast(it.status === 'procesado' ? '✓ procesado' : '↩ restaurado');
   }
 
-  function toPlanner(id) {
-    // Mostrar mini picker
-    document.querySelectorAll('.inbox-planner-picker').forEach(el => el.style.display = 'none');
-    const picker = document.getElementById('picker-' + id);
-    if (picker) picker.style.display = 'block';
+  function openPicker(pickerId) {
+    document.querySelectorAll('.ibxs-picker').forEach(p => p.classList.remove('open'));
+    const el = document.getElementById(pickerId);
+    if (el) el.classList.toggle('open');
   }
 
-  function closePicker(id) {
-    const picker = document.getElementById('picker-' + id);
-    if (picker) picker.style.display = 'none';
-  }
-
-  function confirmToPlanner(id) {
+  function sendToPlanner(id) {
     const inbox = getInbox();
     const it = inbox.find(i => i.id === id);
     if (!it) return;
 
-    const dateKey = document.getElementById('picker-date-' + id)?.value || todayKey();
-    const block   = document.getElementById('picker-block-' + id)?.value || 'morning';
+    const dayOffset = parseInt(document.getElementById('ibxDay-' + id)?.value || '0');
+    const block     = document.getElementById('ibxBlock-' + id)?.value || 'morning';
+    const d = new Date();
+    d.setDate(d.getDate() + dayOffset);
+    const dateKey = d.toISOString().slice(0, 10);
 
     const state = lg('appState', {});
     if (!state.plannerByDate) state.plannerByDate = {};
@@ -158,21 +167,21 @@ window.HubInbox = (function () {
     });
     ls('appState', state);
 
-    // Marcar como procesado
     it.status = 'procesado';
     saveInbox(inbox);
     updateStats();
-    renderList();
+    render();
+    document.querySelectorAll('.ibxs-picker').forEach(p => p.classList.remove('open'));
     window.HubDashboard?.renderDashInbox?.();
     window.HubDashboard?.renderDashPlanner?.();
-    showToast('→ enviado al planner · ' + block);
+    showToast('→ enviado al planner');
   }
 
-  function eliminar(id) {
+  function del(id) {
     const inbox = getInbox().filter(i => i.id !== id);
     saveInbox(inbox);
     updateStats();
-    renderList();
+    render();
     window.HubDashboard?.renderDashInbox?.();
     showToast('eliminado');
   }
@@ -180,29 +189,20 @@ window.HubInbox = (function () {
   /* ━━ REFRESH ━━ */
   function refresh() {
     updateStats();
-    renderList();
+    render();
   }
 
   /* ━━ INIT ━━ */
   function init() {
-    currentFilter = 'todas';
-    // Reset filtros UI
-    document.querySelectorAll('.ifilter').forEach(b => {
-      b.classList.toggle('active', b.dataset.f === 'todas');
-    });
+    ibxFilter    = 'todas';
+    ibxTagFilter = 'all';
     updateStats();
-    renderList();
+    render();
   }
 
-  /* ━━ API PÚBLICA ━━ */
   return {
-    init,
-    refresh,
-    setFilter,
-    procesar,
-    toPlanner,
-    closePicker,
-    confirmToPlanner,
-    eliminar,
+    init, refresh, setFilter,
+    setStatusFilter, setTagFilter,
+    markDone, openPicker, sendToPlanner, del,
   };
 })();
