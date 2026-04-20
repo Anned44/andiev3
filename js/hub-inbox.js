@@ -7,7 +7,12 @@
 window.HubInbox = (function () {
   'use strict';
 
-  const { lg, ls, todayKey, showToast, triggerAutosave } = window.HubCore;
+  // Acceso lazy a HubCore para evitar problemas de orden de carga
+  const _core = () => window.HubCore;
+  const lg = (k, f) => _core().lg(k, f);
+  const ls = (k, v) => _core().ls(k, v);
+  const showToast = (m) => _core().showToast(m);
+  const triggerAutosave = () => _core().triggerAutosave();
 
   const MN = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
 
