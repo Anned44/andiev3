@@ -1,0 +1,96 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   HUB-INBOX.CSS — Andy.net v3
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+.inbox-card {
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  transition: border-color .2s;
+}
+.inbox-card:hover { border-color: var(--bord2); }
+.inbox-card.procesado { opacity: .55; }
+
+.inbox-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.inbox-card-body { flex: 1; }
+.inbox-card-text {
+  font-size: 13px;
+  color: var(--text);
+  line-height: 1.5;
+  margin-bottom: 5px;
+}
+.inbox-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.inbox-meta-prio {
+  font-family: var(--mono);
+  font-size: 7px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.inbox-meta-date {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--muted);
+}
+.inbox-meta-done {
+  font-family: var(--mono);
+  font-size: 8px;
+  color: var(--green);
+  letter-spacing: .06em;
+}
+
+.inbox-card-actions {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* ── Planner picker ── */
+.inbox-planner-picker {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  animation: fadeIn .18s ease;
+}
+.picker-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: .15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.picker-sub-label {
+  font-family: var(--mono);
+  font-size: 8px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+.picker-input {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 7px 10px;
+  outline: none;
+  transition: border-color .15s;
+  cursor: pointer;
+}
+.picker-input:focus { border-color: var(--bord2); }
