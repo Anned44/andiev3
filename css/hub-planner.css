@@ -97,3 +97,66 @@
   .pln-add-row2 { gap:4px; }
   .pln-chip { padding:3px 7px; }
 }
+
+/* ── Date jump picker ── */
+.pln-date-jump {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted2);
+  font-family: var(--mono);
+  font-size: 10px;
+  padding: 6px 10px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+  width: 36px;
+  overflow: hidden;
+}
+.pln-date-jump:hover,
+.pln-date-jump:focus {
+  border-color: var(--bord2);
+  color: var(--text);
+  width: auto;
+}
+
+/* ── Entry editor inline ── */
+.pln-entry.editing {
+  border-color: rgba(155,122,184,.35) !important;
+  background: var(--s3) !important;
+}
+.pln-entry-editor {
+  background: var(--s2);
+  border: 1px solid var(--bord2);
+  border-radius: 12px;
+  padding: 16px;
+  margin: 4px 0 8px;
+  animation: fadeIn .18s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.pln-editor-input {
+  width: 100%;
+  background: var(--s1);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text2);
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 10px 12px;
+  outline: none;
+  transition: border-color .15s;
+}
+.pln-editor-input:focus { border-color: var(--bord2); }
+.pln-editor-row { display:flex; flex-direction:column; gap:4px; }
+.pln-editor-row2 { display:grid; grid-template-columns:1fr 1fr 2fr; gap:8px; }
+.pln-editor-chips { display:flex; gap:6px; flex-wrap:wrap; align-items:center; }
+.pln-editor-actions { display:flex; gap:8px; justify-content:flex-end; padding-top:4px; }
+.edit-tag { cursor:pointer; }
+.edit-tag:hover { background:rgba(200,110,138,.2); color:var(--pink); }
+
+@media (max-width:640px) {
+  .pln-editor-row2 { grid-template-columns:1fr 1fr; }
+  .pln-editor-row2 > div:last-child { grid-column:span 2; }
+}
