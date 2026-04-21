@@ -15,12 +15,16 @@ window.HubInbox = (function () {
   const MN = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 
   const IBX_TAGS = {
-    captura: { color:'#9a8aaa', border:'rgba(154,138,170,.4)', emoji:'📥' },
+    captura: { color:'#9a8aaa', border:'rgba(154,138,170,.4)', emoji:'✦'  },
     idea:    { color:'#c8965a', border:'rgba(200,150,90,.4)',  emoji:'💡' },
-    tarea:   { color:'#5a7aaa', border:'rgba(90,122,170,.4)', emoji:'☐'  },
-    nota:    { color:'#7a9a7a', border:'rgba(122,154,122,.4)',emoji:'✎'  },
+    tarea:   { color:'#5a7aaa', border:'rgba(90,122,170,.4)', emoji:'📋' },
+    nota:    { color:'#7a9a7a', border:'rgba(122,154,122,.4)',emoji:'📝' },
+    estudio: { color:'#5a8a6a', border:'rgba(90,138,106,.4)', emoji:'🌿' },
+    loveship:{ color:'#c86e8a', border:'rgba(200,110,138,.4)',emoji:'♡'  },
+    urgente: { color:'#e07040', border:'rgba(224,112,64,.4)', emoji:'⚡' },
     evento:  { color:'#9b7ab8', border:'rgba(155,122,184,.4)',emoji:'◈'  },
   };
+  const TAG_CYCLE = ['captura','idea','tarea','nota','estudio','loveship','urgente','evento'];
 
   let ibxFilter    = 'pendientes';
   let ibxTagFilter = 'all';
@@ -69,7 +73,7 @@ window.HubInbox = (function () {
       const isDone  = item.status === 'procesado';
       return `<div class="ibxs-card${isDone ? ' processed' : ''}" id="ibxcard-${item.id}">
         <div class="ibxs-card-top">
-          <span class="ibxs-card-tag" style="color:${tag.color};border-color:${tag.border}" title="tipo">${tag.emoji} ${item.type || 'captura'}</span>
+          <span class="ibxs-card-tag" style="color:${tag.color};border-color:${tag.border}" onclick="HubInbox.cycleTag(${item.id})" title="click para cambiar etiqueta">${tag.emoji} ${item.type || 'captura'}</span>
           <span class="ibxs-card-text">${escHtml(item.text)}</span>
           <span class="ibxs-card-date">${dateStr}</span>
         </div>
@@ -177,6 +181,17 @@ window.HubInbox = (function () {
     showToast('→ enviado al planner');
   }
 
+  function cycleTag(id) {
+    const inbox = getInbox();
+    const it = inbox.find(i => i.id === id);
+    if (!it) return;
+    const cur = it.type || 'captura';
+    const idx = TAG_CYCLE.indexOf(cur);
+    it.type = TAG_CYCLE[(idx + 1) % TAG_CYCLE.length];
+    saveInbox(inbox);
+    render();
+  }
+
   function del(id) {
     const inbox = getInbox().filter(i => i.id !== id);
     saveInbox(inbox);
@@ -203,6 +218,6 @@ window.HubInbox = (function () {
   return {
     init, refresh, setFilter,
     setStatusFilter, setTagFilter,
-    markDone, openPicker, sendToPlanner, del,
+    markDone, openPicker, sendToPlanner, cycleTag, del,
   };
 })();
