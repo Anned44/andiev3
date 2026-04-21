@@ -102,6 +102,13 @@ window.HubPlanner = (function () {
     renderPlanner();
   }
 
+  function goToDate(val) {
+    if (!val) return;
+    currentDate = val;
+    ls('hub_plannerDate', currentDate);
+    renderPlanner();
+  }
+
   function saveIntencion() {
     const val = document.getElementById('plnIntencion')?.value || '';
     ls('hub_pln_int_' + currentDate, val);
@@ -307,7 +314,7 @@ window.HubPlanner = (function () {
         ${it.done?'✓':''}
       </div>
       <div class="pln-entry-main">
-        <div class="pln-entry-text${it.done?' done':''}">${it.text}</div>
+        <div class="pln-entry-text${it.done?' done':''}" onclick="HubPlanner.openEdit('${blockKey}',${idx})" style="cursor:pointer" title="click para editar">${it.text}</div>
         <div class="pln-entry-meta">
           <span class="pln-entry-type" style="background:${TYPE_BG[type]||'rgba(90,122,170,.15)'};color:${TYPE_COLOR[type]||'var(--hub)'}">${type}</span>
           <div class="pln-entry-prio" style="background:${PRIO_COLOR[prio]}"></div>
@@ -510,6 +517,146 @@ window.HubPlanner = (function () {
     showToast('entrada eliminada');
   }
 
+  /* ━━ EDIT ENTRY ━━ */
+  function openEdit(blockKey, idx) {
+    // Cerrar cualquier editor abierto
+    document.querySelectorAll('.pln-entry-editor').forEach(el => el.remove());
+    document.querySelectorAll('.pln-entry.editing').forEach(el => el.classList.remove('editing'));
+
+    const day = getDay(currentDate);
+    const it  = day[blockKey][idx];
+    if (!it) return;
+
+    const entry = document.querySelector(`.pln-entry[data-block="${blockKey}"][data-idx="${idx}"]`);
+    if (!entry) return;
+    entry.classList.add('editing');
+
+    const metas = window.HubCore.lg('hub_metas', []);
+    const metaOpts = `<option value="">sin meta</option>` + metas.map(m => `<option value="${m.id}" ${it.metaId == m.id ? 'selected' : ''}>${m.nombre}</option>`).join('');
+
+    const editor = document.createElement('div');
+    editor.className = 'pln-entry-editor';
+    editor.innerHTML = `
+      <div class="pln-editor-row">
+        <input class="pln-editor-input" id="edit-text-${blockKey}-${idx}" value="${(it.text||'').replace(/"/g,'&quot;')}" placeholder="texto...">
+      </div>
+      <div class="pln-editor-chips">
+        <span class="pln-chip-label">tipo:</span>
+        <button class="pln-chip${it.type==='tarea'||!it.type?' sel':''}" data-et="tarea" onclick="HubPlanner._editChip(this,'type')">☐ tarea</button>
+        <button class="pln-chip${it.type==='evento'?' sel':''}" data-et="evento" onclick="HubPlanner._editChip(this,'type')">◈ evento</button>
+        <button class="pln-chip${it.type==='recordar'?' sel':''}" data-et="recordar" onclick="HubPlanner._editChip(this,'type')">⏰ recordar</button>
+        <span class="pln-sep">·</span>
+        <span class="pln-chip-label">prio:</span>
+        <button class="pln-chip prio-alta${it.prio==='alta'?' sel':''}" data-ep="alta" onclick="HubPlanner._editChip(this,'prio')">alta</button>
+        <button class="pln-chip prio-media${it.prio==='media'||!it.prio?' sel':''}" data-ep="media" onclick="HubPlanner._editChip(this,'prio')">media</button>
+        <button class="pln-chip prio-baja${it.prio==='baja'?' sel':''}" data-ep="baja" onclick="HubPlanner._editChip(this,'prio')">baja</button>
+      </div>
+      <div class="pln-editor-row2">
+        <div>
+          <div class="pln-extra-label">hora inicio</div>
+          <input type="time" class="pln-add-input" id="edit-start-${blockKey}-${idx}" value="${it.startTime||it.recTime||''}" style="font-size:11px;padding:6px 10px">
+        </div>
+        <div>
+          <div class="pln-extra-label">hora fin</div>
+          <input type="time" class="pln-add-input" id="edit-end-${blockKey}-${idx}" value="${it.endTime||''}" style="font-size:11px;padding:6px 10px">
+        </div>
+        <div style="flex:1">
+          <div class="pln-extra-label">lugar</div>
+          <input class="pln-add-input" id="edit-lugar-${blockKey}-${idx}" value="${it.lugar||''}" placeholder="lugar..." style="font-size:11px;padding:6px 10px;width:100%">
+        </div>
+      </div>
+      <div class="pln-editor-row2">
+        <div style="flex:1">
+          <div class="pln-extra-label">etiquetas (↵ para agregar)</div>
+          <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap" id="edit-tags-wrap-${blockKey}-${idx}">
+            ${(it.tags||[]).map(t => `<span class="pln-tag edit-tag" onclick="this.remove()">${t} ×</span>`).join('')}
+            <input class="pln-add-input" id="edit-tag-input-${blockKey}-${idx}" placeholder="etiqueta..." style="font-size:11px;padding:5px 9px;width:110px" onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();HubPlanner._editAddTag('${blockKey}',${idx})}">
+          </div>
+        </div>
+        <div>
+          <div class="pln-extra-label">meta</div>
+          <select class="pln-add-input" id="edit-meta-${blockKey}-${idx}" style="font-size:11px;padding:6px 10px;appearance:none;-webkit-appearance:none">${metaOpts}</select>
+        </div>
+      </div>
+      <div class="pln-editor-row">
+        <div class="pln-extra-label">notas</div>
+        <textarea class="pln-add-input" id="edit-notes-${blockKey}-${idx}" placeholder="notas..." style="resize:none;min-height:52px;line-height:1.5;font-size:12px">${it.notes||''}</textarea>
+      </div>
+      <div class="pln-editor-actions">
+        <button class="pln-add-submit" onclick="HubPlanner.saveEdit('${blockKey}',${idx})">guardar</button>
+        <button class="btn-ghost" style="font-size:9px;padding:6px 12px" onclick="HubPlanner.closeEdit()">cancelar</button>
+      </div>
+    `;
+    entry.after(editor);
+  }
+
+  function _editChip(btn, group) {
+    const parent = btn.closest('.pln-editor-chips');
+    if (!parent) return;
+    const attr = group === 'type' ? 'data-et' : 'data-ep';
+    parent.querySelectorAll(`[${attr}]`).forEach(b => b.classList.remove('sel'));
+    btn.classList.add('sel');
+  }
+
+  function _editAddTag(blockKey, idx) {
+    const input = document.getElementById(`edit-tag-input-${blockKey}-${idx}`);
+    const tag = input?.value.replace(/,/g,'').trim();
+    if (!tag) return;
+    const wrap = document.getElementById(`edit-tags-wrap-${blockKey}-${idx}`);
+    const span = document.createElement('span');
+    span.className = 'pln-tag edit-tag';
+    span.textContent = tag + ' ×';
+    span.onclick = () => span.remove();
+    wrap.insertBefore(span, input);
+    input.value = '';
+  }
+
+  function saveEdit(blockKey, idx) {
+    const day = getDay(currentDate);
+    const it  = day[blockKey][idx];
+    if (!it) return;
+
+    const text = document.getElementById(`edit-text-${blockKey}-${idx}`)?.value.trim();
+    if (!text) return;
+
+    const typeBtn = document.querySelector(`.pln-entry.editing .pln-editor-chips [data-et].sel`);
+    const prioBtn = document.querySelector(`.pln-entry.editing .pln-editor-chips [data-ep].sel`);
+
+    it.text      = text;
+    it.type      = typeBtn?.dataset.et || it.type;
+    it.prio      = prioBtn?.dataset.ep || it.prio;
+    it.startTime = document.getElementById(`edit-start-${blockKey}-${idx}`)?.value || '';
+    it.endTime   = document.getElementById(`edit-end-${blockKey}-${idx}`)?.value || '';
+    it.lugar     = document.getElementById(`edit-lugar-${blockKey}-${idx}`)?.value || '';
+    it.notes     = document.getElementById(`edit-notes-${blockKey}-${idx}`)?.value || '';
+
+    // Tags
+    const tagEls = document.querySelectorAll(`#edit-tags-wrap-${blockKey}-${idx} .edit-tag`);
+    it.tags = Array.from(tagEls).map(el => el.textContent.replace(' ×','').trim()).filter(Boolean);
+
+    // Meta
+    const metaSel = document.getElementById(`edit-meta-${blockKey}-${idx}`);
+    if (metaSel?.value) {
+      it.metaId = metaSel.value;
+      const metas = window.HubCore.lg('hub_metas', []);
+      const meta = metas.find(m => String(m.id) === String(metaSel.value));
+      if (meta) it.metaNombre = meta.nombre;
+    } else {
+      it.metaId = ''; it.metaNombre = '';
+    }
+
+    saveDay(currentDate, day);
+    refreshBlock(blockKey);
+    updateStats();
+    window.HubDashboard?.renderDashPlanner?.();
+    showToast('✓ guardado');
+  }
+
+  function closeEdit() {
+    document.querySelectorAll('.pln-entry-editor').forEach(el => el.remove());
+    document.querySelectorAll('.pln-entry.editing').forEach(el => el.classList.remove('editing'));
+  }
+
   /* ━━ SUBTASKS ━━ */
   function toggleSubtask(blockKey, entryIdx, subIdx) {
     const day = getDay(currentDate);
@@ -600,6 +747,7 @@ window.HubPlanner = (function () {
     refresh,
     navDay,
     goToday,
+    goToDate,
     saveIntencion,
     selChip,
     addEntry,
@@ -615,5 +763,10 @@ window.HubPlanner = (function () {
     onDragEnd,
     onDragOver,
     onDrop,
+    openEdit,
+    closeEdit,
+    saveEdit,
+    _editChip,
+    _editAddTag,
   };
 })();
