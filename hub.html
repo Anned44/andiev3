@@ -180,6 +180,7 @@ input[type=range]{flex:1;accent-color:var(--hub);}
       <div class="pln-nav-date" id="plnNavDate"></div>
       <button class="pln-nav-btn" onclick="HubPlanner.navDay(1)">›</button>
       <button class="pln-nav-btn" onclick="HubPlanner.goToday()" style="font-size:9px;letter-spacing:.1em">hoy</button>
+      <input type="date" class="pln-date-jump" id="plnDateJump" onchange="HubPlanner.goToDate(this.value)" title="ir a fecha">
     </div>
     <div class="pln-stats">
       <div class="pln-stat"><span class="pln-stat-num" id="plnStatE">0</span><span class="pln-stat-lbl">Entradas</span></div>
