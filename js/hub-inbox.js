@@ -15,16 +15,16 @@ window.HubInbox = (function () {
   const MN = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
 
   const IBX_TAGS = {
-    captura: { color:'#9a8aaa', border:'rgba(154,138,170,.4)', emoji:'✦'  },
-    idea:    { color:'#c8965a', border:'rgba(200,150,90,.4)',  emoji:'💡' },
-    tarea:   { color:'#5a7aaa', border:'rgba(90,122,170,.4)', emoji:'📋' },
-    nota:    { color:'#7a9a7a', border:'rgba(122,154,122,.4)',emoji:'📝' },
-    estudio: { color:'#5a8a6a', border:'rgba(90,138,106,.4)', emoji:'🌿' },
-    loveship:{ color:'#c86e8a', border:'rgba(200,110,138,.4)',emoji:'♡'  },
-    urgente: { color:'#e07040', border:'rgba(224,112,64,.4)', emoji:'⚡' },
-    evento:  { color:'#9b7ab8', border:'rgba(155,122,184,.4)',emoji:'◈'  },
+    captura:     { color:'#9a8aaa', border:'rgba(154,138,170,.4)', emoji:'✦'  },
+    idea:        { color:'#c8965a', border:'rgba(200,150,90,.4)',  emoji:'💡' },
+    tarea:       { color:'#5a7aaa', border:'rgba(90,122,170,.4)',  emoji:'📋' },
+    nota:        { color:'#7a9a7a', border:'rgba(122,154,122,.4)', emoji:'📝' },
+    proyecto:    { color:'#9b7ab8', border:'rgba(155,122,184,.4)', emoji:'◈'  },
+    evento:      { color:'#c86e8a', border:'rgba(200,110,138,.4)', emoji:'◷'  },
+    recordatorio:{ color:'#e07040', border:'rgba(224,112,64,.4)',  emoji:'⏰' },
+    wishlist:    { color:'#d4a0c8', border:'rgba(212,160,200,.4)', emoji:'✦'  },
   };
-  const TAG_CYCLE = ['captura','idea','tarea','nota','estudio','loveship','urgente','evento'];
+  const TAG_CYCLE = ['captura','idea','tarea','nota','proyecto','evento','recordatorio','wishlist'];
 
   let ibxFilter    = 'pendientes';
   let ibxTagFilter = 'all';
@@ -67,7 +67,7 @@ window.HubInbox = (function () {
     }
 
     container.innerHTML = items.map(item => {
-      const tag = IBX_TAGS[item.type || 'captura'] || IBX_TAGS.captura;
+      const tag = IBX_TAGS[item.type] || IBX_TAGS.captura;
       const d = new Date(item.time || Date.now());
       const dateStr = isNaN(d) ? '' : d.getDate() + ' ' + MN[d.getMonth()];
       const isDone  = item.status === 'procesado';
