@@ -198,28 +198,30 @@ input[type=range]{flex:1;accent-color:var(--hub);}
     <div class="page-h1">Inbox</div>
     <div class="page-sub">capturas · procesa · actúa</div>
     <div class="ibxs-stats">
-      <div class="ibxs-stat active" onclick="HubInbox.setStatusFilter(this,'todas')">
-        <span class="ibxs-num" id="ibxNumTodos">0</span>
-        <span class="ibxs-lbl">todos</span>
-      </div>
-      <div class="ibxs-stat" onclick="HubInbox.setStatusFilter(this,'pendientes')">
-        <span class="ibxs-num" id="ibxNumPend">0</span>
+      <div class="ibxs-stat active" id="ibxTabPend" onclick="HubInbox.setStatusFilter(this,'pendientes')">
+        <span class="ibxs-num" id="ibxCntPend">0</span>
         <span class="ibxs-lbl">pendientes</span>
       </div>
-      <div class="ibxs-stat" onclick="HubInbox.setStatusFilter(this,'procesados')">
-        <span class="ibxs-num" id="ibxNumProc">0</span>
+      <div class="ibxs-stat" id="ibxTabTodos" onclick="HubInbox.setStatusFilter(this,'todos')">
+        <span class="ibxs-num" id="ibxCntTodos">0</span>
+        <span class="ibxs-lbl">todos</span>
+      </div>
+      <div class="ibxs-stat" id="ibxTabProc" onclick="HubInbox.setStatusFilter(this,'procesados')">
+        <span class="ibxs-num" id="ibxCntProc">0</span>
         <span class="ibxs-lbl">procesados</span>
       </div>
     </div>
-    <div class="ibxs-tags">
-      <button class="ibxs-tag active" onclick="HubInbox.setTagFilter(this,'all')">todas</button>
-      <button class="ibxs-tag" onclick="HubInbox.setTagFilter(this,'captura')">📥 captura</button>
-      <button class="ibxs-tag" onclick="HubInbox.setTagFilter(this,'idea')">💡 idea</button>
-      <button class="ibxs-tag" onclick="HubInbox.setTagFilter(this,'tarea')">☐ tarea</button>
-      <button class="ibxs-tag" onclick="HubInbox.setTagFilter(this,'nota')">✎ nota</button>
-      <button class="ibxs-tag" onclick="HubInbox.setTagFilter(this,'evento')">◈ evento</button>
+    <div class="ibxs-tags" id="ibxTagRow">
+      <button class="ibxs-tag active" data-tag="all" onclick="HubInbox.setTagFilter(this,'all')">todas</button>
+      <button class="ibxs-tag" data-tag="captura" onclick="HubInbox.setTagFilter(this,'captura')">✦ captura</button>
+      <button class="ibxs-tag" data-tag="idea" onclick="HubInbox.setTagFilter(this,'idea')">💡 idea</button>
+      <button class="ibxs-tag" data-tag="tarea" onclick="HubInbox.setTagFilter(this,'tarea')">📋 tarea</button>
+      <button class="ibxs-tag" data-tag="nota" onclick="HubInbox.setTagFilter(this,'nota')">📝 nota</button>
+      <button class="ibxs-tag" data-tag="estudio" onclick="HubInbox.setTagFilter(this,'estudio')">🌿 estudio</button>
+      <button class="ibxs-tag" data-tag="loveship" onclick="HubInbox.setTagFilter(this,'loveship')">♡ loveship</button>
+      <button class="ibxs-tag" data-tag="urgente" onclick="HubInbox.setTagFilter(this,'urgente')">⚡ urgente</button>
     </div>
-    <div class="ibxs-list" id="inboxList"></div>
+    <div class="ibxs-list" id="ibxItemsList"></div>
   </div>
 
   <!-- METAS -->
