@@ -173,10 +173,12 @@ window.HubCore = (function () {
       inbox.unshift(item);
       ls('dash_inbox', inbox);
     } else if (fabDest === 'planner') {
+      // Usar fecha seleccionada para eventos, hoy para el resto
+      const plannerDate = (tipo === 'evento' && fecha) ? fecha : today;
       const state = lg('appState', {});
       if (!state.plannerByDate) state.plannerByDate = {};
-      if (!state.plannerByDate[today]) state.plannerByDate[today] = { morning:[], afternoon:[], night:[] };
-      state.plannerByDate[today].morning.push({ ...item, done: false });
+      if (!state.plannerByDate[plannerDate]) state.plannerByDate[plannerDate] = { morning:[], afternoon:[], night:[] };
+      state.plannerByDate[plannerDate].morning.push({ ...item, done: false });
       ls('appState', state);
     }
 
