@@ -22,7 +22,7 @@ window.HubInbox = (function () {
     evento:  { color:'#9b7ab8', border:'rgba(155,122,184,.4)',emoji:'◈'  },
   };
 
-  let ibxFilter    = 'todas';
+  let ibxFilter    = 'pendientes';
   let ibxTagFilter = 'all';
 
   /* ━━ DATA ━━ */
@@ -35,9 +35,9 @@ window.HubInbox = (function () {
     const pend = all.filter(i => i.status !== 'procesado').length;
     const proc = all.filter(i => i.status === 'procesado').length;
     const s = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-    s('ibxNumPend', pend);
-    s('ibxNumTodos', all.length);
-    s('ibxNumProc', proc);
+    s('ibxCntPend', pend);
+    s('ibxCntTodos', all.length);
+    s('ibxCntProc', proc);
     // legacy ids
     s('istatPend', pend);
     s('istatTodos', all.length);
@@ -46,7 +46,7 @@ window.HubInbox = (function () {
 
   /* ━━ RENDER ━━ */
   function render() {
-    const container = document.getElementById('inboxList');
+    const container = document.getElementById('ibxItemsList');
     if (!container) return;
 
     let items = getInbox();
@@ -194,7 +194,7 @@ window.HubInbox = (function () {
 
   /* ━━ INIT ━━ */
   function init() {
-    ibxFilter    = 'todas';
+    ibxFilter    = 'pendientes';
     ibxTagFilter = 'all';
     updateStats();
     render();
