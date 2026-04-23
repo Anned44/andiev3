@@ -8,6 +8,7 @@
 
 <!-- Base styles -->
 <link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/hub-layout.css">
 <link rel="stylesheet" href="css/hub-dashboard.css">
 <link rel="stylesheet" href="css/hub-planner.css">
@@ -94,6 +95,10 @@ input[type=range]{flex:1;accent-color:var(--hub);}
   </div>
   <div class="header-right">
     <span class="autosave-indicator" id="autosaveIndicator">guardado ✓</span>
+    <button class="theme-toggle" onclick="Theme.toggle()" title="cambiar tema">
+      <span class="theme-toggle-icon">○</span>
+      <span class="theme-toggle-label">día</span>
+    </button>
     <button class="btn-ghost" onclick="HubCore.goPortal()">← Portal</button>
   </div>
 </header>
@@ -378,6 +383,9 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 
 <div class="toast" id="toast"></div>
 
+<!-- Theme — carga primero para evitar flash -->
+<script src="js/theme.js"></script>
+
 <!-- Scripts — defer garantiza orden de carga -->
 <script src="js/hub-core.js" defer></script>
 <script src="js/hub-dashboard.js" defer></script>
@@ -395,6 +403,7 @@ window.HubHealth   = { init(){}, refresh(){}, saveNotas(){} };
 window.HubFinanzas = { init(){}, refresh(){}, navMonth(){}, addMovimiento(){} };
 
 window.addEventListener('load', () => {
+  Theme.init();
   HubCore.init();
   HubDashboard.init();
   // Forzar dashboard después de que todos los módulos inicialicen
