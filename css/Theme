@@ -1,0 +1,123 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   THEME.CSS — Andy.net v3
+   Modo noche (default) + Modo día
+   Toggle: document.documentElement.dataset.theme = 'day' | 'night'
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ── MODO NOCHE (default, ya está en :root de base.css) ── */
+/* No se sobreescribe nada — base.css maneja los valores dark */
+
+/* ── MODO DÍA ── */
+[data-theme="day"] {
+  /* Fondos — crema suave */
+  --bg:      #f5f0e8;
+  --s1:      #ede8df;
+  --s2:      #e4ddd3;
+  --s3:      #d9d1c4;
+  --s4:      #cec5b6;
+
+  /* Bordes — lavanda suave */
+  --border:  rgba(192,180,204,0.35);
+  --bord2:   rgba(192,180,204,0.6);
+  --bord3:   rgba(192,180,204,0.85);
+
+  /* Texto */
+  --text:    #3a3430;
+  --text2:   #1e1a16;
+  --muted:   #9a8f80;
+  --muted2:  #7a6f62;
+  --muted3:  #6a5f54;
+
+  /* Colores de sección — basados en tu paleta */
+  --hub:     #4f85e8;   /* azul */
+  --studio:  #c0a050;   /* dorado */
+  --muse:    #c0b4cc;   /* lavanda */
+  --self:    #e8a0a8;   /* rosa */
+
+  /* Semánticos */
+  --green:   #788858;   /* olivo */
+  --pink:    #c07080;
+  --amber:   #c0a050;
+  --blue:    #4f85e8;
+  --teal:    #5a8878;
+
+  /* Prioridades */
+  --prio-alta:  #c07080;
+  --prio-media: #c0a050;
+  --prio-baja:  #788858;
+}
+
+/* ── Transición suave al cambiar tema ── */
+body,
+body * {
+  transition:
+    background-color .25s ease,
+    border-color .25s ease,
+    color .2s ease;
+}
+
+/* Excepciones — no animar estas transiciones (evita flicker en inputs) */
+input, textarea, select {
+  transition:
+    border-color .15s ease,
+    background-color .25s ease !important;
+}
+
+/* ── TOGGLE BUTTON ── */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--muted2);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: all .2s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+.theme-toggle:hover {
+  color: var(--text);
+  border-color: var(--bord2);
+  background: var(--s2);
+}
+.theme-toggle-icon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* ── Ajustes específicos modo día ── */
+
+/* Scrollbar */
+[data-theme="day"] ::-webkit-scrollbar-thumb {
+  background: var(--s3);
+}
+
+/* Selección */
+[data-theme="day"] ::selection {
+  background: rgba(192,180,204,0.4);
+  color: var(--text2);
+}
+
+/* Sidebar día */
+[data-theme="day"] .sidebar {
+  box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+}
+
+/* Cards día — sombra sutil */
+[data-theme="day"] .widget,
+[data-theme="day"] .pln-block-card,
+[data-theme="day"] .meta-card,
+[data-theme="day"] .fin-add-form,
+[data-theme="day"] .fin-movs-list {
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+
+/* FAB día */
+[data-theme="day"] .hub-fab {
+  box-shadow: 0 4px 16px rgba(79,133,232,0.3);
+}
