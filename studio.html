@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Studio — Andy.net</title>
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/studio-layout.css">
+<link rel="stylesheet" href="css/studio-proyectos.css">
+<style>
+.stub-page{padding:60px 0;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;}
+.stub-page .stub-ico{font-size:2rem;display:block;margin-bottom:12px;opacity:.3;}
+</style>
+</head>
+<body>
+
+<div class="studio-shell">
+
+<!-- HEADER -->
+<header class="studio-header">
+  <div class="studio-header-left">
+    <div class="studio-header-logo" onclick="StudioCore.navTo(null,'proyectos')" title="Proyectos">
+      <span class="studio-logo-glyph">⊛</span>
+    </div>
+    <span class="studio-header-title">Studio</span>
+  </div>
+  <div class="studio-header-right">
+    <span class="autosave-indicator" id="autosaveIndicator" style="font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--green);opacity:0;transition:opacity .3s">guardado ✓</span>
+    <button class="theme-toggle" onclick="Theme.toggle()" title="cambiar tema" style="background:none;border:1px solid var(--border);border-radius:20px;color:var(--muted2);font-family:var(--mono);font-size:10px;padding:5px 12px;cursor:pointer;display:flex;align-items:center;gap:6px">
+      <span class="theme-toggle-icon">○</span>
+      <span class="theme-toggle-label">día</span>
+    </button>
+    <button onclick="window.location.href='index.html'" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:6px 14px;cursor:pointer;transition:all .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">← Portal</button>
+    <button onclick="window.location.href='hub.html'" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:6px 14px;cursor:pointer;transition:all .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">→ Hub</button>
+  </div>
+</header>
+
+<div class="studio-body">
+
+<!-- SIDEBAR -->
+<nav class="studio-sidebar">
+  <button class="studio-nav-btn active" onclick="StudioCore.navTo(this,'proyectos')" title="Proyectos">
+    <span class="studio-nav-icon">◈</span><span class="studio-nav-label">Proyectos</span>
+  </button>
+  <button class="studio-nav-btn" onclick="StudioCore.navTo(this,'aprendizaje')" title="Aprendizaje">
+    <span class="studio-nav-icon">◎</span><span class="studio-nav-label">Aprendizaje</span>
+  </button>
+  <button class="studio-nav-btn" onclick="StudioCore.navTo(this,'notas')" title="Notas">
+    <span class="studio-nav-icon">✦</span><span class="studio-nav-label">Notas / Ideas</span>
+  </button>
+  <button class="studio-nav-btn" onclick="StudioCore.navTo(this,'biblioteca')" title="Biblioteca">
+    <span class="studio-nav-icon">📚</span><span class="studio-nav-label">Biblioteca</span>
+  </button>
+  <div class="studio-nav-spacer"></div>
+</nav>
+
+<main class="studio-main">
+
+  <!-- PROYECTOS -->
+  <div id="page-proyectos" class="studio-page active">
+    <div class="studio-page-h1">Proyectos</div>
+    <div class="studio-page-sub">crea · construye · lanza</div>
+
+    <div class="proy-toolbar">
+      <button class="proy-filter-btn active" onclick="StudioProyectos.setFilter(this,'all')">todos</button>
+      <button class="proy-filter-btn" onclick="StudioProyectos.setFilter(this,'idea')">idea</button>
+      <button class="proy-filter-btn" onclick="StudioProyectos.setFilter(this,'planificando')">planificando</button>
+      <button class="proy-filter-btn" onclick="StudioProyectos.setFilter(this,'construyendo')">construyendo</button>
+      <button class="proy-filter-btn" onclick="StudioProyectos.setFilter(this,'pausado')">pausado</button>
+      <button class="proy-filter-btn" onclick="StudioProyectos.setFilter(this,'terminado')">terminado</button>
+      <button class="proy-filter-urgent" onclick="StudioProyectos.toggleUrgent(this)">⚡ urgentes</button>
+      <div class="proy-toolbar-spacer"></div>
+      <button class="proy-new-btn" onclick="StudioProyectos.newProyecto()">+ nuevo proyecto</button>
+    </div>
+
+    <div id="proyGallery"></div>
+    <div id="proyDetail" style="display:none"></div>
+  </div>
+
+  <!-- APRENDIZAJE -->
+  <div id="page-aprendizaje" class="studio-page">
+    <div class="studio-page-h1">Aprendizaje</div>
+    <div class="studio-page-sub">cursos · libros · recursos · notas de estudio</div>
+    <div class="stub-page"><span class="stub-ico">◎</span>próximamente ✦</div>
+  </div>
+
+  <!-- NOTAS / IDEAS -->
+  <div id="page-notas" class="studio-page">
+    <div class="studio-page-h1">Notas / Ideas</div>
+    <div class="studio-page-sub">captura libre · etiquetas · vinculable a proyectos</div>
+    <div class="stub-page"><span class="stub-ico">✦</span>próximamente ✦</div>
+  </div>
+
+  <!-- BIBLIOTECA -->
+  <div id="page-biblioteca" class="studio-page">
+    <div class="studio-page-h1">Biblioteca</div>
+    <div class="studio-page-sub">libros · artículos · referencias</div>
+    <div class="stub-page"><span class="stub-ico">📚</span>próximamente ✦</div>
+  </div>
+
+</main>
+</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast" style="position:fixed;bottom:5rem;left:50%;transform:translateX(-50%) translateY(10px);background:var(--s3);border:1px solid var(--bord2);border-radius:8px;color:var(--text);font-family:var(--mono);font-size:10px;letter-spacing:.05em;padding:8px 16px;opacity:0;transition:all .25s;pointer-events:none;white-space:nowrap;z-index:200"></div>
+
+<!-- Theme -->
+<script src="js/theme.js"></script>
+
+<script>
+/* ── StudioCore ── */
+window.StudioCore = (function() {
+  function navTo(btn, page) {
+    document.querySelectorAll('.studio-nav-btn').forEach(b=>b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    else {
+      const b = document.querySelector(`[title="${page.charAt(0).toUpperCase()+page.slice(1)}"]`);
+      if (b) b.classList.add('active');
+    }
+    document.querySelectorAll('.studio-page').forEach(p=>p.classList.remove('active'));
+    const el = document.getElementById('page-'+page);
+    if (el) el.classList.add('active');
+
+    // Colapsar sidebar
+    const sb = document.querySelector('.studio-sidebar');
+    if (sb) { sb.classList.add('collapsed'); setTimeout(()=>sb.classList.remove('collapsed'),800); }
+  }
+
+  let _toastTimer;
+  function showToast(msg) {
+    const el = document.getElementById('toast');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.opacity = '1';
+    el.style.transform = 'translateX(-50%) translateY(0)';
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(()=>{
+      el.style.opacity = '0';
+      el.style.transform = 'translateX(-50%) translateY(10px)';
+    }, 2800);
+  }
+
+  function triggerAutosave() {
+    const el = document.getElementById('autosaveIndicator');
+    if (!el) return;
+    el.style.opacity = '1';
+    setTimeout(()=>el.style.opacity='0', 1800);
+  }
+
+  return { navTo, showToast, triggerAutosave };
+})();
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    StudioProyectos.backToGallery?.();
+  }
+});
+
+window.addEventListener('load', () => {
+  Theme.init();
+  StudioProyectos.init();
+});
+</script>
+
+<script src="js/studio-proyectos.js" defer></script>
+
+</body>
+</html>
