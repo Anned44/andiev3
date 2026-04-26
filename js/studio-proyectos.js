@@ -773,6 +773,15 @@ window.StudioProyectos = (function () {
       </div>`;
   }
 
+  function _goFoco() {
+    const proyectos = lg('hub_proyectos', DEFAULT_PROYECTOS);
+    const foco = proyectos.filter(p=>p.urgente||p.estado==='construyendo')
+      .sort((a,b)=>(b.urgente?1:0)-(a.urgente?1:0)||b.progreso-a.progreso)[0] || proyectos[0];
+    if (!foco) return;
+    if (window.StudioCore) StudioCore.navTo(document.querySelector('[title="Proyectos"]'),'proyectos');
+    setTimeout(() => openDetail(foco.id), 120);
+  }
+
   function refresh() { init(); }
 
   return {
@@ -789,7 +798,7 @@ window.StudioProyectos = (function () {
     _autoSaveNote,
     saveCurrentDetail,
     newProyecto,
-    renderDrawer,
+    renderDrawer, _goFoco,
     toggleCoverForm, saveCover, removeCover,
     showAddLink, hideAddLink, updateLink,
     _autoSave,
