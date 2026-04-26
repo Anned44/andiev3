@@ -142,6 +142,17 @@ window.HubDashboard = (function () {
   }
 
   /* ── Widget Inbox ── */
+  const IBX_COLORS = {
+    captura:     '#9a8aaa',
+    idea:        '#c8965a',
+    tarea:       '#5a7aaa',
+    nota:        '#7a9a7a',
+    proyecto:    '#9b7ab8',
+    evento:      '#c86e8a',
+    recordatorio:'#e07040',
+    wishlist:    '#d4a0c8',
+  };
+
   function renderDashInbox() {
     const container = document.getElementById('dashInboxItems');
     if (!container) return;
@@ -152,9 +163,11 @@ window.HubDashboard = (function () {
     }
     container.innerHTML = inbox.map(i => {
       const d = new Date(i.time);
-      const t = d.getDate() + ' ' + MN[d.getMonth()].slice(0, 3);
+      const t = isNaN(d) ? '' : d.getDate() + ' ' + MN[d.getMonth()].slice(0, 3);
+      const tipo = i.type || 'captura';
+      const color = IBX_COLORS[tipo] || IBX_COLORS.captura;
       return `<div class="dash-inbox-item" onclick="HubCore.navTo(document.querySelector('[title=Inbox]'),'inbox')">
-        <span class="badge badge-${i.type||'nota'}">${i.type||'nota'}</span>
+        <span class="dash-inbox-tag" style="background:${color}22;color:${color};border:1px solid ${color}44">${tipo}</span>
         <span class="dash-inbox-text">${i.text}</span>
         <span class="dash-inbox-time">${t}</span>
       </div>`;
