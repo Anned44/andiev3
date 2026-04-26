@@ -1,6 +1,5 @@
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    HUB-DASHBOARD.CSS — Andy.net v3
-   Welcome bar, widgets grid, calendario
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 /* ── Welcome bar ── */
@@ -25,7 +24,7 @@
   letter-spacing: .16em;
   text-transform: uppercase;
   color: var(--muted);
-  margin-bottom: 12px;
+  margin-bottom: 8px;
 }
 .welcome-quote {
   font-family: var(--serif);
@@ -36,7 +35,7 @@
   line-height: 1.65;
 }
 
-/* ── Clima ── */
+/* ── Clima card (desktop) ── */
 .clima-card {
   background: var(--s1);
   border: 1px solid var(--border);
@@ -46,13 +45,22 @@
   text-align: right;
   flex-shrink: 0;
   transition: border-color .2s;
-  cursor: default;
 }
 .clima-card:hover { border-color: var(--bord2); }
 .clima-emoji { font-size: 2rem; display: block; margin-bottom: 6px; }
 .clima-temp  { font-family: var(--mono); font-size: 1.5rem; font-weight: 400; color: var(--text2); display: block; }
 .clima-desc  { font-family: var(--mono); font-size: 9px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted2); display: block; margin-top: 3px; }
 .clima-city  { font-family: var(--mono); font-size: 8px; letter-spacing: .08em; color: var(--muted); display: block; margin-top: 4px; }
+
+/* ── Clima inline (móvil) ── */
+.clima-inline {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+.clima-inline-temp { font-family: var(--mono); font-size: 12px; color: var(--muted2); }
+.clima-inline-desc { font-family: var(--mono); font-size: 10px; color: var(--muted); }
 
 /* ── Widget grid ── */
 .wgrid {
@@ -77,7 +85,6 @@
 }
 .widget:hover { border-color: var(--bord2); }
 
-/* stagger animation */
 .widget:nth-child(1) { animation: wIn .35s .05s ease both; }
 .widget:nth-child(2) { animation: wIn .35s .10s ease both; }
 .widget:nth-child(3) { animation: wIn .35s .15s ease both; }
@@ -146,12 +153,12 @@
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px 12px;
+  padding: 8px 10px;
   background: var(--s2);
   border-radius: 10px;
   cursor: pointer;
   transition: background .15s;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
 }
 .dash-inbox-item:last-child { margin-bottom: 0; }
 .dash-inbox-item:hover { background: var(--s3); }
@@ -161,16 +168,16 @@
 
 /* ── Proyectos widget ── */
 .dash-proy-item {
-  padding: 12px 14px;
+  padding: 10px 12px;
   background: var(--s2);
   border-radius: 10px;
   cursor: pointer;
   transition: background .15s;
-  margin-bottom: 8px;
+  margin-bottom: 7px;
 }
 .dash-proy-item:last-child { margin-bottom: 0; }
 .dash-proy-item:hover { background: var(--s3); }
-.dash-proy-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 9px; }
+.dash-proy-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
 .dash-proy-name { font-size: 12px; color: var(--text); display: flex; align-items: center; gap: 7px; }
 .dash-proy-estado {
   font-family: var(--mono); font-size: 7px; letter-spacing: .08em; text-transform: uppercase;
@@ -195,7 +202,7 @@
 .dash-fin-val  { font-family: var(--mono); font-size: 1.1rem; font-weight: 400; color: var(--text2); display: block; margin-bottom: 3px; }
 .dash-fin-lbl  { font-family: var(--mono); font-size: 8px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); display: block; }
 
-/* ── Calendario widget ── */
+/* ── Calendario ── */
 .cal-toggle { display: flex; gap: 5px; }
 .cal-vbtn {
   background: none; border: 1px solid var(--border); border-radius: 5px;
@@ -205,15 +212,10 @@
 }
 .cal-vbtn:hover { color: var(--text); border-color: var(--bord2); }
 .cal-vbtn.active { color: var(--hub); border-color: rgba(90,122,170,.4); background: rgba(90,122,170,.08); }
-
-.cal-nav-row {
-  display: flex; align-items: center; justify-content: space-between;
-  margin: 8px 0 12px;
-}
+.cal-nav-row { display: flex; align-items: center; justify-content: space-between; margin: 8px 0 12px; }
 .cal-nav-title { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted2); }
 .cal-nbtn { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 14px; padding: 2px 8px; transition: color .15s; }
 .cal-nbtn:hover { color: var(--text); }
-
 .cal-grid7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
 .cal-dow { font-family: var(--mono); font-size: 8px; color: var(--muted); text-align: center; padding: 2px 0 6px; }
 .cal-day {
@@ -223,29 +225,56 @@
 }
 .cal-day:hover { background: var(--s2); color: var(--text); }
 .cal-day.today { background: var(--s3); color: var(--hub); border: 1px solid rgba(90,122,170,.3); }
-.cal-day.has-dot::after {
-  content: ''; width: 3px; height: 3px; border-radius: 50%; background: var(--hub);
-  position: absolute; bottom: 3px;
-}
+.cal-day.has-dot::after { content: ''; width: 3px; height: 3px; border-radius: 50%; background: var(--hub); position: absolute; bottom: 3px; }
 .cal-day.empty { pointer-events: none; }
-
 .cal-week-grid { display: grid; gap: 8px; }
-.cal-week-header {
-  font-family: var(--mono); font-size: 9px; color: var(--muted); text-align: center;
-  padding: 4px 0; border-bottom: 1px solid var(--border); margin-bottom: 6px;
-  text-transform: uppercase; letter-spacing: .08em;
-}
+.cal-week-header { font-family: var(--mono); font-size: 9px; color: var(--muted); text-align: center; padding: 4px 0; border-bottom: 1px solid var(--border); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .08em; }
 .cal-week-header.today { color: var(--hub); }
-.cal-week-task {
-  font-family: var(--mono); font-size: 8px; color: var(--muted2);
-  background: var(--s2); border-radius: 4px; padding: 3px 6px;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px;
-}
+.cal-week-task { font-family: var(--mono); font-size: 8px; color: var(--muted2); background: var(--s2); border-radius: 4px; padding: 3px 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 3px; }
 
-/* ── Responsive dashboard ── */
-@media (max-width: 800px) {
-  .wgrid { grid-template-columns: 1fr; }
-  .w3,.w4,.w5,.w6,.w7,.w8 { grid-column: span 1; }
-  .welcome-bar { flex-direction: column; }
-  .clima-card { text-align: left; min-width: unset; width: 100%; }
+/* ━━ RESPONSIVE MÓVIL ━━ */
+@media (max-width: 720px) {
+
+  /* Welcome — ocultar clima card, mostrar inline */
+  .welcome-bar { flex-direction: column; gap: 0; margin-bottom: 20px; }
+  .clima-card { display: none; }
+  .clima-inline { display: flex; }
+  .welcome-greeting { font-size: 1.7rem; }
+  .welcome-quote { font-size: .9rem; margin-top: 6px; }
+
+  /* Grid — 2 columnas en móvil */
+  .wgrid { grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* Planner — full width, bloques en 3 col */
+  .w7 { grid-column: span 2; }
+  .w5 { grid-column: span 1; }
+  .w4 { grid-column: span 1; }
+  .w3 { grid-column: span 1; }
+  .w12 { grid-column: span 2; }
+
+  /* Planner bloques en fila */
+  #dashPlannerBlocks { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+  .dash-pln-block { margin-bottom: 0; }
+  .dash-pln-label { font-size: 7px; margin-bottom: 5px; }
+  .dash-pln-item { padding: 4px 0; gap: 6px; }
+  .dash-pln-text { font-size: 10px; }
+  .dash-pln-check { width: 13px; height: 13px; }
+
+  /* Widgets — más compactos */
+  .widget { padding: 14px 14px; }
+  .wtitle { font-size: 8px; margin-bottom: 12px; }
+
+  /* Inbox items compactos */
+  .dash-inbox-item { padding: 7px 8px; gap: 6px; margin-bottom: 5px; }
+  .dash-inbox-text { font-size: 11px; }
+  .dash-inbox-tag { font-size: 7px; padding: 1px 6px; }
+
+  /* Proyectos compactos */
+  .dash-proy-item { padding: 8px 10px; margin-bottom: 5px; }
+  .dash-proy-name { font-size: 11px; }
+  .dash-proy-estado { font-size: 6.5px; }
+
+  /* Calendario full width */
+  .cal-toggle { gap: 3px; }
+  .cal-vbtn { font-size: 7px; padding: 2px 6px; }
 }
