@@ -211,25 +211,21 @@ window.StudioProyectos = (function () {
     const metaOpts   = `<option value="">sin meta</option>${metas.map(m=>`<option value="${m.id}" ${String(p.metaId)===String(m.id)?'selected':''}>${m.nombre}</option>`).join('')}`;
     const totalCards = (p.cards||[]).length;
     const doneCards  = (p.cards||[]).filter(c=>c.colId===p.cols?.[p.cols.length-1]?.id).length;
-    const diasRest   = p.deadline ? Math.max(0,Math.round((new Date(p.deadline)-new Date())/86400000)) : null;
     const bgStyle    = p.coverUrl ? `background-image:url('${p.coverUrl}')` : '';
 
     detail.innerHTML = `
       <button class="proy-detail-back" onclick="StudioProyectos.backToGallery()" style="margin-bottom:16px">← proyectos</button>
 
-      <!-- HERO -->
+      <!-- BLOQUE 1: HERO -->
       <div class="proy-hero">
         <div class="proy-hero-bg" id="detailHeroBg" style="${bgStyle};background-size:cover;background-position:center"></div>
         <div class="proy-hero-overlay"></div>
-
-        <!-- Botón portada -->
         <button class="proy-hero-cover-btn" onclick="StudioProyectos.toggleCoverForm()">🖼 portada</button>
         <div class="proy-hero-cover-form" id="coverForm">
           <input class="proy-hero-cover-input" id="coverUrlInput" placeholder="https://imagen.com/foto.jpg" value="${escAttr(p.coverUrl||'')}">
           <button class="proy-hero-cover-save" onclick="StudioProyectos.saveCover()">aplicar</button>
           <button class="proy-hero-cover-save" onclick="StudioProyectos.removeCover()" style="background:rgba(200,110,138,.1);border-color:rgba(200,110,138,.3);color:var(--pink)">quitar</button>
         </div>
-
         <div class="proy-hero-content">
           <div class="proy-hero-top">
             <div style="flex:1">
@@ -242,29 +238,16 @@ window.StudioProyectos = (function () {
               <button class="proy-hero-btn save" onclick="StudioProyectos.saveCurrentDetail()">guardar ✓</button>
             </div>
           </div>
-
           <div class="proy-hero-meta-row">
-            <select class="proy-hero-estado ${('estado-'+(p.estado||'idea'))}" id="detailEstado" onchange="StudioProyectos._autoSave()">${estadoOpts}</select>
+            <select class="proy-hero-estado estado-${p.estado||'idea'}" id="detailEstado" onchange="StudioProyectos._autoSave()">${estadoOpts}</select>
             <span class="proy-hero-meta-item">📅 <input type="date" class="proy-hero-meta-input" id="detailDeadline" value="${p.deadline||''}" oninput="StudioProyectos._autoSave()"></span>
             <span class="proy-hero-meta-item">inicio <input type="date" class="proy-hero-meta-input" id="detailInicio" value="${p.inicio||''}" oninput="StudioProyectos._autoSave()"></span>
-            <span class="proy-hero-meta-item">
-              prio
-              <select class="proy-hero-meta-input" id="detailPrio" style="width:80px" onchange="StudioProyectos._autoSave()">${prioOpts}</select>
-            </span>
-            <span class="proy-hero-meta-item">
-              meta
-              <select class="proy-hero-meta-input" id="detailMeta" style="width:130px" onchange="StudioProyectos._autoSave()">${metaOpts}</select>
-            </span>
-            <span class="proy-hero-meta-item">
-              cat
-              <input class="proy-hero-meta-input" id="detailCat" value="${escAttr(p.cat||'')}" placeholder="negocio..." oninput="StudioProyectos._autoSave()">
-            </span>
+            <span class="proy-hero-meta-item">prio <select class="proy-hero-meta-input" id="detailPrio" style="width:80px" onchange="StudioProyectos._autoSave()">${prioOpts}</select></span>
+            <span class="proy-hero-meta-item">meta <select class="proy-hero-meta-input" id="detailMeta" style="width:130px" onchange="StudioProyectos._autoSave()">${metaOpts}</select></span>
+            <span class="proy-hero-meta-item">cat <input class="proy-hero-meta-input" id="detailCat" value="${escAttr(p.cat||'')}" placeholder="negocio..." oninput="StudioProyectos._autoSave()"></span>
           </div>
-
           <div class="proy-hero-progress">
-            <div class="proy-hero-progress-bar">
-              <div class="proy-hero-progress-fill" id="detailProgressFill" style="width:0"></div>
-            </div>
+            <div class="proy-hero-progress-bar"><div class="proy-hero-progress-fill" id="detailProgressFill" style="width:0"></div></div>
             <div class="proy-hero-progress-row">
               <input type="range" class="proy-hero-progress-range" min="0" max="100" value="${p.progreso||0}" id="detailProgreso"
                 oninput="document.getElementById('detailProgressNum').textContent=this.value+'%';document.getElementById('detailProgressFill').style.width=this.value+'%';StudioProyectos._autoSave()">
@@ -274,63 +257,35 @@ window.StudioProyectos = (function () {
         </div>
       </div>
 
-      <!-- KPIs -->
+      <!-- BLOQUE 2: KPIs -->
       <div class="proy-kpis">
-        <div class="proy-kpi protagonist">
-          <span class="proy-kpi-val" id="kpiProgreso">${p.progreso||0}%</span>
-          <span class="proy-kpi-lbl">progreso global</span>
-        </div>
-        <div class="proy-kpi">
-          <span class="proy-kpi-val">${totalCards}</span>
-          <span class="proy-kpi-lbl">tareas totales</span>
-        </div>
-        <div class="proy-kpi">
-          <span class="proy-kpi-val">${doneCards}</span>
-          <span class="proy-kpi-lbl">completadas</span>
-        </div>
-        <div class="proy-kpi">
-          <span class="proy-kpi-val" style="${diasRest===0?'color:var(--pink)':diasRest!==null&&diasRest<=7?'color:var(--amber)':''}">${diasRest!==null?diasRest:'—'}</span>
-          <span class="proy-kpi-lbl">días restantes</span>
-        </div>
+        <div class="proy-kpi protagonist"><span class="proy-kpi-val">${p.progreso||0}%</span><span class="proy-kpi-lbl">progreso global</span></div>
+        <div class="proy-kpi"><span class="proy-kpi-val">${totalCards}</span><span class="proy-kpi-lbl">tareas totales</span></div>
+        <div class="proy-kpi"><span class="proy-kpi-val">${doneCards}</span><span class="proy-kpi-lbl">completadas</span></div>
       </div>
 
       <!-- TAGS -->
-      <div class="proy-tags-row" id="detailTagsRow" style="margin-bottom:24px">
+      <div class="proy-tags-row" id="detailTagsRow" style="margin-bottom:20px">
         ${(p.tags||[]).map(t=>`<span class="proy-tag" onclick="StudioProyectos.removeTag('${t}')">${t} ×</span>`).join('')}
         <input class="proy-tag proy-tag-add" id="detailTagInput" placeholder="+ etiqueta" style="width:90px;border-style:dashed;cursor:text"
           onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();StudioProyectos.addTag()}">
       </div>
 
-      <!-- KANBAN -->
-      <div>
-        <div class="proy-kanban-header">
-          <span class="proy-kanban-title">tablero kanban</span>
-          <button class="proy-kanban-add-col" onclick="StudioProyectos.addCol()">+ columna</button>
-        </div>
+      <!-- BLOQUE 3: KANBAN -->
+      <div class="pd-bloque">
+        <div class="pd-bloque-label">tablero kanban <button class="pd-bloque-btn" onclick="StudioProyectos.addCol()">+ columna</button></div>
         <div class="proy-kanban" id="detailKanban"></div>
       </div>
 
-      <!-- SUB-PROYECTOS -->
-      <details class="proy-subs-section" style="margin-top:24px">
-        <summary style="font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
-          <span>▶ sub-proyectos (${(p.subs||[]).length})</span>
-          <button class="proy-subs-add" onclick="event.preventDefault();StudioProyectos.addSub()">+ agregar</button>
-        </summary>
-        <div class="proy-subs-grid" id="detailSubs"></div>
-      </details>
-
-      <!-- GRID INFERIOR -->
-      <div class="proy-bottom-grid">
-        <div>
-          <span class="proy-section-label">notas del proyecto</span>
-          <textarea class="proy-notes-area" id="detailNotas" placeholder="ideas, contexto, decisiones..." oninput="StudioProyectos._autoSaveNote()">${escHtml(p.notas||'')}</textarea>
+      <!-- BLOQUE 4: PANEL CONTEXTUAL (notas vivas + archivos) -->
+      <div class="pd-panel-grid">
+        <div class="pd-panel-col">
+          <div class="pd-bloque-label">notas vivas <button class="pd-bloque-btn" onclick="StudioProyectos.addNota()">+ nota</button></div>
+          <div id="detailNotas"></div>
         </div>
-        <div>
-          <span class="proy-section-label">archivos & links</span>
+        <div class="pd-panel-col">
+          <div class="pd-bloque-label">archivos & links <button class="pd-bloque-btn" onclick="StudioProyectos.showAddLink()">+ agregar</button></div>
           <div id="detailLinks"></div>
-          <button class="proy-link-add-card" onclick="StudioProyectos.showAddLink()">
-            <span style="font-size:16px">+</span> agregar link o archivo
-          </button>
           <div id="addLinkForm" style="display:none;margin-top:8px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
             <div style="display:flex;flex-direction:column;gap:6px">
               <input class="proy-link-input" id="linkTitleInput" placeholder="título..." style="width:100%">
@@ -342,18 +297,71 @@ window.StudioProyectos = (function () {
               </div>
             </div>
           </div>
+          <button class="proy-link-add-card" onclick="StudioProyectos.showAddLink()" style="margin-top:8px">
+            <span style="font-size:14px">+</span> agregar link o archivo
+          </button>
         </div>
+      </div>
+
+      <!-- BLOQUE 5: TABLERO DE CONTENIDO -->
+      <div class="pd-bloque">
+        <div class="pd-bloque-label">tablero de contenido <button class="pd-bloque-btn" onclick="StudioProyectos.showAddContenido()">+ asset</button></div>
+        <div id="addContenidoForm" style="display:none;margin-bottom:12px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <input class="proy-link-input" id="contenidoTitleInput" placeholder="título del asset..." style="width:100%">
+            <input class="proy-link-input" id="contenidoUrlInput" placeholder="url o ruta (opcional)..." style="width:100%">
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              ${['📄 documento','🖼 imagen','🔗 referencia','🎥 video','📅 calendario'].map(t=>{
+                const [ico,...rest]=t.split(' '); const tipo=rest.join(' ');
+                return `<button class="pd-tipo-chip" data-tipo="${tipo}" onclick="StudioProyectos.selContenidoTipo(this,'${tipo}')">${ico} ${tipo}</button>`;
+              }).join('')}
+            </div>
+            <div style="display:flex;gap:6px;justify-content:flex-end">
+              <button class="proy-add-card-cancel" onclick="StudioProyectos.hideAddContenido()">cancelar</button>
+              <button class="proy-add-card-save" onclick="StudioProyectos.addContenido()">agregar</button>
+            </div>
+          </div>
+        </div>
+        <div class="pd-contenido-grid" id="detailContenido"></div>
+      </div>
+
+      <!-- BLOQUE 6: PROCESO & AVANCES -->
+      <div class="pd-bloque">
+        <div class="pd-bloque-label">proceso & avances <button class="pd-bloque-btn" onclick="StudioProyectos.showAddProceso()">+ entrada</button></div>
+        <div id="addProcesoForm" style="display:none;margin-bottom:12px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <input class="proy-link-input" id="procesoTxtInput" placeholder="describe este avance o evento..." style="width:100%">
+            <div style="display:flex;gap:6px;flex-wrap:wrap">
+              ${['entrega','decisión','bloqueo','nota','inicio'].map(t=>`<button class="pd-tipo-chip" data-ptipo="${t}" onclick="StudioProyectos.selProcesoTipo(this,'${t}')">${t}</button>`).join('')}
+            </div>
+            <div style="display:flex;gap:6px;justify-content:flex-end">
+              <button class="proy-add-card-cancel" onclick="StudioProyectos.hideAddProceso()">cancelar</button>
+              <button class="proy-add-card-save" onclick="StudioProyectos.addProceso()">agregar</button>
+            </div>
+          </div>
+        </div>
+        <div id="detailProceso"></div>
+      </div>
+
+      <!-- BLOQUE 7: SUB-PROYECTOS -->
+      <div class="pd-bloque">
+        <div class="pd-bloque-label">sub-proyectos <button class="pd-bloque-btn" onclick="StudioProyectos.addSub()">+ agregar</button></div>
+        <div class="proy-subs-grid" id="detailSubs"></div>
       </div>`;
 
     renderKanban(p);
     renderSubs(p);
     renderLinks(p);
+    renderNotas(p);
+    renderContenido(p);
+    renderProceso(p);
 
     setTimeout(() => {
       const fill = document.getElementById('detailProgressFill');
       if (fill) fill.style.width = (p.progreso||0) + '%';
     }, 80);
   }
+
 
   /* ━━ KANBAN ━━ */
   function renderKanban(p) {
@@ -621,6 +629,183 @@ window.StudioProyectos = (function () {
   }
 
   /* ━━ LINKS ━━ */
+  /* ━━ NOTAS VIVAS ━━ */
+  const NOTA_TIPOS = {
+    idea:      { color:'rgba(200,150,90,.8)',  bg:'rgba(200,150,90,.1)',  border:'rgba(200,150,90,.25)'  },
+    decision:  { color:'rgba(90,122,170,.8)',  bg:'rgba(90,122,170,.1)',  border:'rgba(90,122,170,.25)'  },
+    pendiente: { color:'rgba(200,110,138,.75)',bg:'rgba(200,110,138,.1)', border:'rgba(200,110,138,.25)' },
+    hallazgo:  { color:'rgba(90,154,90,.8)',   bg:'rgba(90,154,90,.1)',   border:'rgba(90,154,90,.25)'   },
+  };
+
+  function renderNotas(p) {
+    const container = document.getElementById('detailNotas');
+    if (!container) return;
+    const notas = p.notasVivas || [];
+    container.innerHTML = notas.map((n,i)=>{
+      const t = NOTA_TIPOS[n.tipo] || NOTA_TIPOS.idea;
+      return `<div class="pd-nota-card" style="border-color:${t.border}">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span class="pd-nota-badge" style="background:${t.bg};color:${t.color}">${n.tipo}</span>
+          <button onclick="StudioProyectos.delNota(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px">×</button>
+        </div>
+        <textarea class="pd-nota-textarea" onchange="StudioProyectos.updateNota(${i},this.value)">${escHtml(n.texto||'')}</textarea>
+      </div>`;
+    }).join('') +
+    `<button class="pd-nota-add" onclick="StudioProyectos.addNota()">+ agregar nota</button>`;
+  }
+
+  function addNota() {
+    const p = getP(_currentId); if (!p) return;
+    if (!p.notasVivas) p.notasVivas = [];
+    // Ciclo de tipos
+    const tipos = Object.keys(NOTA_TIPOS);
+    const tipo = tipos[p.notasVivas.length % tipos.length];
+    p.notasVivas.unshift({ tipo, texto: '' });
+    save();
+    renderNotas(p);
+    setTimeout(()=>document.querySelector('.pd-nota-textarea')?.focus(),50);
+  }
+
+  function updateNota(idx, texto) {
+    const p = getP(_currentId); if (!p?.notasVivas?.[idx]===undefined) return;
+    p.notasVivas[idx].texto = texto;
+    save();
+  }
+
+  function delNota(idx) {
+    const p = getP(_currentId); if (!p) return;
+    p.notasVivas.splice(idx,1);
+    save(); renderNotas(p);
+  }
+
+  /* ━━ TABLERO DE CONTENIDO ━━ */
+  let _contenidoTipo = 'documento';
+  const CONTENIDO_ICOS = {
+    documento:'📄', imagen:'🖼', referencia:'🔗', video:'🎥', calendario:'📅'
+  };
+
+  function renderContenido(p) {
+    const container = document.getElementById('detailContenido');
+    if (!container) return;
+    const items = p.contenido || [];
+    if (!items.length) {
+      container.innerHTML = `<div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:20px 0;text-align:center">sin assets · agrega documentos, imágenes, referencias...</div>`;
+      return;
+    }
+    container.innerHTML = items.map((item,i)=>`
+      <div class="pd-content-card">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:22px">${CONTENIDO_ICOS[item.tipo]||'📄'}</span>
+          <button onclick="StudioProyectos.delContenido(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;opacity:0;transition:opacity .12s" class="pd-content-del">×</button>
+        </div>
+        <input class="pd-content-name-input" value="${escAttr(item.titulo||'')}" placeholder="título..."
+          onchange="StudioProyectos.updateContenido(${i},'titulo',this.value)">
+        <div class="pd-content-type-lbl">${item.tipo||'documento'}</div>
+        ${item.url?`<a href="${escAttr(item.url)}" target="_blank" style="font-family:var(--mono);font-size:8px;color:var(--hub);display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.url.slice(0,30)}...</a>`:''}
+      </div>`).join('');
+  }
+
+  function showAddContenido() {
+    const form = document.getElementById('addContenidoForm');
+    if (form) { form.style.display = form.style.display==='none'?'block':'none'; }
+    if (form?.style.display==='block') setTimeout(()=>document.getElementById('contenidoTitleInput')?.focus(),50);
+  }
+  function hideAddContenido() {
+    const form = document.getElementById('addContenidoForm');
+    if (form) form.style.display='none';
+  }
+  function selContenidoTipo(btn, tipo) {
+    document.querySelectorAll('.pd-tipo-chip[data-tipo]').forEach(b=>{b.classList.remove('active');});
+    btn.classList.add('active');
+    _contenidoTipo = tipo;
+  }
+  function addContenido() {
+    const titulo = document.getElementById('contenidoTitleInput')?.value.trim();
+    const url    = document.getElementById('contenidoUrlInput')?.value.trim();
+    if (!titulo) return;
+    const p = getP(_currentId); if (!p) return;
+    if (!p.contenido) p.contenido = [];
+    p.contenido.push({ titulo, url: url||'', tipo: _contenidoTipo });
+    save();
+    renderContenido(p);
+    hideAddContenido();
+    document.getElementById('contenidoTitleInput').value='';
+    document.getElementById('contenidoUrlInput').value='';
+  }
+  function updateContenido(idx, field, val) {
+    const p = getP(_currentId); if (!p?.contenido?.[idx]===undefined) return;
+    p.contenido[idx][field] = val; save();
+  }
+  function delContenido(idx) {
+    const p = getP(_currentId); if (!p) return;
+    p.contenido.splice(idx,1); save(); renderContenido(p);
+  }
+
+  /* ━━ PROCESO & AVANCES ━━ */
+  let _procesoTipo = 'nota';
+  const PROCESO_COLORS = {
+    entrega:  { color:'rgba(200,150,90,.8)',  bg:'rgba(200,150,90,.15)',  dot:'rgba(200,150,90,.6)'  },
+    decision: { color:'rgba(90,122,170,.8)',  bg:'rgba(90,122,170,.15)',  dot:'rgba(90,122,170,.6)'  },
+    bloqueo:  { color:'rgba(200,110,138,.75)',bg:'rgba(200,110,138,.15)', dot:'rgba(200,110,138,.6)' },
+    nota:     { color:'rgba(90,154,90,.8)',   bg:'rgba(90,154,90,.15)',   dot:'rgba(90,154,90,.6)'   },
+    inicio:   { color:'rgba(155,122,184,.8)', bg:'rgba(155,122,184,.15)', dot:'rgba(155,122,184,.6)' },
+  };
+
+  function renderProceso(p) {
+    const container = document.getElementById('detailProceso');
+    if (!container) return;
+    const items = (p.proceso || []).slice().reverse();
+    if (!items.length) {
+      container.innerHTML = `<div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:12px 0">sin entradas aún · registra decisiones, entregas y bloqueos</div>`;
+      return;
+    }
+    container.innerHTML = `<div class="pd-timeline">${items.map((item,i)=>{
+      const c = PROCESO_COLORS[item.tipo] || PROCESO_COLORS.nota;
+      const d = new Date(item.fecha||Date.now());
+      const dateStr = isNaN(d)?'':d.getDate()+'/'+(d.getMonth()+1);
+      return `<div class="pd-tl-item">
+        <div class="pd-tl-dot" style="background:${c.bg};border:1px solid ${c.dot}"></div>
+        <div class="pd-tl-content">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            <span class="pd-tl-badge" style="background:${c.bg};color:${c.color}">${item.tipo}</span>
+            <span style="font-family:var(--mono);font-size:8px;color:var(--muted)">${dateStr}</span>
+            <button onclick="StudioProyectos.delProceso(${(p.proceso||[]).length-1-i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;margin-left:auto">×</button>
+          </div>
+          <div style="font-size:12px;color:var(--text2);line-height:1.5">${escHtml(item.texto||'')}</div>
+        </div>
+      </div>`;
+    }).join('')}</div>`;
+  }
+
+  function showAddProceso() {
+    const form = document.getElementById('addProcesoForm');
+    if (form) { form.style.display = form.style.display==='none'?'block':'none'; }
+    if (form?.style.display==='block') setTimeout(()=>document.getElementById('procesoTxtInput')?.focus(),50);
+  }
+  function hideAddProceso() {
+    document.getElementById('addProcesoForm').style.display='none';
+  }
+  function selProcesoTipo(btn, tipo) {
+    document.querySelectorAll('.pd-tipo-chip[data-ptipo]').forEach(b=>b.classList.remove('active'));
+    btn.classList.add('active');
+    _procesoTipo = tipo;
+  }
+  function addProceso() {
+    const txt = document.getElementById('procesoTxtInput')?.value.trim();
+    if (!txt) return;
+    const p = getP(_currentId); if (!p) return;
+    if (!p.proceso) p.proceso = [];
+    p.proceso.push({ tipo: _procesoTipo, texto: txt, fecha: new Date().toISOString() });
+    save();
+    renderProceso(p);
+    hideAddProceso();
+    document.getElementById('procesoTxtInput').value='';
+  }
+  function delProceso(idx) {
+    const p = getP(_currentId); if (!p) return;
+    p.proceso.splice(idx,1); save(); renderProceso(p);
+  }
+
   /* ━━ PORTADA ━━ */
   function toggleCoverForm() {
     document.getElementById('coverForm')?.classList.toggle('open');
@@ -863,6 +1048,9 @@ window.StudioProyectos = (function () {
     newProyecto,
     renderDrawer, _goFoco,
     toggleCoverForm, saveCover, removeCover,
+    addNota, updateNota, delNota,
+    showAddContenido, hideAddContenido, selContenidoTipo, addContenido, updateContenido, delContenido,
+    showAddProceso, hideAddProceso, selProcesoTipo, addProceso, delProceso,
     showAddLink, hideAddLink, updateLink,
     _autoSave,
   };
