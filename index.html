@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- PWA -->
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0c0818">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Andy.net">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
+<title>Andy.net</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #0c0a12;
+  --s1:      #120f1a;
+  --s2:      #1a1625;
+  --s3:      #241e30;
+  --border:  rgba(180,140,220,0.08);
+  --border2: rgba(180,140,220,0.15);
+  --text:    #d4cfe0;
+  --muted:   #5a4f70;
+  --muted2:  #8a7a9a;
+
+  --hub:     #5a7aaa;
+  --studio:  #c8965a;
+  --muse:    #9b7ab8;
+  --self:    #f4a7b9;
+
+  --serif: 'Cormorant Garamond', serif;
+  --mono:  'Geist Mono', monospace;
+  --sans:  'Geist', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { font-size: 14px; scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--sans);
+  font-weight: 300;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── TOP BAR ── */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.1rem 2.5rem;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--bg);
+}
+.logo {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted2);
+}
+.top-nav {
+  display: flex;
+  gap: 1.2rem;
+  align-items: center;
+}
+.top-btn {
+  background: none;
+  border: none;
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 5px;
+  transition: all 0.15s;
+}
+.top-btn:hover { color: var(--text); background: var(--s2); }
+.top-btn.enter {
+  border: 1px solid var(--border2);
+  color: var(--muse);
+}
+.top-btn.enter:hover { background: var(--s2); border-color: var(--muse); }
+
+/* ── HERO ── */
+.hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 4.5rem 2rem 2.5rem;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  min-height: 320px;
+}
+.hero-eyebrow {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.05rem;
+  letter-spacing: 0.01em;
+  color: #ede5f5;
+  opacity: 0.55;
+  margin-bottom: 1.6rem;
+  cursor: pointer;
+  transition: opacity 0.22s ease, transform 0.22s ease, color 0.2s;
+  user-select: none;
+}
+.hero-eyebrow:hover { opacity: 0.8; color: #fff; }
+.hero-title {
+  font-family: var(--serif);
+  font-size: clamp(5rem, 13vw, 9rem);
+  font-weight: 300;
+  font-style: italic;
+  color: #ede5f5;
+  line-height: 0.88;
+  letter-spacing: -0.02em;
+  margin-bottom: 1.6rem;
+}
+.hero-date {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.hero-footer {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.hero-sep {
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 10px;
+}
+.hero-time {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  color: var(--muted);
+}
+.hero-divider {
+  width: 36px;
+  height: 1px;
+  background: var(--border2);
+  margin: 1.6rem auto;
+}
+
+/* ── TILES ── */
+.tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  width: 100%;
+}
+.tile {
+  padding: 2rem 1rem 1.8rem;
+  border-right: 1px solid var(--border);
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.tile:last-child { border-right: none; }
+.tile::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 2px;
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+.tile:hover::before { opacity: 1; }
+.tile.hub::before    { background: var(--hub); }
+.tile.studio::before { background: var(--studio); }
+.tile.muse::before   { background: var(--muse); }
+.tile.self::before   { background: var(--self); }
+.tile:hover { background: rgba(180,140,220,0.025); }
+
+.tile-glyph {
+  font-size: 2rem;
+  display: block;
+  margin-bottom: 14px;
+  line-height: 1;
+}
+.tile.hub    .tile-glyph { color: var(--hub);    text-shadow: 0 0 14px rgba(90,122,170,0.6);   animation: glyph-spin   9s linear infinite; }
+.tile.studio .tile-glyph { color: var(--studio); text-shadow: 0 0 14px rgba(200,150,90,0.6);  animation: glyph-spark  2.5s ease-in-out infinite; }
+.tile.muse   .tile-glyph { color: var(--muse);   text-shadow: 0 0 14px rgba(155,122,184,0.6); animation: glyph-swing  4s ease-in-out infinite; }
+.tile.self   .tile-glyph { color: var(--self);   text-shadow: 0 0 14px rgba(244,167,185,0.6); animation: glyph-beat   1.4s ease-in-out infinite; }
+
+.tile:hover .tile-glyph { animation: none; transform: scale(1.28); transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+
+@keyframes glyph-spin  { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes glyph-spark { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.2); opacity: 0.7; } }
+@keyframes glyph-swing { 0%,100% { transform: rotate(-10deg); } 50% { transform: rotate(10deg); } }
+@keyframes glyph-beat  { 0%,100% { transform: scale(1); } 15% { transform: scale(1.22); } 30% { transform: scale(1); } 45% { transform: scale(1.12); } }
+
+@media (max-width: 600px) {
+  .tiles { grid-template-columns: 1fr 1fr; }
+  .tile { border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+  .tile:nth-child(2n) { border-right: none; }
+  .tile:nth-child(3), .tile:nth-child(4) { border-bottom: none; }
+}
+
+.tile-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.tile-name {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  font-weight: 300;
+  color: #d4cfe0;
+  margin-bottom: 12px;
+}
+.tile-items {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.05em;
+  color: var(--muted);
+  line-height: 1.9;
+}
+.tile-items span {
+  display: block;
+  transition: color 0.15s;
+}
+.tile:hover.hub    .tile-items span { color: rgba(90,122,170,0.7); }
+.tile:hover.studio .tile-items span { color: rgba(200,150,90,0.7); }
+.tile:hover.muse   .tile-items span { color: rgba(155,122,184,0.7); }
+.tile:hover.self   .tile-items span { color: rgba(244,167,185,0.7); }
+
+/* ── CALENDAR ── */
+.cal-wrap {
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 0 2rem 2.5rem;
+}
+.cal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.4rem 0 0.9rem;
+}
+.cal-title {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--muted2);
+}
+.cal-nav {
+  background: none;
+  border: none;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 15px;
+  padding: 2px 10px;
+  border-radius: 4px;
+  transition: color 0.15s;
+}
+.cal-nav:hover { color: var(--text); }
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.cal-dow {
+  font-family: var(--mono);
+  font-size: 9px;
+  color: var(--muted);
+  text-align: center;
+  padding: 2px 0 6px;
+  letter-spacing: 0.05em;
+}
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--muted);
+  cursor: pointer;
+  transition: all 0.12s;
+  position: relative;
+  gap: 2px;
+}
+.cal-day:hover { background: var(--s2); color: var(--text); }
+.cal-day.today {
+  background: var(--s3);
+  color: var(--muse);
+  border: 1px solid rgba(155,122,184,0.3);
+}
+.cal-day.has-dot::after {
+  content: '';
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--hub);
+  position: absolute;
+  bottom: 4px;
+}
+.cal-day.empty { pointer-events: none; }
+
+/* ── STATS ── */
+.stats-wrap {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+  padding: 0 2rem 2rem;
+  max-width: 640px;
+  margin: 0 auto;
+}
+.stat {
+  text-align: center;
+}
+.stat-num {
+  font-family: var(--mono);
+  font-size: 1.3rem;
+  font-weight: 400;
+  color: var(--text);
+  display: block;
+}
+.stat-lbl {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: block;
+  margin-top: 4px;
+}
+
+/* ── BOTTOM BAR ── */
+.bottom-bar {
+  position: fixed;
+  bottom: 0; right: 0;
+  display: flex;
+  justify-content: flex-end;
+  align-items: flex-end;
+  padding: 1.2rem 1.8rem;
+  pointer-events: none;
+  z-index: 50;
+}
+.moon-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--muted);
+  pointer-events: all;
+  transition: color 0.2s;
+  line-height: 1;
+  padding: 4px;
+}
+.moon-btn:hover { color: var(--muted2); }
+
+.fab {
+  width: 46px; height: 46px;
+  border-radius: 50%;
+  background: var(--s1);
+  border: 1.5px solid transparent;
+  background-clip: padding-box;
+  color: #ede5f5;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s;
+  pointer-events: all;
+  line-height: 1;
+  position: relative;
+  z-index: 51;
+}
+.fab::before {
+  content: '';
+  position: absolute;
+  inset: -1.5px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--hub), var(--muse));
+  z-index: -1;
+  opacity: 0.6;
+  transition: opacity 0.25s;
+}
+.fab:hover::before { opacity: 1; }
+.fab:hover {
+  background: var(--s2);
+  transform: scale(1.1);
+}
+
+/* ── FAB MODAL ── */
+.fab-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.6);
+  display: none;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 100;
+  padding-bottom: 4.5rem;
+}
+.fab-overlay.open { display: flex; }
+.fab-modal {
+  background: var(--s1);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 1.6rem 1.6rem 1.4rem;
+  width: min(460px, calc(100% - 2rem));
+  animation: slideUp 0.22s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes slideUp {
+  from { transform: translateY(24px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+.fab-modal-title {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 1.2rem;
+  color: #ede5f5;
+  margin-bottom: 1.1rem;
+}
+.fab-textarea {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: var(--sans);
+  font-size: 13px;
+  padding: 12px 14px;
+  resize: none;
+  outline: none;
+  min-height: 80px;
+  line-height: 1.65;
+  margin-bottom: 1.1rem;
+  transition: border-color 0.15s;
+}
+.fab-textarea:focus { border-color: rgba(155,122,184,0.4); }
+
+/* field rows */
+.fab-field { margin-bottom: 1rem; }
+.fab-field-label {
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* custom dropdown */
+.fab-select-wrap { position: relative; display: inline-block; width: 100%; }
+.fab-select {
+  width: 100%;
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted2);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 8px 32px 8px 12px;
+  cursor: pointer;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  transition: border-color 0.15s, color 0.15s;
+}
+.fab-select:focus, .fab-select:hover { border-color: var(--border2); color: var(--text); }
+.fab-select-arrow {
+  position: absolute;
+  right: 11px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--muted);
+  font-size: 10px;
+  pointer-events: none;
+}
+
+/* destino chips */
+.fab-dest-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.fab-dest-chip {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 9px;
+  color: var(--muted2);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.fab-dest-chip:hover { border-color: var(--border2); color: var(--text); }
+.fab-dest-chip.sel {
+  background: var(--s3);
+  border-color: rgba(155,122,184,0.45);
+  color: #ede5f5;
+}
+.fab-dest-chip.sel .chip-dot { background: var(--muse); }
+.chip-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+
+.fab-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 1.1rem;
+}
+.fab-cancel {
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.fab-cancel:hover { color: var(--text); border-color: var(--border2); }
+.fab-save {
+  background: var(--s3);
+  border: 1px solid rgba(155,122,184,0.45);
+  border-radius: 8px;
+  color: var(--muse);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 8px 16px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.fab-save:hover { background: rgba(155,122,184,0.15); color: #ede5f5; }
+
+/* campos condicionales */
+.fab-conditional {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.25s ease;
+  opacity: 0;
+}
+.fab-conditional.visible {
+  max-height: 200px;
+  opacity: 1;
+}
+.fab-row-2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.fab-toggle-row { display: flex; align-items: center; gap: 10px; }
+.fab-toggle {
+  background: var(--s2);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--muted2);
+  font-family: var(--mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.fab-toggle.on { background: var(--s3); border-color: rgba(155,122,184,0.4); color: var(--muse); }
+.fab-toggle-hint { font-family: var(--mono); font-size: 9px; color: var(--muted); }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 5rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  background: var(--s3);
+  border: 1px solid var(--border2);
+  border-radius: 8px;
+  color: var(--text);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.05em;
+  padding: 8px 16px;
+  opacity: 0;
+  transition: all 0.25s;
+  pointer-events: none;
+  white-space: nowrap;
+  z-index: 200;
+}
+/* ── THEME TOGGLE ── */
+.theme-toggle {
+  background: none;
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  color: var(--muted2);
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  padding: 5px 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all .2s;
+}
+.theme-toggle:hover { color: var(--text); border-color: var(--border2); background: var(--s2); }
+
+.toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* ── TÍTULO CÓSMICO ── */
+.hero-title-cosmo {
+  font-family: 'Crimson Text', var(--serif), serif;
+  font-weight: 600;
+  font-style: italic;
+  background: linear-gradient(110deg, #e8e0f5 0%, #fff 30%, #c0b4cc 52%, #e0d8f0 72%, #fff 100%);
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: heroShimmer 7s ease-in-out infinite, heroFloat 8s ease-in-out infinite;
+  filter: drop-shadow(0 0 22px rgba(200,180,240,.5)) drop-shadow(0 0 55px rgba(140,100,200,.22));
+}
+@keyframes heroShimmer {
+  0%,100% { background-position: 100% 50%; }
+  50%      { background-position: 0% 50%; }
+}
+@keyframes heroFloat {
+  0%,100% { transform: translateY(0px); }
+  50%      { transform: translateY(-8px); }
+}
+</style>
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@1,600&display=swap" rel="stylesheet">
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="top-bar">
+  <div class="logo">Andy.net</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <button class="theme-toggle" id="portalThemeToggle" onclick="portalToggleTheme()" title="cambiar tema">
+      <span class="toggle-icon">○</span>
+    </button>
+    <button class="top-btn" onclick="showToast('⚙ Configuración próximamente')">⚙</button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" style="position:relative;overflow:hidden;">
+  <canvas id="heroCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+  <div class="hero-eyebrow" id="heroQuote" onclick="nextQuote()" title="click para cambiar" style="position:relative;z-index:2;"></div>
+  <h1 class="hero-title hero-title-cosmo" style="position:relative;z-index:2;">Ανδρέα</h1>
+  <div class="hero-footer">
+    <span class="hero-date" id="heroDate"></span>
+    <span class="hero-sep">·</span>
+    <span class="hero-time" id="heroTime"></span>
+  </div>
+  <div class="hero-divider"></div>
+</section>
+
+<!-- TILES -->
+<div class="tiles">
+
+  <div class="tile hub" onclick="openHub()">
+    <span class="tile-glyph">❖</span>
+    <div class="tile-label">01</div>
+    <div class="tile-name">Hub</div>
+    <div class="tile-items">
+      <span>Planner · Inbox</span>
+    </div>
+  </div>
+
+  <div class="tile studio" onclick="openStudio()">
+    <span class="tile-glyph">⊛</span>
+    <div class="tile-label">02</div>
+    <div class="tile-name">Studio</div>
+    <div class="tile-items">
+      <span>Proyectos · Journal</span>
+    </div>
+  </div>
+
+  <div class="tile muse" onclick="openMuse()">
+    <span class="tile-glyph">✺</span>
+    <div class="tile-label">03</div>
+    <div class="tile-name">Muse</div>
+    <div class="tile-items">
+      <span>Diseño / Arte</span>
+    </div>
+  </div>
+
+  <div class="tile self" onclick="openSelf()">
+    <span class="tile-glyph">⊹</span>
+    <div class="tile-label">04</div>
+    <div class="tile-name">Self</div>
+    <div class="tile-items">
+      <span>Anne · Home</span>
+    </div>
+  </div>
+
+</div>
+
+<!-- CALENDAR -->
+<div class="cal-wrap">
+  <div class="cal-header">
+    <button class="cal-nav" onclick="calNav(-1)">‹</button>
+    <div class="cal-title" id="calTitle"></div>
+    <button class="cal-nav" onclick="calNav(1)">›</button>
+  </div>
+  <div class="cal-grid" id="calGrid"></div>
+</div>
+
+<!-- STATS -->
+<div class="stats-wrap" id="statsWrap">
+  <div class="stat">
+    <span class="stat-num" id="statTasks">0</span>
+    <span class="stat-lbl">tareas hoy</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num" id="statInbox">0</span>
+    <span class="stat-lbl">en inbox</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num" id="statNotes">0</span>
+    <span class="stat-lbl">notas libres</span>
+  </div>
+  <div class="stat">
+    <span class="stat-num" id="statDays">—</span>
+    <span class="stat-lbl">días juntos</span>
+  </div>
+</div>
+
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <button class="fab" id="fabBtn" onclick="openFab()" title="Captura rápida (Ctrl+Space)">✦</button>
+</div>
+
+<!-- FAB MODAL -->
+<div class="fab-overlay" id="fabOverlay" onclick="closeFabIfOutside(event)">
+  <div class="fab-modal">
+    <div class="fab-modal-title">Captura rápida</div>
+
+    <div class="fab-field">
+      <span class="fab-field-label">Tipo</span>
+      <div class="fab-select-wrap">
+        <select class="fab-select" id="fabTipo" onchange="onTipoChange()">
+          <option value="nota">Nota</option>
+          <option value="tarea">Tarea</option>
+          <option value="evento">Evento / Recordatorio</option>
+          <option value="proyecto">Proyecto</option>
+        </select>
+        <span class="fab-select-arrow">▾</span>
+      </div>
+    </div>
+
+    <textarea class="fab-textarea" id="fabText" placeholder="¿Qué tienes en mente?..."></textarea>
+
+    <!-- campos condicionales: evento -->
+    <div class="fab-conditional" id="fabEventoFields">
+      <div class="fab-row-2">
+        <div class="fab-field">
+          <span class="fab-field-label">Fecha</span>
+          <input type="date" class="fab-select" id="fabFecha" style="padding:7px 12px;">
+        </div>
+        <div class="fab-field">
+          <span class="fab-field-label">Hora</span>
+          <input type="time" class="fab-select" id="fabHora" style="padding:7px 12px;">
+        </div>
+      </div>
+      <div class="fab-field">
+        <span class="fab-field-label">¿Recordatorio?</span>
+        <div class="fab-toggle-row">
+          <button class="fab-toggle" id="fabRecordatorio" onclick="toggleRecordatorio()">No</button>
+          <span class="fab-toggle-hint" id="fabRecordatorioHint"></span>
+        </div>
+      </div>
+    </div>
+
+    <!-- campos condicionales: proyecto -->
+    <div class="fab-conditional" id="fabProyectoFields">
+      <div class="fab-field">
+        <span class="fab-field-label">Nombre del proyecto</span>
+        <input type="text" class="fab-select" id="fabProyNombre" placeholder="nombre corto..." style="padding:8px 12px;text-transform:none;letter-spacing:0;">
+      </div>
+    </div>
+
+    <div class="fab-field" id="fabPrioField">
+      <span class="fab-field-label">Prioridad</span>
+      <div class="fab-select-wrap">
+        <select class="fab-select" id="fabPrio">
+          <option value="">Sin prioridad</option>
+          <option value="alta">Alta</option>
+          <option value="media">Media</option>
+          <option value="baja">Baja</option>
+        </select>
+        <span class="fab-select-arrow">▾</span>
+      </div>
+    </div>
+
+    <div class="fab-field">
+      <span class="fab-field-label">Destino</span>
+      <div class="fab-dest-row">
+        <button class="fab-dest-chip sel" data-dest="inbox" onclick="selectDest(this)">
+          <span class="chip-dot"></span> Inbox
+        </button>
+        <button class="fab-dest-chip" data-dest="planner" onclick="selectDest(this)">
+          <span class="chip-dot"></span> → Planner
+        </button>
+      </div>
+    </div>
+
+    <div class="fab-actions">
+      <button class="fab-cancel" onclick="closeFab()">cancelar</button>
+      <button class="fab-save" onclick="submitFab()">guardar</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+const MONTH_NAMES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DAY_NAMES   = ['lu','ma','mi','ju','vi','sá','do'];
+const DAY_FULL    = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
+const QUOTES = [
+  { text: 'Mientras se aplaza la vida, pasa.', author: 'Séneca' },
+  { text: 'No sufras por lo imaginado. No dejes que la imaginación te torture.', author: 'Marco Aurelio' },
+  { text: 'No pidas que todo suceda como deseas, sino desea que todo suceda como sucede.', author: 'Epicteto' },
+  { text: 'La felicidad de tu vida depende de la calidad de tus pensamientos.', author: 'Marco Aurelio' },
+  { text: 'Soporta y abstente.', author: 'Epicteto' },
+  { text: 'Nunca sufras por el futuro: si llegas a él, llegas con las mismas armas con que ahora enfrentas el presente.', author: 'Séneca' },
+  { text: 'Lo que perturba a los hombres no son las cosas, sino las opiniones sobre las cosas.', author: 'Epicteto' },
+  { text: 'Pierde el miedo a parecer presuntuoso: es mejor atreverse y arrepentirse que no atreverse y arrepentirse.', author: 'Cicerón' },
+  { text: 'Actúa en el exterior como quieres ser en el interior.', author: 'Marco Aurelio' },
+  { text: 'El tiempo que se va no vuelve; lo que perdiste ayer no lo recobras hoy.', author: 'Séneca' },
+  { text: 'No seas esclavo de tus pasiones: no te dejes arrastrar por ellas.', author: 'Epicteto' },
+  { text: 'Es propio del hombre sabio no resistir lo que no puede cambiar.', author: 'Séneca' },
+  { text: 'Confina tu atención al presente.', author: 'Marco Aurelio' },
+  { text: 'Busca la virtud por sí misma, no como medio para otra cosa.', author: 'Cicerón' },
+  { text: 'Nada dura siempre, pocas cosas duran mucho tiempo.', author: 'Séneca' },
+  { text: 'No te preguntes qué piensan de ti. Tú ya lo sabes.', author: 'Marco Aurelio' },
+];
+
+let _quoteIdx = 0;
+
+let calYear, calMonth;
+
+function todayKey() {
+  return new Date().toISOString().slice(0,10);
+}
+
+function initQuote() {
+  // índice basado en bloques de 4h del día (0-5) + día del mes para variedad
+  const now = new Date();
+  const block = Math.floor(now.getHours() / 4);
+  _quoteIdx = (now.getDate() * 6 + block) % QUOTES.length;
+  renderQuote();
+
+  // autochange cada 4 horas
+  const msToNextBlock = (4 - (now.getHours() % 4)) * 3600000 - now.getMinutes() * 60000;
+  setTimeout(() => {
+    nextQuote();
+    setInterval(nextQuote, 4 * 3600000);
+  }, msToNextBlock);
+}
+
+function renderQuote(fade) {
+  const el = document.getElementById('heroQuote');
+  const q  = QUOTES[_quoteIdx];
+  if (fade) {
+    el.style.opacity = '0';
+    el.style.transform = 'translateY(-4px)';
+    setTimeout(() => {
+      el.textContent = `"${q.text}" — ${q.author}`;
+      el.style.opacity = '';
+      el.style.transform = '';
+    }, 220);
+  } else {
+    el.textContent = `"${q.text}" — ${q.author}`;
+  }
+}
+
+function nextQuote() {
+  _quoteIdx = (_quoteIdx + 1) % QUOTES.length;
+  renderQuote(true);
+}
+
+function initDate() {
+  const now = new Date();
+  calYear  = now.getFullYear();
+  calMonth = now.getMonth();
+  document.getElementById('heroDate').textContent =
+    DAY_FULL[now.getDay()] + ', ' + now.getDate() + ' de ' + MONTH_NAMES[now.getMonth()] + ' de ' + now.getFullYear();
+}
+
+function updateTime() {
+  const now = new Date();
+  document.getElementById('heroTime').textContent =
+    now.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
+}
+
+function renderCal() {
+  const title = document.getElementById('calTitle');
+  const grid  = document.getElementById('calGrid');
+  title.textContent = MONTH_NAMES[calMonth].toUpperCase() + ' ' + calYear;
+
+  const today = new Date();
+  const firstDay = new Date(calYear, calMonth, 1);
+  const daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+  let startDow = firstDay.getDay();
+  startDow = startDow === 0 ? 6 : startDow - 1;
+
+  let html = DAY_NAMES.map(d => `<div class="cal-dow">${d}</div>`).join('');
+  for (let i = 0; i < startDow; i++) html += '<div class="cal-day empty"></div>';
+
+  for (let d = 1; d <= daysInMonth; d++) {
+    const key = calYear + '-' + String(calMonth+1).padStart(2,'0') + '-' + String(d).padStart(2,'0');
+    const isToday = today.getFullYear() === calYear && today.getMonth() === calMonth && today.getDate() === d;
+    const hasDot  = hasPlannerData(key);
+    html += `<div class="cal-day${isToday?' today':''}${hasDot?' has-dot':''}" onclick="openPlannerDay('${key}')" title="${key}">${d}</div>`;
+  }
+
+  grid.innerHTML = html;
+}
+
+function calNav(dir) {
+  calMonth += dir;
+  if (calMonth < 0)  { calMonth = 11; calYear--; }
+  if (calMonth > 11) { calMonth = 0;  calYear++; }
+  renderCal();
+}
+
+function hasPlannerData(key) {
+  try {
+    const state = JSON.parse(localStorage.getItem('appState') || '{}');
+    const day = state.plannerByDate?.[key];
+    if (!day) return false;
+    return (day.morning?.length || day.afternoon?.length || day.night?.length) > 0;
+  } catch { return false; }
+}
+
+function renderStats() {
+  try {
+    const state = JSON.parse(localStorage.getItem('appState') || '{}');
+    const today = todayKey();
+    const day = state.plannerByDate?.[today];
+    const tasks = (day?.morning?.length||0) + (day?.afternoon?.length||0) + (day?.night?.length||0);
+    document.getElementById('statTasks').textContent = tasks;
+
+    const inbox = JSON.parse(localStorage.getItem('dash_inbox') || '[]');
+    document.getElementById('statInbox').textContent = inbox.length;
+
+    const notas = JSON.parse(localStorage.getItem('est_notas_v2') || '[]');
+    document.getElementById('statNotes').textContent = notas.length;
+
+    const since = localStorage.getItem('ls_since');
+    if (since) {
+      const [y,m,d] = since.split('-').map(Number);
+      const d0 = new Date(y, m-1, d);
+      const d1 = new Date(); d1.setHours(0,0,0,0);
+      const days = Math.max(0, Math.round((d1-d0)/86400000));
+      document.getElementById('statDays').textContent = days;
+    }
+  } catch(e) {}
+}
+
+/* ── FAB ── */
+let fabDest = 'inbox';
+let fabRecordatorioOn = false;
+
+const PLACEHOLDERS = {
+  nota:     '¿Qué tienes en mente?...',
+  tarea:    'Describe la tarea...',
+  evento:   'Nombre del evento o recordatorio...',
+  proyecto: 'Describe brevemente el proyecto...'
+};
+
+function openFab() {
+  document.getElementById('fabOverlay').classList.add('open');
+  const hoy = new Date().toISOString().slice(0,10);
+  document.getElementById('fabFecha').value = hoy;
+  setTimeout(() => document.getElementById('fabTipo').focus(), 60);
+}
+
+function closeFab() {
+  document.getElementById('fabOverlay').classList.remove('open');
+  document.getElementById('fabText').value = '';
+  document.getElementById('fabTipo').value = 'nota';
+  document.getElementById('fabPrio').value = '';
+  document.getElementById('fabFecha').value = '';
+  document.getElementById('fabHora').value = '';
+  document.getElementById('fabProyNombre').value = '';
+  fabRecordatorioOn = false;
+  const tog = document.getElementById('fabRecordatorio');
+  if (tog) { tog.textContent = 'No'; tog.classList.remove('on'); }
+  document.getElementById('fabRecordatorioHint').textContent = '';
+  onTipoChange();
+}
+
+function closeFabIfOutside(e) {
+  if (e.target === document.getElementById('fabOverlay')) closeFab();
+}
+
+function onTipoChange() {
+  const tipo = document.getElementById('fabTipo').value;
+  document.getElementById('fabText').placeholder = PLACEHOLDERS[tipo] || PLACEHOLDERS.nota;
+
+  const eventoFields  = document.getElementById('fabEventoFields');
+  const proyFields    = document.getElementById('fabProyectoFields');
+  const prioField     = document.getElementById('fabPrioField');
+
+  eventoFields.classList.toggle('visible', tipo === 'evento');
+  proyFields.classList.toggle('visible',   tipo === 'proyecto');
+  prioField.style.display = tipo === 'evento' ? 'none' : '';
+}
+
+function toggleRecordatorio() {
+  fabRecordatorioOn = !fabRecordatorioOn;
+  const btn  = document.getElementById('fabRecordatorio');
+  const hint = document.getElementById('fabRecordatorioHint');
+  btn.textContent = fabRecordatorioOn ? 'Sí' : 'No';
+  btn.classList.toggle('on', fabRecordatorioOn);
+  hint.textContent = fabRecordatorioOn ? 'se guardará con alerta' : '';
+}
+
+function selectDest(btn) {
+  document.querySelectorAll('.fab-dest-chip').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  fabDest = btn.dataset.dest;
+}
+
+function submitFab() {
+  const txt  = document.getElementById('fabText').value.trim();
+  if (!txt) { document.getElementById('fabText').focus(); return; }
+  const tipo  = document.getElementById('fabTipo').value;
+  const prio  = document.getElementById('fabPrio').value;
+  const fecha = document.getElementById('fabFecha').value;
+  const hora  = document.getElementById('fabHora').value;
+  const proyNombre = document.getElementById('fabProyNombre').value.trim();
+  const today = todayKey();
+
+  const item = {
+    id: Date.now(),
+    text: txt,
+    type: tipo,
+    prio,
+    status: 'pendiente',
+    time: new Date().toISOString(),
+    date: today,
+    ...(tipo === 'evento' && { eventDate: fecha, eventTime: hora, recordatorio: fabRecordatorioOn }),
+    ...(tipo === 'proyecto' && proyNombre && { proyNombre })
+  };
+
+  if (fabDest === 'inbox') {
+    const inbox = JSON.parse(localStorage.getItem('dash_inbox') || '[]');
+    inbox.unshift(item);
+    localStorage.setItem('dash_inbox', JSON.stringify(inbox));
+  } else if (fabDest === 'planner') {
+    const key = 'pln_v2_' + today + '_manana';
+    const items = JSON.parse(localStorage.getItem(key) || '[]');
+    items.push({ ...item, done: false });
+    localStorage.setItem(key, JSON.stringify(items));
+  }
+
+  showToast('✓ guardado en ' + fabDest);
+  closeFab();
+  renderStats();
+}
+
+/* ── TOAST ── */
+let _toastTimer;
+function showToast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2800);
+}
+
+/* ── NAVEGACIÓN ── */
+function openHub() { window.location.href = 'hub.html'; }
+function openStudio() { showToast('→ Studio'); }
+function openMuse()   { showToast('→ Muse'); }
+function openSelf()   { showToast('→ Self'); }
+function openPlannerDay(key) { showToast('📅 ' + key); }
+
+/* ── KEYBOARD ── */
+document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key === ' ') { e.preventDefault(); openFab(); }
+  if (e.key === 'Escape') closeFab();
+});
+
+/* ── INIT ── */
+initQuote();
+initDate();
+updateTime();
+renderCal();
+renderStats();
+setInterval(updateTime, 60000);
+</script>
+<!-- TEMA -->
+<script>
+(function() {
+  const KEY = 'andy_theme';
+  const DAY_VARS = {
+    '--bg':'#f5f0e8','--s1':'#ede8df','--s2':'#e4ddd3','--s3':'#d9d1c4',
+    '--border':'rgba(192,180,204,0.35)','--border2':'rgba(192,180,204,0.6)',
+    '--text':'#3a3430','--text2':'#1e1a16','--muted':'#9a8f80','--muted2':'#7a6f62',
+  };
+  const NIGHT_VARS = {
+    '--bg':'#0c0a12','--s1':'#120f1a','--s2':'#1a1625','--s3':'#241e30',
+    '--border':'rgba(180,140,220,0.08)','--border2':'rgba(180,140,220,0.15)',
+    '--text':'#d4cfe0','--text2':'#f0ecf8','--muted':'#5a4f70','--muted2':'#8a7a9a',
+  };
+
+  function applyTheme(theme) {
+    const vars = theme === 'day' ? DAY_VARS : NIGHT_VARS;
+    const root = document.documentElement;
+    Object.entries(vars).forEach(([k,v]) => root.style.setProperty(k, v));
+    localStorage.setItem(KEY, theme);
+    const btn = document.getElementById('portalThemeToggle');
+    if (btn) {
+      btn.querySelector('.toggle-icon').textContent = theme === 'day' ? '◑' : '○';
+    }
+    // Hero fondo especial en modo día para que el título contraste
+    const hero = document.querySelector('.hero');
+    if (hero) {
+      hero.style.background = theme === 'day'
+        ? 'linear-gradient(180deg, #2a1f3d 0%, #1a1228 60%, #f5f0e8 100%)'
+        : '';
+    }
+  }
+
+  window.portalToggleTheme = function() {
+    const current = localStorage.getItem(KEY) || 'night';
+    applyTheme(current === 'night' ? 'day' : 'night');
+  };
+
+  // Aplicar al cargar
+  applyTheme(localStorage.getItem(KEY) || 'night');
+})();
+</script>
+<script>
+(function() {
+  const canvas = document.getElementById('heroCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  const hero = canvas.parentElement;
+
+  function resize() {
+    canvas.width  = hero.offsetWidth;
+    canvas.height = hero.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const orbs = [];
+  for (let i = 0; i < 7; i++) {
+    orbs.push({
+      x: Math.random() * hero.offsetWidth,
+      y: Math.random() * hero.offsetHeight,
+      r: Math.random() * 60 + 30,
+      phase: Math.random() * Math.PI * 2,
+      dx: (Math.random() - .5) * .22,
+      dy: (Math.random() - .5) * .16,
+      hue: [260, 280, 245, 300, 255][Math.floor(Math.random()*5)],
+      sat: Math.floor(Math.random()*25)+30,
+    });
+  }
+
+  let t = 0;
+  function draw() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    t += .007;
+    orbs.forEach(o => {
+      o.x += o.dx; o.y += o.dy;
+      if (o.x < -o.r*2) o.x = canvas.width + o.r;
+      if (o.x > canvas.width + o.r*2) o.x = -o.r;
+      if (o.y < -o.r*2) o.y = canvas.height + o.r;
+      if (o.y > canvas.height + o.r*2) o.y = -o.r;
+
+      const p = o.r * (.9 + .1 * Math.sin(t * 1.1 + o.phase));
+      const a = .055 + .035 * Math.sin(t + o.phase);
+
+      const g = ctx.createRadialGradient(o.x-p*.3, o.y-p*.3, p*.1, o.x, o.y, p);
+      g.addColorStop(0, `hsla(${o.hue},${o.sat+20}%,80%,${a*2.4})`);
+      g.addColorStop(.4, `hsla(${o.hue},${o.sat}%,55%,${a*1.4})`);
+      g.addColorStop(.7, `hsla(${o.hue+30},${o.sat-10}%,40%,${a})`);
+      g.addColorStop(1, `hsla(${o.hue},${o.sat}%,20%,0)`);
+      ctx.beginPath(); ctx.arc(o.x, o.y, p, 0, Math.PI*2);
+      ctx.fillStyle = g; ctx.fill();
+
+      // highlight tipo esfera de jabón
+      const hl = ctx.createRadialGradient(o.x-p*.35, o.y-p*.35, 0, o.x-p*.35, o.y-p*.35, p*.42);
+      hl.addColorStop(0, `rgba(255,255,255,${a*1.1})`);
+      hl.addColorStop(1, `rgba(255,255,255,0)`);
+      ctx.beginPath(); ctx.arc(o.x, o.y, p, 0, Math.PI*2);
+      ctx.fillStyle = hl; ctx.fill();
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+</script>
+</body>
+</html>
