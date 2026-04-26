@@ -601,10 +601,6 @@ body {
 }
 .fab-toggle.on { background: var(--s3); border-color: rgba(155,122,184,0.4); color: var(--muse); }
 .fab-toggle-hint { font-family: var(--mono); font-size: 9px; color: var(--muted); }
-.fab-chips-row { display:flex; gap:5px; flex-wrap:wrap; margin-top:4px; }
-.fab-chip { font-family:var(--mono); font-size:8.5px; letter-spacing:.06em; padding:5px 12px; border-radius:20px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; transition:all .12s; white-space:nowrap; }
-.fab-chip:hover { border-color:var(--border2); color:var(--text); }
-.fab-chip.sel { background:var(--s2); border-color:rgba(155,122,184,.45); color:#ede5f5; }
 
 /* ── TOAST ── */
 .toast {
@@ -768,82 +764,9 @@ body {
   </div>
 </div>
 
-
-
-    <div class="fab-field">
-      <span class="fab-field-label">Tipo</span>
-      <div class="fab-select-wrap">
-        <select class="fab-select" id="fabTipo" onchange="onTipoChange()">
-          <option value="nota">Nota</option>
-          <option value="tarea">Tarea</option>
-          <option value="evento">Evento / Recordatorio</option>
-          <option value="proyecto">Proyecto</option>
-        </select>
-        <span class="fab-select-arrow">▾</span>
-      </div>
-    </div>
-
-    <textarea class="fab-textarea" id="fabText" placeholder="¿Qué tienes en mente?..."></textarea>
-
-    <!-- campos condicionales: evento -->
-    <div class="fab-conditional" id="fabEventoFields">
-      <div class="fab-row-2">
-        <div class="fab-field">
-          <span class="fab-field-label">Fecha</span>
-          <input type="date" class="fab-select" id="fabFecha" style="padding:7px 12px;">
-        </div>
-        <div class="fab-field">
-          <span class="fab-field-label">Hora</span>
-          <input type="time" class="fab-select" id="fabHora" style="padding:7px 12px;">
-        </div>
-      </div>
-      <div class="fab-field">
-        <span class="fab-field-label">¿Recordatorio?</span>
-        <div class="fab-toggle-row">
-          <button class="fab-toggle" id="fabRecordatorio" onclick="toggleRecordatorio()">No</button>
-          <span class="fab-toggle-hint" id="fabRecordatorioHint"></span>
-        </div>
-      </div>
-    </div>
-
-    <!-- campos condicionales: proyecto -->
-    <div class="fab-conditional" id="fabProyectoFields">
-      <div class="fab-field">
-        <span class="fab-field-label">Nombre del proyecto</span>
-        <input type="text" class="fab-select" id="fabProyNombre" placeholder="nombre corto..." style="padding:8px 12px;text-transform:none;letter-spacing:0;">
-      </div>
-    </div>
-
-    <div class="fab-field" id="fabPrioField">
-      <span class="fab-field-label">Prioridad</span>
-      <div class="fab-select-wrap">
-        <select class="fab-select" id="fabPrio">
-          <option value="">Sin prioridad</option>
-          <option value="alta">Alta</option>
-          <option value="media">Media</option>
-          <option value="baja">Baja</option>
-        </select>
-        <span class="fab-select-arrow">▾</span>
-      </div>
-    </div>
-
-    <div class="fab-field">
-      <span class="fab-field-label">Destino</span>
-      <div class="fab-dest-row">
-        <button class="fab-dest-chip sel" data-dest="inbox" onclick="selectDest(this)">
-          <span class="chip-dot"></span> Inbox
-        </button>
-        <button class="fab-dest-chip" data-dest="planner" onclick="selectDest(this)">
-          <span class="chip-dot"></span> → Planner
-        </button>
-      </div>
-    </div>
-
-    <div class="fab-actions">
-      <button class="fab-cancel" onclick="closeFab()">cancelar</button>
-      <button class="fab-save" onclick="submitFab()">guardar</button>
-    </div>
-  </div>
+<!-- BOTTOM BAR -->
+<div class="bottom-bar">
+  <button class="fab" id="fabBtn" onclick="openFab()" title="Captura rápida (Ctrl+Space)">✦</button>
 </div>
 
 <!-- TOAST -->
