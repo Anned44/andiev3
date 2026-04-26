@@ -46,9 +46,15 @@
   <button class="studio-nav-btn active" onclick="StudioCore.navTo(this,'dashboard')" title="Dashboard">
     <span class="studio-nav-icon">⌂</span><span class="studio-nav-label">Dashboard</span>
   </button>
-  <button class="studio-nav-btn" onclick="StudioCore.navTo(this,'proyectos')" title="Proyectos">
+  <button class="studio-nav-btn" onclick="StudioCore.navTo(this,'proyectos');StudioProyectos.setFilter(null,'all')" title="Proyectos" id="snavProyectos">
     <span class="studio-nav-icon">◈</span><span class="studio-nav-label">Proyectos</span>
   </button>
+  <button class="studio-nav-sub active" onclick="StudioProyectos.setFilter(this,'all')" data-f="all"><span class="studio-nav-label">todos</span></button>
+  <button class="studio-nav-sub" onclick="StudioProyectos.setFilter(this,'construyendo')" data-f="construyendo"><span class="studio-nav-label">construyendo</span></button>
+  <button class="studio-nav-sub" onclick="StudioProyectos.setFilter(this,'planificando')" data-f="planificando"><span class="studio-nav-label">planificando</span></button>
+  <button class="studio-nav-sub" onclick="StudioProyectos.setFilter(this,'idea')" data-f="idea"><span class="studio-nav-label">idea</span></button>
+  <button class="studio-nav-sub" onclick="StudioProyectos.setFilter(this,'pausado')" data-f="pausado"><span class="studio-nav-label">pausado</span></button>
+  <button class="studio-nav-sub urgente" onclick="StudioProyectos.toggleUrgent(this)" id="snavUrgente"><span class="studio-nav-label">⚡ urgentes</span></button>
   <button class="studio-nav-btn" onclick="StudioCore.navTo(this,'aprendizaje')" title="Aprendizaje">
     <span class="studio-nav-icon">◎</span><span class="studio-nav-label">Aprendizaje</span>
   </button>
@@ -127,13 +133,6 @@
     <div class="studio-page-sub">crea · construye · lanza</div>
 
     <div class="proy-toolbar">
-      <button class="proy-filter-btn active" onclick="StudioProyectos.setFilter(this,'all')">todos</button>
-      <button class="proy-filter-btn" onclick="StudioProyectos.setFilter(this,'idea')">idea</button>
-      <button class="proy-filter-btn" onclick="StudioProyectos.setFilter(this,'planificando')">planificando</button>
-      <button class="proy-filter-btn" onclick="StudioProyectos.setFilter(this,'construyendo')">construyendo</button>
-      <button class="proy-filter-btn" onclick="StudioProyectos.setFilter(this,'pausado')">pausado</button>
-      <button class="proy-filter-btn" onclick="StudioProyectos.setFilter(this,'terminado')">terminado</button>
-      <button class="proy-filter-urgent" onclick="StudioProyectos.toggleUrgent(this)">⚡ urgentes</button>
       <div class="proy-toolbar-spacer"></div>
       <button class="proy-new-btn" onclick="StudioProyectos.newProyecto()">+ nuevo proyecto</button>
     </div>
