@@ -61,7 +61,37 @@
 .ifilter:hover { color:var(--text); border-color:var(--bord2); }
 .ifilter.active { background:var(--s3); color:var(--hub); border-color:rgba(90,122,170,.4); }
 
+/* Capture form */
+.ibx-capture-wrap { background:var(--s1); border:1px solid var(--border); border-radius:14px; padding:14px 16px; margin-bottom:20px; }
+.ibx-capture-row1 { display:flex; gap:8px; margin-bottom:10px; }
+.ibx-capture-input { flex:1; background:var(--s2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--serif); font-size:.92rem; padding:9px 14px; outline:none; transition:border-color .15s; }
+.ibx-capture-input:focus { border-color:var(--bord2); }
+.ibx-capture-input::placeholder { color:var(--muted); }
+.ibx-capture-btn { background:none; border:1px solid var(--bord2); border-radius:8px; color:var(--hub); font-family:var(--mono); font-size:9px; letter-spacing:.08em; padding:9px 16px; cursor:pointer; white-space:nowrap; transition:all .15s; }
+.ibx-capture-btn:hover { background:rgba(90,122,170,.1); }
+.ibx-capture-row2 { display:flex; gap:5px; flex-wrap:wrap; }
+
+/* Card body */
+.ibx-card-body { flex:1; }
+.ibx-card-notes { font-family:var(--mono); font-size:10px; color:var(--muted2); margin-top:4px; line-height:1.5; font-style:italic; }
+.ibx-card-pills { display:flex; gap:5px; flex-wrap:wrap; margin-top:5px; }
+.ibx-pill { font-family:var(--mono); font-size:8px; color:var(--muted2); background:var(--s2); border:1px solid var(--border); border-radius:10px; padding:2px 8px; }
+
+/* Editor inline */
+.ibx-editor { display:none; flex-direction:column; gap:10px; padding:12px 16px 14px; border-top:1px solid var(--border); background:var(--s2); }
+.ibx-editor.open { display:flex; }
+.ibx-editor-row { display:flex; flex-direction:column; gap:4px; }
+.ibx-editor-input { background:var(--s1); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--serif); font-size:.92rem; padding:9px 14px; outline:none; transition:border-color .15s; }
+.ibx-editor-input:focus { border-color:var(--bord2); }
+.ibx-editor-chips { display:flex; gap:5px; flex-wrap:wrap; }
+.ibx-editor-notes { background:var(--s1); border:1px solid var(--border); border-radius:8px; color:var(--text); font-family:var(--mono); font-size:11px; padding:8px 12px; outline:none; resize:none; min-height:56px; line-height:1.5; transition:border-color .15s; }
+.ibx-editor-notes:focus { border-color:var(--bord2); }
+.ibx-editor-row2 { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.ibx-editor-actions { display:flex; gap:6px; justify-content:flex-end; margin-top:2px; }
+
 @media (max-width:720px) {
   .ibxs-tags { padding:.6rem 0; }
   .ibxs-num { font-size:1.3rem; }
+  .ibx-editor-row2 { grid-template-columns:1fr; }
+  .ibx-capture-row2 { gap:4px; }
 }
