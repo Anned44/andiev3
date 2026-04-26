@@ -15,6 +15,8 @@
 <link rel="stylesheet" href="css/hub-dashboard.css">
 <link rel="stylesheet" href="css/hub-planner.css">
 <link rel="stylesheet" href="css/hub-inbox.css">
+<link rel="stylesheet" href="css/studio-layout.css">
+<link rel="stylesheet" href="css/studio-proyectos.css">
 
 <!-- Próximamente -->
 <!-- <link rel="stylesheet" href="css/hub-metas.css"> -->
@@ -156,7 +158,7 @@ input[type=range]{flex:1;accent-color:var(--hub);}
         <div id="dashInboxItems"></div>
       </div>
       <div class="widget w5">
-        <div class="wtitle"><span>⊛ proyectos</span></div>
+        <div class="wtitle"><span>⊛ proyectos</span><button class="wlink" onclick="HubCore.openProyDrawer()">ver todos →</button></div>
         <div id="dashProyItems"></div>
       </div>
       <div class="widget w4">
@@ -319,6 +321,20 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 </main>
 </div>
 
+<!-- DRAWER PROYECTOS -->
+<div class="proy-drawer-overlay" id="proyDrawerOverlay" onclick="HubCore.closeProyDrawer(event)">
+  <div class="proy-drawer">
+    <div class="proy-drawer-header">
+      <span class="proy-drawer-title">⊛ proyectos</span>
+      <div class="proy-drawer-actions">
+        <button class="proy-drawer-studio-btn" onclick="window.location.href='studio.html'">→ Studio</button>
+        <button class="proy-drawer-close" onclick="HubCore.closeProyDrawer()">×</button>
+      </div>
+    </div>
+    <div class="proy-drawer-body" id="proyDrawerBody"></div>
+  </div>
+</div>
+
 <!-- FAB -->
 <button class="hub-fab" id="hubFab" onclick="HubCore.openFab()" title="Captura rápida (Ctrl+Space)">✦</button>
 
@@ -399,6 +415,7 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 <script src="js/hub-planner.js" defer></script>
 
 <script src="js/hub-inbox.js" defer></script>
+<script src="js/studio-proyectos.js" defer></script>
 <!-- Próximamente -->
 <!-- <script src="js/hub-metas.js" defer></script> -->
 <!-- <script src="js/hub-finanzas.js" defer></script> -->
