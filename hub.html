@@ -14,7 +14,8 @@
 <link rel="stylesheet" href="css/hub-layout.css">
 <link rel="stylesheet" href="css/hub-dashboard.css">
 <link rel="stylesheet" href="css/hub-planner.css">
-<link rel="stylesheet" href="css/hub-inbox.css">
+<link rel="stylesheet" href="css/hub-inbox.css
+<link rel="stylesheet" href="css/anet-chat.css">">
 <link rel="stylesheet" href="css/studio-layout.css">
 <link rel="stylesheet" href="css/studio-proyectos.css">
 
@@ -335,74 +336,6 @@ input[type=range]{flex:1;accent-color:var(--hub);}
   </div>
 </div>
 
-<!-- FAB -->
-<button class="hub-fab" id="hubFab" onclick="HubCore.openFab()" title="Captura rápida (Ctrl+Space)">✦</button>
-
-<!-- FAB Modal -->
-<div id="fabOverlay" class="fab-overlay" onclick="HubCore.closeFabIfOutside(event)">
-  <div class="fab-modal">
-    <div class="fab-modal-title">captura rápida</div>
-
-    <!-- 1. TIPO — chips clickeables -->
-    <div class="fab-field">
-      <span class="fab-field-label">tipo</span>
-      <div class="fab-chips-row" id="fabTipoChips">
-        <button class="fab-chip sel" data-tipo="captura" onclick="HubCore.selFabTipo(this)">✦ captura</button>
-        <button class="fab-chip" data-tipo="idea" onclick="HubCore.selFabTipo(this)">💡 idea</button>
-        <button class="fab-chip" data-tipo="tarea" onclick="HubCore.selFabTipo(this)">📋 tarea</button>
-        <button class="fab-chip" data-tipo="nota" onclick="HubCore.selFabTipo(this)">📝 nota</button>
-        <button class="fab-chip" data-tipo="evento" onclick="HubCore.selFabTipo(this)">◷ evento</button>
-        <button class="fab-chip" data-tipo="recordatorio" onclick="HubCore.selFabTipo(this)">⏰ recordar</button>
-        <button class="fab-chip" data-tipo="wishlist" onclick="HubCore.selFabTipo(this)">✦ wishlist</button>
-      </div>
-    </div>
-
-    <!-- 2. TEXTO -->
-    <div class="fab-field">
-      <textarea class="input-base" id="fabText" placeholder="¿qué tienes en mente?..." style="resize:none;min-height:72px;line-height:1.65"
-        onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))HubCore.submitFab()"></textarea>
-    </div>
-
-    <!-- 3. DESTINO — dos botones -->
-    <div class="fab-field">
-      <span class="fab-field-label">destino</span>
-      <div class="fab-dest-row">
-        <button class="fab-dest-chip sel" data-dest="inbox" onclick="HubCore.selectFabDest(this)">
-          <span class="chip-dot"></span> 📥 inbox
-        </button>
-        <button class="fab-dest-chip" data-dest="planner" onclick="HubCore.selectFabDest(this)">
-          <span class="chip-dot"></span> 📅 planner
-        </button>
-      </div>
-    </div>
-
-    <!-- Fecha + bloque — solo si destino = planner -->
-    <div class="fab-conditional" id="fabPlannerFields">
-      <div class="fab-row-2">
-        <div class="fab-field">
-          <span class="fab-field-label">fecha</span>
-          <input type="date" class="input-base" id="fabFecha">
-        </div>
-        <div class="fab-field">
-          <span class="fab-field-label">bloque</span>
-          <div class="fab-select-wrap">
-            <select class="select-base" id="fabBlock">
-              <option value="morning">🌅 mañana</option>
-              <option value="afternoon">🌤 tarde</option>
-              <option value="night">🌙 noche</option>
-            </select>
-            <span class="fab-select-arrow">▾</span>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="fab-actions">
-      <button class="btn-ghost" onclick="HubCore.closeFab()">cancelar</button>
-      <button class="btn-primary" onclick="HubCore.submitFab()">guardar</button>
-    </div>
-  </div>
-</div>
 
 <div class="toast" id="toast"></div>
 
@@ -441,5 +374,6 @@ window.addEventListener('load', () => {
 });
 </script>
 
+<script src="js/andy-fab.js"></script>
 </body>
 </html>
