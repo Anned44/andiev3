@@ -603,40 +603,65 @@ window.StudioProyectos = (function () {
     if (!container) return;
     const getIco = (url) => {
       if (!url) return '📄';
-      if (url.includes('figma')) return '🎨';
-      if (url.includes('github')) return '📦';
-      if (url.includes('notion')) return '📓';
+      if (url.includes('figma.com')) return '🎨';
+      if (url.includes('github.com')) return '📦';
+      if (url.includes('notion.so')) return '📓';
       if (url.includes('drive.google')) return '📁';
       if (url.includes('docs.google')) return '📝';
+      if (url.includes('railway.app')) return '🚂';
+      if (url.includes('vercel.app') || url.includes('netlify.app')) return '▲';
       if (url.startsWith('http')) return '🔗';
       return '📄';
     };
     container.innerHTML = (p.links||[]).map((l,i)=>`
       <div class="proy-link-card">
-        <span class="proy-link-ico">${getIco(l.url)}</span>
+        ${l.image ? `<img src="${escAttr(l.image)}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;flex-shrink:0" onerror="this.style.display='none'">` :
+          `<span class="proy-link-ico">${getIco(l.url)}</span>`}
         <div class="proy-link-body">
           <input class="proy-link-title-edit" value="${escAttr(l.title||'')}" placeholder="título..."
             onchange="StudioProyectos.updateLink(${i},'title',this.value)">
-          <input class="proy-link-url-edit" value="${escAttr(l.url||'')}" placeholder="https://..."
-            onchange="StudioProyectos.updateLink(${i},'url',this.value)">
+          ${l.description ? `<div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escHtml(l.description.slice(0,80))}</div>` : ''}
+          <div style="display:flex;align-items:center;gap:6px">
+            <input class="proy-link-url-edit" value="${escAttr(l.url||'')}" placeholder="https://..."
+              onchange="StudioProyectos.updateLink(${i},'url',this.value)">
+            ${l.domain ? `<span style="font-family:var(--mono);font-size:8px;color:var(--muted);flex-shrink:0">${escHtml(l.domain)}</span>` : ''}
+          </div>
         </div>
         <button class="proy-link-card-del" onclick="StudioProyectos.delLink(${i})" title="eliminar">×</button>
       </div>`).join('');
   }
 
-  function addLink() {
-    const title = document.getElementById('linkTitleInput')?.value.trim();
-    const url   = document.getElementById('linkUrlInput')?.value.trim();
-    if (!url) return;
+  async function addLink() {
+    const titleInput = document.getElementById('linkTitleInput');
+    const urlInput   = document.getElementById('linkUrlInput');
+    const urlVal     = urlInput?.value.trim();
+    if (!urlVal) return;
     const p = getP(_currentId);
     if (!p) return;
     p.links = p.links || [];
-    p.links.push({ title: title||url, url });
+
+    const linkObj = { title: titleInput?.value.trim() || urlVal, url: urlVal, image: '', description: '' };
+    p.links.push(linkObj);
     save();
     renderLinks(p);
-    document.getElementById('linkTitleInput').value = '';
-    document.getElementById('linkUrlInput').value = '';
+    if (titleInput) titleInput.value = '';
+    if (urlInput)   urlInput.value = '';
     hideAddLink();
+
+    // Fetch preview en background si es URL http
+    if (urlVal.startsWith('http')) {
+      try {
+        const r = await fetch('/api/preview?url=' + encodeURIComponent(urlVal));
+        const data = await r.json();
+        if (data.title && !linkObj.title.startsWith('http')) return; // ya tiene título manual
+        linkObj.title = data.title || linkObj.title;
+        linkObj.description = data.description || '';
+        linkObj.image = data.image || '';
+        linkObj.domain = data.domain || '';
+        save();
+        renderLinks(p);
+      } catch {}
+    }
   }
 
   function updateLink(idx, field, val) {
