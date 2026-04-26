@@ -21,13 +21,16 @@
 
 <style>
 /* FAB campos condicionales */
-.fab-conditional{max-height:0;overflow:hidden;transition:max-height .3s ease,opacity .25s ease;opacity:0;}
+.fab-conditional{max-height:0;overflow:hidden;transition:max-height .25s ease,opacity .2s ease;opacity:0;}
 .fab-conditional.visible{max-height:200px;opacity:1;}
 .fab-row-2{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
-.fab-toggle-row{display:flex;align-items:center;gap:10px;}
-.fab-toggle{background:var(--s2);border:1px solid var(--border);border-radius:6px;color:var(--muted2);font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;padding:6px 14px;cursor:pointer;transition:all .15s;}
-.fab-toggle.on{background:var(--s3);border-color:rgba(155,122,184,.4);color:var(--muse);}
-.fab-toggle-hint{font-family:var(--mono);font-size:9px;color:var(--muted);}
+
+/* FAB chips de tipo */
+.fab-chips-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:4px;}
+.fab-chip{font-family:var(--mono);font-size:8.5px;letter-spacing:.06em;padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:none;color:var(--muted);cursor:pointer;transition:all .12s;white-space:nowrap;}
+.fab-chip:hover{border-color:var(--bord2);color:var(--text);}
+.fab-chip.sel{background:var(--s2);border-color:rgba(155,122,184,.45);color:var(--text2);}
+
 .stub-page{padding:40px 0;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;}
 
 /* Metas (temporal) */
@@ -315,66 +318,62 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 <!-- FAB Modal -->
 <div id="fabOverlay" class="fab-overlay" onclick="HubCore.closeFabIfOutside(event)">
   <div class="fab-modal">
-    <div class="fab-modal-title">Captura rápida</div>
+    <div class="fab-modal-title">captura rápida</div>
+
+    <!-- 1. TIPO — chips clickeables -->
     <div class="fab-field">
-      <span class="fab-field-label">Tipo</span>
-      <div class="fab-select-wrap">
-        <select class="select-base" id="fabTipo" onchange="HubCore.onTipoChange()">
-          <option value="nota">Nota</option>
-          <option value="tarea">Tarea</option>
-          <option value="evento">Evento / Recordatorio</option>
-          <option value="proyecto">Proyecto</option>
-        </select>
-        <span class="fab-select-arrow">▾</span>
+      <span class="fab-field-label">tipo</span>
+      <div class="fab-chips-row" id="fabTipoChips">
+        <button class="fab-chip sel" data-tipo="captura" onclick="HubCore.selFabTipo(this)">✦ captura</button>
+        <button class="fab-chip" data-tipo="idea" onclick="HubCore.selFabTipo(this)">💡 idea</button>
+        <button class="fab-chip" data-tipo="tarea" onclick="HubCore.selFabTipo(this)">📋 tarea</button>
+        <button class="fab-chip" data-tipo="nota" onclick="HubCore.selFabTipo(this)">📝 nota</button>
+        <button class="fab-chip" data-tipo="evento" onclick="HubCore.selFabTipo(this)">◷ evento</button>
+        <button class="fab-chip" data-tipo="recordatorio" onclick="HubCore.selFabTipo(this)">⏰ recordar</button>
+        <button class="fab-chip" data-tipo="wishlist" onclick="HubCore.selFabTipo(this)">✦ wishlist</button>
       </div>
     </div>
+
+    <!-- 2. TEXTO -->
     <div class="fab-field">
-      <textarea class="input-base" id="fabText" placeholder="¿Qué tienes en mente?..." style="resize:none;min-height:80px;line-height:1.65"></textarea>
+      <textarea class="input-base" id="fabText" placeholder="¿qué tienes en mente?..." style="resize:none;min-height:72px;line-height:1.65"
+        onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))HubCore.submitFab()"></textarea>
     </div>
-    <div class="fab-conditional" id="fabEventoFields">
-      <div class="fab-row-2" style="margin-bottom:.8rem">
+
+    <!-- 3. DESTINO — dos botones -->
+    <div class="fab-field">
+      <span class="fab-field-label">destino</span>
+      <div class="fab-dest-row">
+        <button class="fab-dest-chip sel" data-dest="inbox" onclick="HubCore.selectFabDest(this)">
+          <span class="chip-dot"></span> 📥 inbox
+        </button>
+        <button class="fab-dest-chip" data-dest="planner" onclick="HubCore.selectFabDest(this)">
+          <span class="chip-dot"></span> 📅 planner
+        </button>
+      </div>
+    </div>
+
+    <!-- Fecha + bloque — solo si destino = planner -->
+    <div class="fab-conditional" id="fabPlannerFields">
+      <div class="fab-row-2">
         <div class="fab-field">
-          <span class="fab-field-label">Fecha</span>
+          <span class="fab-field-label">fecha</span>
           <input type="date" class="input-base" id="fabFecha">
         </div>
         <div class="fab-field">
-          <span class="fab-field-label">Hora</span>
-          <input type="time" class="input-base" id="fabHora">
+          <span class="fab-field-label">bloque</span>
+          <div class="fab-select-wrap">
+            <select class="select-base" id="fabBlock">
+              <option value="morning">🌅 mañana</option>
+              <option value="afternoon">🌤 tarde</option>
+              <option value="night">🌙 noche</option>
+            </select>
+            <span class="fab-select-arrow">▾</span>
+          </div>
         </div>
       </div>
-      <div class="fab-field">
-        <span class="fab-field-label">¿Recordatorio?</span>
-        <div class="fab-toggle-row">
-          <button class="fab-toggle" id="fabRecordatorio" onclick="HubCore.toggleFabRecordatorio()">No</button>
-          <span class="fab-toggle-hint" id="fabRecordatorioHint"></span>
-        </div>
-      </div>
     </div>
-    <div class="fab-conditional" id="fabProyectoFields">
-      <div class="fab-field">
-        <span class="fab-field-label">Nombre del proyecto</span>
-        <input type="text" class="input-base" id="fabProyNombre" placeholder="nombre corto...">
-      </div>
-    </div>
-    <div class="fab-field" id="fabPrioField">
-      <span class="fab-field-label">Prioridad</span>
-      <div class="fab-select-wrap">
-        <select class="select-base" id="fabPrio">
-          <option value="">Sin prioridad</option>
-          <option value="alta">Alta</option>
-          <option value="media">Media</option>
-          <option value="baja">Baja</option>
-        </select>
-        <span class="fab-select-arrow">▾</span>
-      </div>
-    </div>
-    <div class="fab-field">
-      <span class="fab-field-label">Destino</span>
-      <div class="fab-dest-row">
-        <button class="fab-dest-chip sel" data-dest="inbox" onclick="HubCore.selectFabDest(this)"><span class="chip-dot"></span> Inbox</button>
-        <button class="fab-dest-chip" data-dest="planner" onclick="HubCore.selectFabDest(this)"><span class="chip-dot"></span> → Planner</button>
-      </div>
-    </div>
+
     <div class="fab-actions">
       <button class="btn-ghost" onclick="HubCore.closeFab()">cancelar</button>
       <button class="btn-primary" onclick="HubCore.submitFab()">guardar</button>
