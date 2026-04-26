@@ -125,6 +125,76 @@ const server = http.createServer((req, res) => {
     return;
   }
 
+  // API: Chat con Anet (Anthropic)
+  if (urlPath === '/api/chat') {
+    if (req.method !== 'POST') {
+      res.writeHead(405, corsHeaders('application/json'));
+      res.end(JSON.stringify({ error: 'Method not allowed' }));
+      return;
+    }
+    let body = '';
+    req.on('data', chunk => body += chunk);
+    req.on('end', async () => {
+      try {
+        const { messages, context } = JSON.parse(body);
+        const apiKey = process.env.ANTHROPIC_API_KEY;
+        if (!apiKey) {
+          res.writeHead(500, corsHeaders('application/json'));
+          res.end(JSON.stringify({ error: 'API key no configurada' }));
+          return;
+        }
+
+        const systemPrompt = `Eres Anet, la asistente personal integrada en Andy.net — el sistema operativo personal de Andrea.
+
+QUIÉN ES ANDREA:
+- Creadora, diseñadora y builders de proyectos digitales
+- Vive en Chihuahua, México
+- Trabaja en múltiples proyectos simultáneos
+- Usa Andy.net para planificar, crear y ejecutar
+
+TU ROL:
+- Eres directa, sin relleno ni frases genéricas
+- Conoces su sistema completo y lo usas activamente
+- Hablas siempre en español
+- Puedes generar ideas, sugerir mejoras, hacer brainstorming, analizar carga de trabajo
+- Puedes ayudar a priorizar, tomar decisiones, reflexionar sobre bloqueos
+- Cuando captures una idea o tarea, indícalo claramente para que pueda guardarse
+
+CONTEXTO ACTUAL DEL SISTEMA:
+${context || 'Sin contexto disponible'}
+
+REGLAS:
+- Nunca digas "Como IA..." ni "No tengo acceso a..."
+- Si no sabes algo del contexto, pregunta directamente
+- Sé concisa pero completa
+- Usa el contexto para dar respuestas relevantes y personalizadas`;
+
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01',
+          },
+          body: JSON.stringify({
+            model: 'claude-sonnet-4-20250514',
+            max_tokens: 1024,
+            system: systemPrompt,
+            messages: messages,
+          }),
+        });
+
+        const data = await response.json();
+        res.writeHead(200, corsHeaders('application/json'));
+        res.end(JSON.stringify(data));
+      } catch (err) {
+        res.writeHead(500, corsHeaders('application/json'));
+        res.end(JSON.stringify({ error: err.message }));
+      }
+    });
+    return;
+  }
+
   // Archivos estáticos
   let filePath = urlPath === '/' || urlPath === '' ? '/index.html' : urlPath;
   filePath = path.join(__dirname, filePath);
