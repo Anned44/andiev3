@@ -146,69 +146,100 @@ window.StudioProyectos = (function () {
     const prioOpts   = PRIOS.map(pr=>`<option value="${pr}" ${p.prio===pr?'selected':''}>${pr}</option>`).join('');
     const metas      = lg('hub_metas',[]);
     const metaOpts   = `<option value="">sin meta</option>${metas.map(m=>`<option value="${m.id}" ${String(p.metaId)===String(m.id)?'selected':''}>${m.nombre}</option>`).join('')}`;
+    const totalCards = (p.cards||[]).length;
+    const doneCards  = (p.cards||[]).filter(c=>c.colId===p.cols?.[p.cols.length-1]?.id).length;
+    const diasRest   = p.deadline ? Math.max(0,Math.round((new Date(p.deadline)-new Date())/86400000)) : null;
+    const bgStyle    = p.coverUrl ? `background-image:url('${p.coverUrl}')` : '';
 
     detail.innerHTML = `
-      <div class="proy-detail-header">
-        <button class="proy-detail-back" onclick="StudioProyectos.backToGallery()">← proyectos</button>
-        <div class="proy-detail-title-row">
-          <span class="proy-detail-emoji" id="detailEmoji" onclick="StudioProyectos.changeEmoji()" title="cambiar emoji" style="cursor:pointer">${p.emoji||'◈'}</span>
-          <div class="proy-detail-name-wrap">
-            <input class="proy-detail-name" id="detailNombre" value="${escAttr(p.nombre)}" placeholder="nombre del proyecto...">
-            <textarea class="proy-detail-desc" id="detailDesc" placeholder="descripción breve...">${escHtml(p.desc||'')}</textarea>
-          </div>
+      <button class="proy-detail-back" onclick="StudioProyectos.backToGallery()" style="margin-bottom:16px">← proyectos</button>
+
+      <!-- HERO -->
+      <div class="proy-hero">
+        <div class="proy-hero-bg" id="detailHeroBg" style="${bgStyle};background-size:cover;background-position:center"></div>
+        <div class="proy-hero-overlay"></div>
+
+        <!-- Botón portada -->
+        <button class="proy-hero-cover-btn" onclick="StudioProyectos.toggleCoverForm()">🖼 portada</button>
+        <div class="proy-hero-cover-form" id="coverForm">
+          <input class="proy-hero-cover-input" id="coverUrlInput" placeholder="https://imagen.com/foto.jpg" value="${escAttr(p.coverUrl||'')}">
+          <button class="proy-hero-cover-save" onclick="StudioProyectos.saveCover()">aplicar</button>
+          <button class="proy-hero-cover-save" onclick="StudioProyectos.removeCover()" style="background:rgba(200,110,138,.1);border-color:rgba(200,110,138,.3);color:var(--pink)">quitar</button>
         </div>
-        <div style="display:flex;gap:8px;flex-shrink:0">
-          <button class="proy-detail-back" style="color:${p.urgente?'var(--pink)':'var(--muted)'};border-color:${p.urgente?'rgba(200,110,138,.4)':'var(--border)'}"
-            onclick="StudioProyectos.toggleUrgente()" title="marcar urgente">⚡</button>
-          <button class="proy-detail-back" onclick="StudioProyectos.saveCurrentDetail()" style="color:var(--studio);border-color:rgba(200,150,90,.35)">guardar ✓</button>
+
+        <div class="proy-hero-content">
+          <div class="proy-hero-top">
+            <div style="flex:1">
+              <span class="proy-hero-emoji" id="detailEmoji" onclick="StudioProyectos.changeEmoji()" title="cambiar emoji">${p.emoji||'◈'}</span>
+              <input class="proy-hero-name" id="detailNombre" value="${escAttr(p.nombre)}" placeholder="nombre del proyecto..." oninput="StudioProyectos._autoSave()">
+              <textarea class="proy-hero-desc" id="detailDesc" placeholder="descripción breve..." oninput="StudioProyectos._autoSave()">${escHtml(p.desc||'')}</textarea>
+            </div>
+            <div class="proy-hero-actions">
+              <button class="proy-hero-btn proy-hero-urgente${p.urgente?' on':''}" onclick="StudioProyectos.toggleUrgente()" title="urgente">⚡</button>
+              <button class="proy-hero-btn save" onclick="StudioProyectos.saveCurrentDetail()">guardar ✓</button>
+            </div>
+          </div>
+
+          <div class="proy-hero-meta-row">
+            <select class="proy-hero-estado ${('estado-'+(p.estado||'idea'))}" id="detailEstado" onchange="StudioProyectos._autoSave()">${estadoOpts}</select>
+            <span class="proy-hero-meta-item">📅 <input type="date" class="proy-hero-meta-input" id="detailDeadline" value="${p.deadline||''}" oninput="StudioProyectos._autoSave()"></span>
+            <span class="proy-hero-meta-item">inicio <input type="date" class="proy-hero-meta-input" id="detailInicio" value="${p.inicio||''}" oninput="StudioProyectos._autoSave()"></span>
+            <span class="proy-hero-meta-item">
+              prio
+              <select class="proy-hero-meta-input" id="detailPrio" style="width:80px" onchange="StudioProyectos._autoSave()">${prioOpts}</select>
+            </span>
+            <span class="proy-hero-meta-item">
+              meta
+              <select class="proy-hero-meta-input" id="detailMeta" style="width:130px" onchange="StudioProyectos._autoSave()">${metaOpts}</select>
+            </span>
+            <span class="proy-hero-meta-item">
+              cat
+              <input class="proy-hero-meta-input" id="detailCat" value="${escAttr(p.cat||'')}" placeholder="negocio..." oninput="StudioProyectos._autoSave()">
+            </span>
+          </div>
+
+          <div class="proy-hero-progress">
+            <div class="proy-hero-progress-bar">
+              <div class="proy-hero-progress-fill" id="detailProgressFill" style="width:0"></div>
+            </div>
+            <div class="proy-hero-progress-row">
+              <input type="range" class="proy-hero-progress-range" min="0" max="100" value="${p.progreso||0}" id="detailProgreso"
+                oninput="document.getElementById('detailProgressNum').textContent=this.value+'%';document.getElementById('detailProgressFill').style.width=this.value+'%';StudioProyectos._autoSave()">
+              <span class="proy-hero-progress-num" id="detailProgressNum">${p.progreso||0}%</span>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="proy-detail-meta">
-        <div class="proy-meta-field">
-          <span class="proy-meta-label">estado</span>
-          <select class="proy-meta-input proy-meta-select" id="detailEstado">${estadoOpts}</select>
+      <!-- KPIs -->
+      <div class="proy-kpis">
+        <div class="proy-kpi protagonist">
+          <span class="proy-kpi-val" id="kpiProgreso">${p.progreso||0}%</span>
+          <span class="proy-kpi-lbl">progreso global</span>
         </div>
-        <div class="proy-meta-field">
-          <span class="proy-meta-label">prioridad</span>
-          <select class="proy-meta-input proy-meta-select" id="detailPrio">${prioOpts}</select>
+        <div class="proy-kpi">
+          <span class="proy-kpi-val">${totalCards}</span>
+          <span class="proy-kpi-lbl">tareas totales</span>
         </div>
-        <div class="proy-meta-field">
-          <span class="proy-meta-label">inicio</span>
-          <input type="date" class="proy-meta-input" id="detailInicio" value="${p.inicio||''}">
+        <div class="proy-kpi">
+          <span class="proy-kpi-val">${doneCards}</span>
+          <span class="proy-kpi-lbl">completadas</span>
         </div>
-        <div class="proy-meta-field">
-          <span class="proy-meta-label">deadline</span>
-          <input type="date" class="proy-meta-input" id="detailDeadline" value="${p.deadline||''}">
-        </div>
-        <div class="proy-meta-field">
-          <span class="proy-meta-label">categoría</span>
-          <input class="proy-meta-input" id="detailCat" value="${escAttr(p.cat||'')}" placeholder="negocio, personal...">
-        </div>
-        <div class="proy-meta-field">
-          <span class="proy-meta-label">meta vinculada</span>
-          <select class="proy-meta-input proy-meta-select" id="detailMeta">${metaOpts}</select>
-        </div>
-        <div class="proy-meta-field proy-meta-progress">
-          <span class="proy-meta-label" style="margin-bottom:0">progreso</span>
-          <div class="proy-meta-progress-bar">
-            <div class="proy-meta-progress-fill" id="detailProgressFill" style="width:${p.progreso||0}%"></div>
-          </div>
-          <input type="range" min="0" max="100" value="${p.progreso||0}" id="detailProgreso"
-            oninput="document.getElementById('detailProgressNum').textContent=this.value+'%';document.getElementById('detailProgressFill').style.width=this.value+'%'"
-            style="width:120px;accent-color:var(--studio)">
-          <span class="proy-meta-progress-num" id="detailProgressNum">${p.progreso||0}%</span>
+        <div class="proy-kpi">
+          <span class="proy-kpi-val" style="${diasRest===0?'color:var(--pink)':diasRest!==null&&diasRest<=7?'color:var(--amber)':''}">${diasRest!==null?diasRest:'—'}</span>
+          <span class="proy-kpi-lbl">días restantes</span>
         </div>
       </div>
 
-      <div class="proy-tags-row" id="detailTagsRow">
+      <!-- TAGS -->
+      <div class="proy-tags-row" id="detailTagsRow" style="margin-bottom:24px">
         ${(p.tags||[]).map(t=>`<span class="proy-tag" onclick="StudioProyectos.removeTag('${t}')">${t} ×</span>`).join('')}
         <input class="proy-tag proy-tag-add" id="detailTagInput" placeholder="+ etiqueta" style="width:90px;border-style:dashed;cursor:text"
           onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();StudioProyectos.addTag()}">
       </div>
 
       <!-- KANBAN -->
-      <div style="margin-top:28px">
+      <div>
         <div class="proy-kanban-header">
           <span class="proy-kanban-title">tablero kanban</span>
           <button class="proy-kanban-add-col" onclick="StudioProyectos.addCol()">+ columna</button>
@@ -217,29 +248,37 @@ window.StudioProyectos = (function () {
       </div>
 
       <!-- SUB-PROYECTOS -->
-      <div class="proy-subs-section">
-        <div class="proy-subs-header">
-          <span class="proy-subs-title">sub-proyectos</span>
-          <button class="proy-subs-add" onclick="StudioProyectos.addSub()">+ agregar</button>
-        </div>
+      <details class="proy-subs-section" style="margin-top:24px">
+        <summary style="font-family:var(--mono);font-size:9px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);cursor:pointer;list-style:none;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+          <span>▶ sub-proyectos (${(p.subs||[]).length})</span>
+          <button class="proy-subs-add" onclick="event.preventDefault();StudioProyectos.addSub()">+ agregar</button>
+        </summary>
         <div class="proy-subs-grid" id="detailSubs"></div>
-      </div>
+      </details>
 
-      <!-- NOTAS -->
-      <div class="proy-notes-section">
-        <div class="proy-notes-label">notas del proyecto</div>
-        <textarea class="proy-notes-area" id="detailNotas" placeholder="ideas, contexto, decisiones..." oninput="StudioProyectos._autoSaveNote()">${escHtml(p.notas||'')}</textarea>
-      </div>
-
-      <!-- LINKS -->
-      <div class="proy-links-section">
-        <div class="proy-links-label">archivos & links</div>
-        <div class="proy-links-list" id="detailLinks"></div>
-        <div class="proy-links-add-row">
-          <input class="proy-link-input" id="linkTitleInput" placeholder="título...">
-          <input class="proy-link-input" id="linkUrlInput" placeholder="url o ruta..."
-            onkeydown="if(event.key==='Enter')StudioProyectos.addLink()">
-          <button class="proy-link-add-btn" onclick="StudioProyectos.addLink()">+ add</button>
+      <!-- GRID INFERIOR -->
+      <div class="proy-bottom-grid">
+        <div>
+          <span class="proy-section-label">notas del proyecto</span>
+          <textarea class="proy-notes-area" id="detailNotas" placeholder="ideas, contexto, decisiones..." oninput="StudioProyectos._autoSaveNote()">${escHtml(p.notas||'')}</textarea>
+        </div>
+        <div>
+          <span class="proy-section-label">archivos & links</span>
+          <div id="detailLinks"></div>
+          <button class="proy-link-add-card" onclick="StudioProyectos.showAddLink()">
+            <span style="font-size:16px">+</span> agregar link o archivo
+          </button>
+          <div id="addLinkForm" style="display:none;margin-top:8px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <input class="proy-link-input" id="linkTitleInput" placeholder="título..." style="width:100%">
+              <input class="proy-link-input" id="linkUrlInput" placeholder="https://... o ruta/archivo" style="width:100%"
+                onkeydown="if(event.key==='Enter')StudioProyectos.addLink()">
+              <div style="display:flex;gap:6px;justify-content:flex-end">
+                <button class="proy-add-card-cancel" onclick="StudioProyectos.hideAddLink()">cancelar</button>
+                <button class="proy-add-card-save" onclick="StudioProyectos.addLink()">agregar</button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>`;
 
@@ -247,7 +286,6 @@ window.StudioProyectos = (function () {
     renderSubs(p);
     renderLinks(p);
 
-    // Animar barra de progreso
     setTimeout(() => {
       const fill = document.getElementById('detailProgressFill');
       if (fill) fill.style.width = (p.progreso||0) + '%';
@@ -520,14 +558,69 @@ window.StudioProyectos = (function () {
   }
 
   /* ━━ LINKS ━━ */
+  /* ━━ PORTADA ━━ */
+  function toggleCoverForm() {
+    document.getElementById('coverForm')?.classList.toggle('open');
+  }
+  function saveCover() {
+    const url = document.getElementById('coverUrlInput')?.value.trim();
+    const p = getP(_currentId);
+    if (!p) return;
+    p.coverUrl = url;
+    save();
+    const bg = document.getElementById('detailHeroBg');
+    if (bg) bg.style.backgroundImage = url ? `url('${url}')` : '';
+    document.getElementById('coverForm')?.classList.remove('open');
+  }
+  function removeCover() {
+    const p = getP(_currentId);
+    if (!p) return;
+    p.coverUrl = '';
+    save();
+    const bg = document.getElementById('detailHeroBg');
+    if (bg) bg.style.backgroundImage = '';
+    document.getElementById('coverForm')?.classList.remove('open');
+  }
+
+  /* ━━ AUTOSAVE GENERAL ━━ */
+  let _autoSaveTimer;
+  function _autoSave() {
+    clearTimeout(_autoSaveTimer);
+    _autoSaveTimer = setTimeout(() => saveCurrentDetail(), 1200);
+  }
+
+  /* ━━ LINKS SHOW/HIDE ━━ */
+  function showAddLink() {
+    document.getElementById('addLinkForm').style.display = 'block';
+    setTimeout(() => document.getElementById('linkTitleInput')?.focus(), 50);
+  }
+  function hideAddLink() {
+    document.getElementById('addLinkForm').style.display = 'none';
+  }
+
   function renderLinks(p) {
     const container = document.getElementById('detailLinks');
     if (!container) return;
+    const getIco = (url) => {
+      if (!url) return '📄';
+      if (url.includes('figma')) return '🎨';
+      if (url.includes('github')) return '📦';
+      if (url.includes('notion')) return '📓';
+      if (url.includes('drive.google')) return '📁';
+      if (url.includes('docs.google')) return '📝';
+      if (url.startsWith('http')) return '🔗';
+      return '📄';
+    };
     container.innerHTML = (p.links||[]).map((l,i)=>`
-      <div class="proy-link-item">
-        <span class="proy-link-title">${escHtml(l.title||l.url)}</span>
-        <a class="proy-link-url" href="${l.url}" target="_blank">${l.url}</a>
-        <button class="proy-link-del" onclick="StudioProyectos.delLink(${i})">×</button>
+      <div class="proy-link-card">
+        <span class="proy-link-ico">${getIco(l.url)}</span>
+        <div class="proy-link-body">
+          <input class="proy-link-title-edit" value="${escAttr(l.title||'')}" placeholder="título..."
+            onchange="StudioProyectos.updateLink(${i},'title',this.value)">
+          <input class="proy-link-url-edit" value="${escAttr(l.url||'')}" placeholder="https://..."
+            onchange="StudioProyectos.updateLink(${i},'url',this.value)">
+        </div>
+        <button class="proy-link-card-del" onclick="StudioProyectos.delLink(${i})" title="eliminar">×</button>
       </div>`).join('');
   }
 
@@ -543,6 +636,14 @@ window.StudioProyectos = (function () {
     renderLinks(p);
     document.getElementById('linkTitleInput').value = '';
     document.getElementById('linkUrlInput').value = '';
+    hideAddLink();
+  }
+
+  function updateLink(idx, field, val) {
+    const p = getP(_currentId);
+    if (!p?.links?.[idx]) return;
+    p.links[idx][field] = val;
+    save();
   }
 
   function delLink(idx) {
@@ -664,5 +765,8 @@ window.StudioProyectos = (function () {
     saveCurrentDetail,
     newProyecto,
     renderDrawer,
+    toggleCoverForm, saveCover, removeCover,
+    showAddLink, hideAddLink, updateLink,
+    _autoSave,
   };
 })();
