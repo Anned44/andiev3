@@ -56,13 +56,13 @@
   <button class="studio-nav-sub" onclick="StudioProyectos.setFilter(this,'pausado')" data-f="pausado"><span class="studio-nav-label">pausado</span></button>
   <button class="studio-nav-sub urgente" onclick="StudioProyectos.toggleUrgent(this)" id="snavUrgente"><span class="studio-nav-label">⚡ urgentes</span></button>
   <button class="studio-nav-btn" onclick="StudioCore.navTo(this,'aprendizaje')" title="Aprendizaje">
-    <span class="studio-nav-icon">◎</span><span class="studio-nav-label">Aprendizaje</span>
+    <span class="studio-nav-icon">○</span><span class="studio-nav-label">Aprendizaje</span>
   </button>
   <button class="studio-nav-btn" onclick="StudioCore.navTo(this,'notas')" title="Notas">
     <span class="studio-nav-icon">✦</span><span class="studio-nav-label">Notas / Ideas</span>
   </button>
   <button class="studio-nav-btn" onclick="StudioCore.navTo(this,'biblioteca')" title="Biblioteca">
-    <span class="studio-nav-icon">📚</span><span class="studio-nav-label">Biblioteca</span>
+    <span class="studio-nav-icon">≡</span><span class="studio-nav-label">Biblioteca</span>
   </button>
   <div class="studio-nav-spacer"></div>
 </nav>
@@ -227,6 +227,9 @@ window.addEventListener('load', () => {
   StudioProyectos.init();
   renderStudioDash();
 });
+</script>
+<script src="js/studio-proyectos.js"></script>
+<script>
 
 const FRASES_PLAN = [
   '¿Cuál es la tarea más importante de hoy?',
@@ -315,8 +318,6 @@ function renderStudioDash() {
   }
 }
 </script>
-
-<script src="js/studio-proyectos.js" defer></script>
 
 </body>
 </html>
