@@ -61,66 +61,129 @@ window.StudioProyectos = (function () {
     if (_urgent) items = items.filter(p=>p.urgente);
 
     if (!items.length) {
-      container.innerHTML = '<div style="padding:40px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted)">sin proyectos</div>';
+      container.innerHTML = '<div style="padding:60px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em">sin proyectos</div>';
       return;
     }
 
-    container.innerHTML = `<div class="proy-gallery">${items.map(buildCard).join('')}</div>`;
+    // Separar protagonista del resto
+    const activos   = items.filter(p=>p.estado!=='terminado'&&p.estado!=='pausado');
+    const inactivos = items.filter(p=>p.estado==='terminado'||p.estado==='pausado');
+    const foco      = activos.sort((a,b)=>(b.urgente?1:0)-(a.urgente?1:0)||b.progreso-a.progreso)[0];
+    const resto     = items.filter(p=>p.id!==foco?.id);
 
-    // Animar barras de progreso
+    let html = '';
+    if (foco) html += buildCardHero(foco);
+    if (resto.length) {
+      const normales  = resto.filter(p=>p.estado!=='terminado'&&p.estado!=='pausado');
+      const pausados  = resto.filter(p=>p.estado==='pausado'||p.estado==='terminado');
+      html += `<div class="proy-gallery-grid">${normales.map(buildCard).join('')}</div>`;
+      if (pausados.length) html += `
+        <div class="proy-gallery-divider">
+          <span>pausados · terminados</span>
+        </div>
+        <div class="proy-gallery-grid proy-gallery-dim">${pausados.map(buildCard).join('')}</div>`;
+    }
+
+    container.innerHTML = html;
     setTimeout(() => {
-      container.querySelectorAll('.proy-card-progress-fill').forEach(el => {
-        el.style.width = el.dataset.w + '%';
-      });
+      container.querySelectorAll('[data-w]').forEach(el => el.style.width = el.dataset.w + '%');
     }, 80);
   }
 
-  function buildCard(p) {
-    const estadoClass = 'estado-' + (p.estado||'idea');
-    const prioClass   = 'prio-' + (p.prio||'media');
-    const totalCards  = (p.cards||[]).length;
-    const doneCards   = (p.cards||[]).filter(c=>c.colId===p.cols?.[p.cols.length-1]?.id).length;
-    const deadlineTxt = p.deadline ? formatDate(p.deadline) : '';
-    const vencido     = p.deadline && new Date(p.deadline) < new Date();
-
-    return `<div class="proy-card${p.urgente?' urgent':''}" onclick="StudioProyectos.openDetail(${p.id})">
-      <div class="proy-card-header">
-        <div style="display:flex;align-items:flex-start;gap:10px;flex:1;min-width:0">
-          <span class="proy-card-emoji">${p.emoji||'◈'}</span>
-          <div class="proy-card-info">
-            <div class="proy-card-name">${escHtml(p.nombre)}</div>
-            <div class="proy-card-desc">${escHtml(p.desc||'')}</div>
+  function buildCardHero(p) {
+    const totalCards = (p.cards||[]).length;
+    const doneCards  = (p.cards||[]).filter(c=>c.colId===p.cols?.[p.cols.length-1]?.id).length;
+    const vencido    = p.deadline && new Date(p.deadline) < new Date();
+    const bg = p.coverUrl ? `background-image:url('${p.coverUrl}');background-size:cover;background-position:center` : '';
+    return `<div class="proy-card-hero${p.urgente?' urgent':''}" onclick="StudioProyectos.openDetail(${p.id})" style="${bg}">
+      ${bg ? '<div class="proy-hero-overlay"></div>' : ''}
+      <div class="proy-card-hero-content">
+        <div class="proy-card-hero-top">
+          <div style="display:flex;align-items:center;gap:12px">
+            <span style="font-size:2rem;line-height:1">${p.emoji||'◈'}</span>
+            <div>
+              <div class="proy-card-hero-name">${escHtml(p.nombre)}</div>
+              <div class="proy-card-hero-desc">${escHtml(p.desc||'')}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
+            ${p.urgente?'<span style="font-size:14px">⚡</span>':''}
+            <span class="proy-card-estado estado-${p.estado||'idea'}">${p.estado||'idea'}</span>
           </div>
         </div>
-        <span class="proy-card-estado ${estadoClass}">${p.estado||'idea'}</span>
-      </div>
-      ${(p.tags||[]).length ? `<div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:8px">${p.tags.map(t=>`<span class="proy-sub-chip">${t}</span>`).join('')}</div>` : ''}
-      <div class="proy-card-meta">
-        ${deadlineTxt ? `<span class="proy-card-deadline${vencido?' vencido':''}">📅 ${deadlineTxt}</span>` : ''}
-        <span class="proy-card-prio ${prioClass}">${p.prio||'media'}</span>
-        ${p.urgente ? '<span style="font-size:11px">⚡</span>' : ''}
-      </div>
-      <div class="proy-card-progress">
-        <div class="proy-card-progress-bar">
-          <div class="proy-card-progress-fill" data-w="${p.progreso||0}" style="width:0"></div>
+        <div class="proy-card-hero-meta">
+          <span class="proy-card-prio prio-${p.prio||'media'}">${p.prio||'media'}</span>
+          ${p.deadline?`<span class="proy-card-deadline${vencido?' vencido':''}">📅 ${formatDate(p.deadline)}</span>`:''}
+          ${(p.tags||[]).slice(0,2).map(t=>`<span class="proy-sub-chip">${t}</span>`).join('')}
         </div>
-        <div class="proy-card-progress-txt"><span>${p.progreso||0}%</span><span>${doneCards}/${totalCards} tareas</span></div>
+        <div class="proy-card-hero-progress">
+          <div class="proy-card-hero-bar"><div data-w="${p.progreso||0}" style="width:0;height:100%;background:var(--studio);border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)"></div></div>
+          <span class="proy-card-hero-pct">${p.progreso||0}% · ${doneCards}/${totalCards} tareas</span>
+        </div>
       </div>
-      ${(p.subs||[]).length ? `<div class="proy-card-sub">${p.subs.map(s=>`<span class="proy-sub-chip">${s.emoji||''} ${s.nombre}</span>`).join('')}</div>` : ''}
+    </div>`;
+  }
+
+  function buildCard(p) {
+    const totalCards = (p.cards||[]).length;
+    const doneCards  = (p.cards||[]).filter(c=>c.colId===p.cols?.[p.cols.length-1]?.id).length;
+    const vencido    = p.deadline && new Date(p.deadline) < new Date();
+    const bg = p.coverUrl ? `background-image:url('${p.coverUrl}');background-size:cover;background-position:center` : '';
+
+    return `<div class="proy-card${p.urgente?' urgent':''}" onclick="StudioProyectos.openDetail(${p.id})" style="${bg}">
+      ${bg ? '<div class="proy-hero-overlay" style="background:linear-gradient(to top,rgba(6,4,12,.92),rgba(6,4,12,.3))"></div>' : ''}
+      <div style="position:relative;z-index:2">
+        <div class="proy-card-header">
+          <div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0">
+            <span class="proy-card-emoji">${p.emoji||'◈'}</span>
+            <div class="proy-card-info">
+              <div class="proy-card-name">${escHtml(p.nombre)}</div>
+              <div class="proy-card-desc">${escHtml(p.desc||'')}</div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
+            <span class="proy-card-estado estado-${p.estado||'idea'}">${p.estado||'idea'}</span>
+            ${p.urgente?'<span style="font-size:11px">⚡</span>':''}
+          </div>
+        </div>
+        <div class="proy-card-meta" style="margin-top:8px">
+          <span class="proy-card-prio prio-${p.prio||'media'}">${p.prio||'media'}</span>
+          ${p.deadline?`<span class="proy-card-deadline${vencido?' vencido':''}">📅 ${formatDate(p.deadline)}</span>`:''}
+          ${(p.tags||[]).slice(0,2).map(t=>`<span class="proy-sub-chip">${t}</span>`).join('')}
+        </div>
+        <div class="proy-card-progress" style="margin-top:12px">
+          <div class="proy-card-progress-bar">
+            <div class="proy-card-progress-fill" data-w="${p.progreso||0}" style="width:0"></div>
+          </div>
+          <div class="proy-card-progress-txt"><span>${p.progreso||0}%</span><span>${doneCards}/${totalCards}</span></div>
+        </div>
+      </div>
     </div>`;
   }
 
   /* ━━ FILTROS ━━ */
   function setFilter(btn, filter) {
+    document.querySelectorAll('.studio-nav-sub:not(.urgente)').forEach(b=>b.classList.remove('active'));
     document.querySelectorAll('.proy-filter-btn').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) btn.classList.add('active');
+    else {
+      const def = document.querySelector('.studio-nav-sub[data-f="all"]');
+      if (def) def.classList.add('active');
+    }
     _filter = filter;
+    // Asegurar que estamos en la página de proyectos
+    const page = document.getElementById('page-proyectos');
+    if (page && !page.classList.contains('active')) {
+      StudioCore.navTo(document.getElementById('snavProyectos'), 'proyectos');
+    }
     renderGallery();
   }
 
   function toggleUrgent(btn) {
     _urgent = !_urgent;
-    btn.classList.toggle('active', _urgent);
+    if (btn) btn.classList.toggle('active', _urgent);
+    const sideBtn = document.getElementById('snavUrgente');
+    if (sideBtn) sideBtn.classList.toggle('active', _urgent);
     renderGallery();
   }
 
