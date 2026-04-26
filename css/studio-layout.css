@@ -169,3 +169,43 @@
 @media (max-width:720px) {
   .studio-main { padding:20px 16px 120px; }
 }
+
+/* Sub-items de filtro en sidebar */
+.studio-nav-sub {
+  width: 100%;
+  height: 32px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  padding: 0 16px 0 36px;
+  white-space: nowrap;
+  transition: background .12s;
+  flex-shrink: 0;
+}
+.studio-nav-sub .studio-nav-label {
+  font-size: 8px;
+  letter-spacing: .1em;
+  opacity: 0;
+  transition: opacity .12s .04s;
+  color: var(--muted);
+}
+.studio-sidebar:hover .studio-nav-sub .studio-nav-label { opacity: 1; }
+.studio-nav-sub:hover { background:rgba(200,150,90,.06); }
+.studio-nav-sub:hover .studio-nav-label { color:var(--text2); }
+.studio-nav-sub.active .studio-nav-label { color:var(--studio); }
+.studio-nav-sub.urgente .studio-nav-label { color:var(--pink); opacity:0; }
+.studio-sidebar:hover .studio-nav-sub.urgente .studio-nav-label { opacity:1; }
+.studio-nav-sub.urgente.active { background:rgba(200,110,138,.06); }
+
+/* Punto indicador izquierda */
+.studio-nav-sub.active::before {
+  content: '';
+  position: absolute;
+  left: 28px;
+  width: 3px; height: 3px;
+  border-radius: 50%;
+  background: var(--studio);
+}
+.studio-nav-sub.urgente.active::before { background:var(--pink); }
