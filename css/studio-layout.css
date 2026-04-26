@@ -209,3 +209,24 @@
   background: var(--studio);
 }
 .studio-nav-sub.urgente.active::before { background:var(--pink); }
+
+/* ── Fix barra doble progreso ── */
+.proy-hero-progress { display:flex; flex-direction:column; gap:4px; }
+.proy-hero-progress-bar { height:3px !important; position:relative; }
+.proy-hero-progress-range { height:16px !important; margin:0 !important; }
+
+/* ── Glyph glow fix ── */
+.studio-logo-glyph {
+  font-size: 18px !important;
+  color: var(--studio) !important;
+  text-shadow: 0 0 14px rgba(200,150,90,.8) !important;
+}
+
+/* ── Dashboard proyectos font ── */
+.sdash-pi-name {
+  font-family: var(--serif) !important;
+  font-style: italic;
+  font-size: .95rem;
+  font-weight: 300;
+  color: var(--text2);
+}
