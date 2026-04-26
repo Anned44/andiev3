@@ -79,14 +79,6 @@ window.HubCore = (function () {
 
   /* ── FAB Modal ── */
   let fabDest = 'inbox';
-  let fabRecordatorio = false;
-
-  const PLACEHOLDERS = {
-    nota:     '¿Qué tienes en mente?...',
-    tarea:    'Describe la tarea...',
-    evento:   'Nombre del evento...',
-    proyecto: 'Describe el proyecto...'
-  };
 
   function openFab() {
     const overlay = document.getElementById('fabOverlay');
@@ -94,104 +86,81 @@ window.HubCore = (function () {
     const today = todayKey();
     const fechaEl = document.getElementById('fabFecha');
     if (fechaEl) fechaEl.value = today;
-    setTimeout(() => document.getElementById('fabTipo')?.focus(), 60);
+    setTimeout(() => document.getElementById('fabText')?.focus(), 80);
   }
 
   function closeFab() {
     const overlay = document.getElementById('fabOverlay');
     if (overlay) overlay.classList.remove('open');
-    // Reset form
-    ['fabText','fabFecha','fabHora','fabProyNombre'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.value = '';
-    });
-    const tipo = document.getElementById('fabTipo');
-    if (tipo) tipo.value = 'nota';
-    const prio = document.getElementById('fabPrio');
-    if (prio) prio.value = '';
-    fabRecordatorio = false;
-    const tog = document.getElementById('fabRecordatorio');
-    if (tog) { tog.textContent = 'No'; tog.classList.remove('on'); }
-    const hint = document.getElementById('fabRecordatorioHint');
-    if (hint) hint.textContent = '';
-    onTipoChange();
+    const textEl = document.getElementById('fabText');
+    if (textEl) textEl.value = '';
+    // Reset tipo a captura
+    document.querySelectorAll('.fab-chip').forEach(b => b.classList.remove('sel'));
+    document.querySelector('.fab-chip[data-tipo="captura"]')?.classList.add('sel');
+    // Reset destino a inbox
+    document.querySelectorAll('.fab-dest-chip').forEach(b => b.classList.remove('sel'));
+    document.querySelector('.fab-dest-chip[data-dest="inbox"]')?.classList.add('sel');
+    fabDest = 'inbox';
+    document.getElementById('fabPlannerFields')?.classList.remove('visible');
   }
 
   function closeFabIfOutside(e) {
     if (e.target === document.getElementById('fabOverlay')) closeFab();
   }
 
-  function onTipoChange() {
-    const tipo = document.getElementById('fabTipo')?.value || 'nota';
-    const ta = document.getElementById('fabText');
-    if (ta) ta.placeholder = PLACEHOLDERS[tipo] || PLACEHOLDERS.nota;
-
-    const eventoFields  = document.getElementById('fabEventoFields');
-    const proyFields    = document.getElementById('fabProyectoFields');
-    const prioField     = document.getElementById('fabPrioField');
-
-    if (eventoFields) eventoFields.classList.toggle('visible', tipo === 'evento');
-    if (proyFields)   proyFields.classList.toggle('visible', tipo === 'proyecto');
-    if (prioField)    prioField.style.display = tipo === 'evento' ? 'none' : '';
-  }
-
-  function toggleFabRecordatorio() {
-    fabRecordatorio = !fabRecordatorio;
-    const btn  = document.getElementById('fabRecordatorio');
-    const hint = document.getElementById('fabRecordatorioHint');
-    if (btn)  { btn.textContent = fabRecordatorio ? 'Sí' : 'No'; btn.classList.toggle('on', fabRecordatorio); }
-    if (hint) hint.textContent = fabRecordatorio ? 'se guardará con alerta' : '';
+  function selFabTipo(btn) {
+    document.querySelectorAll('.fab-chip').forEach(b => b.classList.remove('sel'));
+    btn.classList.add('sel');
   }
 
   function selectFabDest(btn) {
     document.querySelectorAll('.fab-dest-chip').forEach(b => b.classList.remove('sel'));
     btn.classList.add('sel');
     fabDest = btn.dataset.dest;
+    const plannerFields = document.getElementById('fabPlannerFields');
+    if (plannerFields) plannerFields.classList.toggle('visible', fabDest === 'planner');
   }
 
+  // Compatibilidad con código viejo
+  function onTipoChange() {}
+  function toggleFabRecordatorio() {}
+
   function submitFab() {
-    const txt  = document.getElementById('fabText')?.value.trim();
+    const txt = document.getElementById('fabText')?.value.trim();
     if (!txt) { document.getElementById('fabText')?.focus(); return; }
 
-    const tipo  = document.getElementById('fabTipo')?.value || 'nota';
-    const prio  = document.getElementById('fabPrio')?.value || '';
-    const fecha = document.getElementById('fabFecha')?.value || '';
-    const hora  = document.getElementById('fabHora')?.value || '';
-    const proyN = document.getElementById('fabProyNombre')?.value.trim() || '';
-    const today = todayKey();
+    const tipoBtn = document.querySelector('.fab-chip.sel');
+    const tipo    = tipoBtn?.dataset.tipo || 'captura';
+    const today   = todayKey();
 
     const item = {
-      id: Date.now(),
-      text: txt,
-      type: tipo,
-      prio,
+      id:     Date.now(),
+      text:   txt,
+      type:   tipo,
       status: 'pendiente',
-      time: new Date().toISOString(),
-      date: today,
-      ...(tipo === 'evento' && { eventDate: fecha, eventTime: hora, recordatorio: fabRecordatorio }),
-      ...(tipo === 'proyecto' && proyN && { proyNombre: proyN })
+      time:   Date.now(),
+      notes:  '',
+      subtasks: [],
     };
 
     if (fabDest === 'inbox') {
       const inbox = lg('dash_inbox', []);
       inbox.unshift(item);
       ls('dash_inbox', inbox);
+      window.HubInbox?.refresh?.();
     } else if (fabDest === 'planner') {
-      // Usar fecha seleccionada para eventos, hoy para el resto
-      const plannerDate = (tipo === 'evento' && fecha) ? fecha : today;
-      const state = lg('appState', {});
+      const dateVal = document.getElementById('fabFecha')?.value || today;
+      const block   = document.getElementById('fabBlock')?.value || 'morning';
+      const state   = lg('appState', {});
       if (!state.plannerByDate) state.plannerByDate = {};
-      if (!state.plannerByDate[plannerDate]) state.plannerByDate[plannerDate] = { morning:[], afternoon:[], night:[] };
-      state.plannerByDate[plannerDate].morning.push({ ...item, done: false });
+      if (!state.plannerByDate[dateVal]) state.plannerByDate[dateVal] = { morning:[], afternoon:[], night:[] };
+      state.plannerByDate[dateVal][block].push({ ...item, done: false });
       ls('appState', state);
+      window.HubPlanner?.refresh?.();
     }
 
     showToast('✓ guardado en ' + fabDest);
     closeFab();
-
-    // Refrescar módulos si están activos
-    if (fabDest === 'inbox')   window.HubInbox?.refresh?.();
-    if (fabDest === 'planner') window.HubPlanner?.refresh?.();
     window.HubDashboard?.refresh?.();
   }
 
@@ -239,7 +208,6 @@ window.HubCore = (function () {
     if (fab) fab.addEventListener('click', openFab);
   }
 
-  /* ── API pública ── */
   return {
     init,
     navTo,
@@ -251,6 +219,7 @@ window.HubCore = (function () {
     closeFabIfOutside,
     onTipoChange,
     toggleFabRecordatorio,
+    selFabTipo,
     selectFabDest,
     submitFab,
     lg,
