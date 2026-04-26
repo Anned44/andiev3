@@ -77,6 +77,18 @@ window.HubCore = (function () {
     window.location.href = 'index.html';
   }
 
+  /* ── Drawer Proyectos ── */
+  function openProyDrawer() {
+    const overlay = document.getElementById('proyDrawerOverlay');
+    if (overlay) overlay.classList.add('open');
+    window.StudioProyectos?.renderDrawer?.();
+  }
+
+  function closeProyDrawer(e) {
+    if (e && e.target !== document.getElementById('proyDrawerOverlay')) return;
+    document.getElementById('proyDrawerOverlay')?.classList.remove('open');
+  }
+
   /* ── FAB Modal ── */
   let fabDest = 'inbox';
 
@@ -212,6 +224,8 @@ window.HubCore = (function () {
     init,
     navTo,
     goPortal,
+    openProyDrawer,
+    closeProyDrawer,
     showToast,
     triggerAutosave,
     openFab,
