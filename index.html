@@ -3,14 +3,6 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<!-- PWA -->
-<link rel="manifest" href="/manifest.json">
-<meta name="theme-color" content="#0c0818">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Andy.net">
-<link rel="apple-touch-icon" href="/icon-180.png">
-<link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <title>Andy.net</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Geist+Mono:wght@300;400;500&family=Geist:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
@@ -98,9 +90,6 @@ body {
   justify-content: center;
   padding: 4.5rem 2rem 2.5rem;
   text-align: center;
-  position: relative;
-  overflow: hidden;
-  min-height: 320px;
 }
 .hero-eyebrow {
   font-family: var(--serif);
@@ -351,9 +340,9 @@ body {
 /* ── BOTTOM BAR ── */
 .bottom-bar {
   position: fixed;
-  bottom: 0; right: 0;
+  bottom: 0; left: 0; right: 0;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: flex-end;
   padding: 1.2rem 1.8rem;
   pointer-events: none;
@@ -601,11 +590,6 @@ body {
 }
 .fab-toggle.on { background: var(--s3); border-color: rgba(155,122,184,0.4); color: var(--muse); }
 .fab-toggle-hint { font-family: var(--mono); font-size: 9px; color: var(--muted); }
-/* FAB tipo chips */
-.fab-chips-row { display:flex; gap:5px; flex-wrap:wrap; margin-top:4px; }
-.fab-chip { font-family:var(--mono); font-size:8.5px; letter-spacing:.06em; padding:5px 12px; border-radius:20px; border:1px solid var(--border); background:none; color:var(--muted); cursor:pointer; transition:all .12s; white-space:nowrap; }
-.fab-chip:hover { border-color:var(--border2); color:var(--text); }
-.fab-chip.sel { background:var(--s2); border-color:rgba(155,122,184,.45); color:#ede5f5; }
 
 /* ── TOAST ── */
 .toast {
@@ -627,68 +611,22 @@ body {
   white-space: nowrap;
   z-index: 200;
 }
-/* ── THEME TOGGLE ── */
-.theme-toggle {
-  background: none;
-  border: 1px solid var(--border2);
-  border-radius: 20px;
-  color: var(--muted2);
-  font-family: var(--mono);
-  font-size: 10px;
-  letter-spacing: .08em;
-  padding: 5px 12px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all .2s;
-}
-.theme-toggle:hover { color: var(--text); border-color: var(--border2); background: var(--s2); }
-
 .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-/* ── TÍTULO CÓSMICO ── */
-.hero-title-cosmo {
-  font-family: 'Crimson Text', var(--serif), serif;
-  font-weight: 600;
-  font-style: italic;
-  background: linear-gradient(110deg, #e8e0f5 0%, #fff 30%, #c0b4cc 52%, #e0d8f0 72%, #fff 100%);
-  background-size: 300% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: heroShimmer 7s ease-in-out infinite, heroFloat 8s ease-in-out infinite;
-  filter: drop-shadow(0 0 22px rgba(200,180,240,.5)) drop-shadow(0 0 55px rgba(140,100,200,.22));
-}
-@keyframes heroShimmer {
-  0%,100% { background-position: 100% 50%; }
-  50%      { background-position: 0% 50%; }
-}
-@keyframes heroFloat {
-  0%,100% { transform: translateY(0px); }
-  50%      { transform: translateY(-8px); }
-}
 </style>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/andy-fab.css">
 </head>
 <body>
 
 <!-- TOP BAR -->
 <header class="top-bar">
   <div class="logo">Andy.net</div>
-  <div style="display:flex;align-items:center;gap:10px">
-    <button class="theme-toggle" id="portalThemeToggle" onclick="portalToggleTheme()" title="cambiar tema">
-      <span class="toggle-icon">○</span>
-    </button>
-    <button class="top-btn" onclick="showToast('⚙ Configuración próximamente')">⚙</button>
-  </div>
+  <button class="top-btn" onclick="showToast('⚙ Configuración próximamente')">⚙</button>
 </header>
 
 <!-- HERO -->
-<section class="hero" style="position:relative;overflow:hidden;">
-  <canvas id="heroCanvas" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
-  <div class="hero-eyebrow" id="heroQuote" onclick="nextQuote()" title="click para cambiar" style="position:relative;z-index:2;"></div>
-  <h1 class="hero-title hero-title-cosmo" style="position:relative;z-index:2;">Ανδρέα</h1>
+<section class="hero">
+  <div class="hero-eyebrow" id="heroQuote" onclick="nextQuote()" title="click para cambiar"></div>
+  <h1 class="hero-title">Ανδρέα</h1>
   <div class="hero-footer">
     <span class="hero-date" id="heroDate"></span>
     <span class="hero-sep">·</span>
@@ -765,64 +703,6 @@ body {
   <div class="stat">
     <span class="stat-num" id="statDays">—</span>
     <span class="stat-lbl">días juntos</span>
-  </div>
-</div>
-
-<!-- BOTTOM BAR -->
-<div class="bottom-bar">
-  <button class="fab" id="fabBtn" onclick="openFab()" title="Captura rápida (Ctrl+Space)">✦</button>
-</div>
-
-<!-- FAB MODAL -->
-<div class="fab-overlay" id="fabOverlay" onclick="closeFabIfOutside(event)">
-  <div class="fab-modal">
-    <div class="fab-modal-title">captura rápida</div>
-    <div class="fab-field">
-      <span class="fab-field-label">tipo</span>
-      <div class="fab-chips-row">
-        <button class="fab-chip sel" data-tipo="captura" onclick="selFabTipo(this)">✦ captura</button>
-        <button class="fab-chip" data-tipo="idea" onclick="selFabTipo(this)">💡 idea</button>
-        <button class="fab-chip" data-tipo="tarea" onclick="selFabTipo(this)">📋 tarea</button>
-        <button class="fab-chip" data-tipo="nota" onclick="selFabTipo(this)">📝 nota</button>
-        <button class="fab-chip" data-tipo="evento" onclick="selFabTipo(this)">◷ evento</button>
-        <button class="fab-chip" data-tipo="recordatorio" onclick="selFabTipo(this)">⏰ recordar</button>
-        <button class="fab-chip" data-tipo="wishlist" onclick="selFabTipo(this)">✦ wishlist</button>
-      </div>
-    </div>
-    <div class="fab-field">
-      <textarea class="fab-textarea" id="fabText" placeholder="¿qué tienes en mente?..."
-        onkeydown="if(event.key==='Enter'&&(event.ctrlKey||event.metaKey))submitFab()"></textarea>
-    </div>
-    <div class="fab-field">
-      <span class="fab-field-label">destino</span>
-      <div class="fab-dest-row">
-        <button class="fab-dest-chip sel" data-dest="inbox" onclick="selectDest(this)"><span class="chip-dot"></span> 📥 inbox</button>
-        <button class="fab-dest-chip" data-dest="planner" onclick="selectDest(this)"><span class="chip-dot"></span> 📅 planner</button>
-      </div>
-    </div>
-    <div class="fab-conditional" id="fabPlannerFields">
-      <div class="fab-row-2">
-        <div class="fab-field">
-          <span class="fab-field-label">fecha</span>
-          <input type="date" class="fab-select" id="fabFecha" style="padding:7px 12px;">
-        </div>
-        <div class="fab-field">
-          <span class="fab-field-label">bloque</span>
-          <div class="fab-select-wrap">
-            <select class="fab-select" id="fabBlock">
-              <option value="morning">🌅 mañana</option>
-              <option value="afternoon">🌤 tarde</option>
-              <option value="night">🌙 noche</option>
-            </select>
-            <span class="fab-select-arrow">▾</span>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="fab-actions">
-      <button class="fab-cancel" onclick="closeFab()">cancelar</button>
-      <button class="fab-save" onclick="submitFab()">guardar</button>
-    </div>
   </div>
 </div>
 
@@ -976,67 +856,7 @@ function renderStats() {
   } catch(e) {}
 }
 
-/* ── FAB ── */
-let fabDest = 'inbox';
-
-function selFabTipo(btn) {
-  document.querySelectorAll('.fab-chip').forEach(b => b.classList.remove('sel'));
-  btn.classList.add('sel');
-}
-
-function openFab() {
-  document.getElementById('fabOverlay').classList.add('open');
-  const hoy = new Date().toISOString().slice(0,10);
-  const fechaEl = document.getElementById('fabFecha');
-  if (fechaEl) fechaEl.value = hoy;
-  setTimeout(() => document.getElementById('fabText').focus(), 80);
-}
-
-function closeFab() {
-  document.getElementById('fabOverlay').classList.remove('open');
-  document.getElementById('fabText').value = '';
-  document.querySelectorAll('.fab-chip').forEach(b => b.classList.remove('sel'));
-  document.querySelector('.fab-chip[data-tipo="captura"]')?.classList.add('sel');
-  document.querySelectorAll('.fab-dest-chip').forEach(b => b.classList.remove('sel'));
-  document.querySelector('.fab-dest-chip[data-dest="inbox"]')?.classList.add('sel');
-  fabDest = 'inbox';
-  document.getElementById('fabPlannerFields')?.classList.remove('visible');
-}
-
-function closeFabIfOutside(e) {
-  if (e.target === document.getElementById('fabOverlay')) closeFab();
-}
-
-function selectDest(btn) {
-  document.querySelectorAll('.fab-dest-chip').forEach(b => b.classList.remove('sel'));
-  btn.classList.add('sel');
-  fabDest = btn.dataset.dest;
-  document.getElementById('fabPlannerFields')?.classList.toggle('visible', fabDest === 'planner');
-}
-
-function submitFab() {
-  const txt = document.getElementById('fabText').value.trim();
-  if (!txt) { document.getElementById('fabText').focus(); return; }
-  const tipoBtn = document.querySelector('.fab-chip.sel');
-  const tipo = tipoBtn?.dataset.tipo || 'captura';
-  const today = todayKey();
-  const item = { id:Date.now(), text:txt, type:tipo, status:'pendiente', time:Date.now(), notes:'', subtasks:[] };
-  if (fabDest === 'inbox') {
-    const inbox = JSON.parse(localStorage.getItem('dash_inbox') || '[]');
-    inbox.unshift(item); localStorage.setItem('dash_inbox', JSON.stringify(inbox));
-  } else if (fabDest === 'planner') {
-    const dateVal = document.getElementById('fabFecha')?.value || today;
-    const block   = document.getElementById('fabBlock')?.value || 'morning';
-    const state   = JSON.parse(localStorage.getItem('appState') || '{}');
-    if (!state.plannerByDate) state.plannerByDate = {};
-    if (!state.plannerByDate[dateVal]) state.plannerByDate[dateVal] = { morning:[], afternoon:[], night:[] };
-    state.plannerByDate[dateVal][block].push({ ...item, done:false });
-    localStorage.setItem('appState', JSON.stringify(state));
-  }
-  showToast('✓ guardado en ' + fabDest);
-  closeFab();
-  renderStats();
-}
+/* FAB handled by AndyFab */
 
 /* ── TOAST ── */
 let _toastTimer;
@@ -1069,109 +889,6 @@ renderCal();
 renderStats();
 setInterval(updateTime, 60000);
 </script>
-<!-- TEMA -->
-<script>
-(function() {
-  const KEY = 'andy_theme';
-  const DAY_VARS = {
-    '--bg':'#f5f0e8','--s1':'#ede8df','--s2':'#e4ddd3','--s3':'#d9d1c4',
-    '--border':'rgba(192,180,204,0.35)','--border2':'rgba(192,180,204,0.6)',
-    '--text':'#3a3430','--text2':'#1e1a16','--muted':'#9a8f80','--muted2':'#7a6f62',
-  };
-  const NIGHT_VARS = {
-    '--bg':'#0c0a12','--s1':'#120f1a','--s2':'#1a1625','--s3':'#241e30',
-    '--border':'rgba(180,140,220,0.08)','--border2':'rgba(180,140,220,0.15)',
-    '--text':'#d4cfe0','--text2':'#f0ecf8','--muted':'#5a4f70','--muted2':'#8a7a9a',
-  };
-
-  function applyTheme(theme) {
-    const vars = theme === 'day' ? DAY_VARS : NIGHT_VARS;
-    const root = document.documentElement;
-    Object.entries(vars).forEach(([k,v]) => root.style.setProperty(k, v));
-    localStorage.setItem(KEY, theme);
-    const btn = document.getElementById('portalThemeToggle');
-    if (btn) {
-      btn.querySelector('.toggle-icon').textContent = theme === 'day' ? '◑' : '○';
-    }
-    // Hero fondo especial en modo día para que el título contraste
-    const hero = document.querySelector('.hero');
-    if (hero) {
-      hero.style.background = theme === 'day'
-        ? 'linear-gradient(180deg, #2a1f3d 0%, #1a1228 60%, #f5f0e8 100%)'
-        : '';
-    }
-  }
-
-  window.portalToggleTheme = function() {
-    const current = localStorage.getItem(KEY) || 'night';
-    applyTheme(current === 'night' ? 'day' : 'night');
-  };
-
-  // Aplicar al cargar
-  applyTheme(localStorage.getItem(KEY) || 'night');
-})();
-</script>
-<script>
-(function() {
-  const canvas = document.getElementById('heroCanvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const hero = canvas.parentElement;
-
-  function resize() {
-    canvas.width  = hero.offsetWidth;
-    canvas.height = hero.offsetHeight;
-  }
-  resize();
-  window.addEventListener('resize', resize);
-
-  const orbs = [];
-  for (let i = 0; i < 7; i++) {
-    orbs.push({
-      x: Math.random() * hero.offsetWidth,
-      y: Math.random() * hero.offsetHeight,
-      r: Math.random() * 60 + 30,
-      phase: Math.random() * Math.PI * 2,
-      dx: (Math.random() - .5) * .22,
-      dy: (Math.random() - .5) * .16,
-      hue: [260, 280, 245, 300, 255][Math.floor(Math.random()*5)],
-      sat: Math.floor(Math.random()*25)+30,
-    });
-  }
-
-  let t = 0;
-  function draw() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    t += .007;
-    orbs.forEach(o => {
-      o.x += o.dx; o.y += o.dy;
-      if (o.x < -o.r*2) o.x = canvas.width + o.r;
-      if (o.x > canvas.width + o.r*2) o.x = -o.r;
-      if (o.y < -o.r*2) o.y = canvas.height + o.r;
-      if (o.y > canvas.height + o.r*2) o.y = -o.r;
-
-      const p = o.r * (.9 + .1 * Math.sin(t * 1.1 + o.phase));
-      const a = .055 + .035 * Math.sin(t + o.phase);
-
-      const g = ctx.createRadialGradient(o.x-p*.3, o.y-p*.3, p*.1, o.x, o.y, p);
-      g.addColorStop(0, `hsla(${o.hue},${o.sat+20}%,80%,${a*2.4})`);
-      g.addColorStop(.4, `hsla(${o.hue},${o.sat}%,55%,${a*1.4})`);
-      g.addColorStop(.7, `hsla(${o.hue+30},${o.sat-10}%,40%,${a})`);
-      g.addColorStop(1, `hsla(${o.hue},${o.sat}%,20%,0)`);
-      ctx.beginPath(); ctx.arc(o.x, o.y, p, 0, Math.PI*2);
-      ctx.fillStyle = g; ctx.fill();
-
-      // highlight tipo esfera de jabón
-      const hl = ctx.createRadialGradient(o.x-p*.35, o.y-p*.35, 0, o.x-p*.35, o.y-p*.35, p*.42);
-      hl.addColorStop(0, `rgba(255,255,255,${a*1.1})`);
-      hl.addColorStop(1, `rgba(255,255,255,0)`);
-      ctx.beginPath(); ctx.arc(o.x, o.y, p, 0, Math.PI*2);
-      ctx.fillStyle = hl; ctx.fill();
-    });
-    requestAnimationFrame(draw);
-  }
-  draw();
-})();
-</script>
+<script src="js/andy-fab.js"></script>
 </body>
 </html>
