@@ -108,10 +108,11 @@
   left: 0;
   bottom: 0;
   z-index: 50;
-  transition: width .22s cubic-bezier(.4,0,.2,1);
+  transition: width .14s cubic-bezier(.4,0,.2,1);
   overflow: hidden;
 }
 .sidebar:hover { width: var(--sidebar-open); }
+.sidebar.collapsed { width: var(--sidebar-w) !important; }
 
 .nav-btn {
   width: 100%;
@@ -193,8 +194,13 @@
 }
 
 /* ── Pages ── */
-.hub-page { display: none; animation: pageIn .25s ease both; }
+.hub-page { display: none; animation: pageIn .12s ease both; }
 .hub-page.active { display: block; }
+
+@keyframes pageIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 /* ── Page headers ── */
 .page-h1 {
