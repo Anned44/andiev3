@@ -85,14 +85,16 @@ window.HubDashboard = (function () {
       const d = await r.json();
       const cw = d.current_weather;
       const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-      set('climaEmoji', CLIMA_EMOJI[cw.weathercode] || '🌡');
-      set('climaTemp',  Math.round(cw.temperature) + '°C');
-      set('climaDesc',  CLIMA_DESC[cw.weathercode] || 'Variable');
+      const emoji = CLIMA_EMOJI[cw.weathercode] || '🌡';
+      const temp  = Math.round(cw.temperature) + '°C';
+      const desc  = CLIMA_DESC[cw.weathercode] || 'Variable';
+      set('climaEmoji', emoji); set('climaTemp', temp); set('climaDesc', desc);
+      set('climaEmojiInline', emoji); set('climaTempInline', temp);
+      set('climaDescInline', desc.toLowerCase() + ' · chihuahua');
     } catch {
       const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-      set('climaEmoji', '🌡');
-      set('climaTemp',  '—°');
-      set('climaDesc',  'sin conexión');
+      set('climaEmoji', '🌡'); set('climaTemp', '—°'); set('climaDesc', 'sin conexión');
+      set('climaEmojiInline', '🌡'); set('climaTempInline', '—°'); set('climaDescInline', 'sin conexión');
     }
   }
 
