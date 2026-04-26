@@ -841,3 +841,112 @@
   .proy-gallery-grid { grid-template-columns:1fr; }
   .proy-card-hero-name { font-size:1.3rem; }
 }
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   BLOQUES DEL DETALLE DE PROYECTO
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Bloque genérico */
+.pd-bloque { margin-top:28px; }
+.pd-bloque-label {
+  font-family:var(--mono); font-size:8.5px; letter-spacing:.18em;
+  text-transform:uppercase; color:var(--muted); margin-bottom:14px;
+  display:flex; align-items:center; justify-content:space-between;
+}
+.pd-bloque-btn {
+  font-family:var(--mono); font-size:8.5px; letter-spacing:.06em;
+  background:none; border:0.5px solid var(--border); border-radius:6px;
+  color:var(--muted); cursor:pointer; padding:3px 10px; transition:all .12s;
+}
+.pd-bloque-btn:hover { border-color:var(--studio); color:var(--studio); }
+
+/* Panel contextual 2 cols */
+.pd-panel-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-top: 28px;
+}
+.pd-panel-col { display:flex; flex-direction:column; gap:0; }
+
+/* Notas vivas */
+.pd-nota-card {
+  background: var(--s1);
+  border: 0.5px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 8px;
+  transition: border-color .15s;
+}
+.pd-nota-card:hover { border-color:var(--bord2); }
+.pd-nota-badge {
+  font-family:var(--mono); font-size:7.5px; letter-spacing:.1em;
+  text-transform:uppercase; padding:2px 8px; border-radius:10px;
+}
+.pd-nota-textarea {
+  width:100%; background:none; border:none; outline:none;
+  font-family:var(--sans); font-size:12px; color:var(--text2);
+  line-height:1.6; resize:none; min-height:48px;
+}
+.pd-nota-textarea::placeholder { color:var(--muted); }
+.pd-nota-add {
+  width:100%; background:none; border:0.5px dashed var(--border);
+  border-radius:10px; color:var(--muted); font-family:var(--mono);
+  font-size:9px; padding:10px; cursor:pointer; transition:all .12s; margin-top:4px;
+}
+.pd-nota-add:hover { border-color:var(--studio); color:var(--studio); }
+
+/* Tablero de contenido */
+.pd-contenido-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 10px;
+}
+.pd-content-card {
+  background:var(--s1); border:0.5px solid var(--border); border-radius:12px;
+  padding:14px; cursor:pointer; transition:all .15s; position:relative;
+}
+.pd-content-card:hover { border-color:rgba(200,150,90,.3); }
+.pd-content-card:hover .pd-content-del { opacity:1 !important; }
+.pd-content-name-input {
+  width:100%; background:none; border:none; outline:none;
+  font-family:var(--sans); font-size:12px; color:var(--text2); margin-top:4px;
+}
+.pd-content-name-input::placeholder { color:var(--muted); }
+.pd-content-type-lbl { font-family:var(--mono); font-size:7.5px; letter-spacing:.1em; text-transform:uppercase; color:var(--muted); margin-top:3px; }
+
+/* Tipos chips (contenido y proceso) */
+.pd-tipo-chip {
+  font-family:var(--mono); font-size:8px; letter-spacing:.06em; padding:4px 10px;
+  border-radius:10px; border:0.5px solid var(--border); background:none;
+  color:var(--muted); cursor:pointer; transition:all .12s;
+}
+.pd-tipo-chip:hover { border-color:var(--bord2); color:var(--text); }
+.pd-tipo-chip.active { background:var(--s2); border-color:rgba(200,150,90,.35); color:var(--studio); }
+
+/* Proceso & avances — timeline */
+.pd-timeline { display:flex; flex-direction:column; gap:0; }
+.pd-tl-item { display:flex; gap:12px; padding-bottom:16px; position:relative; }
+.pd-tl-item::before {
+  content:''; position:absolute; left:7px; top:16px; bottom:0;
+  width:1px; background:var(--border);
+}
+.pd-tl-item:last-child::before { display:none; }
+.pd-tl-dot {
+  width:16px; height:16px; border-radius:50%; flex-shrink:0;
+  margin-top:2px; position:relative; z-index:1;
+}
+.pd-tl-content { flex:1; min-width:0; }
+.pd-tl-badge {
+  font-family:var(--mono); font-size:7.5px; letter-spacing:.1em;
+  text-transform:uppercase; padding:2px 8px; border-radius:10px;
+}
+
+/* Fix barra de progreso doble — asegurar solo una */
+.proy-hero-progress-bar + .proy-hero-progress-bar { display:none !important; }
+.proy-detail-meta { display:none !important; }
+
+@media (max-width:720px) {
+  .pd-panel-grid { grid-template-columns:1fr; }
+  .pd-contenido-grid { grid-template-columns:1fr 1fr; }
+}
