@@ -44,7 +44,6 @@ window.HubCore = (function () {
 
   /* ── Navegación ── */
   function navTo(btn, page) {
-    // Actualizar sidebar
     document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
     if (btn) {
       btn.classList.add('active');
@@ -54,12 +53,17 @@ window.HubCore = (function () {
       if (b) b.classList.add('active');
     }
 
-    // Mostrar página
     document.querySelectorAll('.hub-page').forEach(p => p.classList.remove('active'));
     const el = document.getElementById('page-' + page);
     if (el) el.classList.add('active');
 
-    // Inicializar módulo
+    // Auto-colapsar sidebar al navegar
+    const sidebar = document.querySelector('.sidebar');
+    if (sidebar) {
+      sidebar.classList.add('collapsed');
+      setTimeout(() => sidebar.classList.remove('collapsed'), 800);
+    }
+
     const modules = {
       planner:  () => window.HubPlanner?.init(),
       metas:    () => window.HubMetas?.init(),
