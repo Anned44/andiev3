@@ -43,7 +43,10 @@
 
 <!-- SIDEBAR -->
 <nav class="studio-sidebar">
-  <button class="studio-nav-btn active" onclick="StudioCore.navTo(this,'proyectos')" title="Proyectos">
+  <button class="studio-nav-btn active" onclick="StudioCore.navTo(this,'dashboard')" title="Dashboard">
+    <span class="studio-nav-icon">⌂</span><span class="studio-nav-label">Dashboard</span>
+  </button>
+  <button class="studio-nav-btn" onclick="StudioCore.navTo(this,'proyectos')" title="Proyectos">
     <span class="studio-nav-icon">◈</span><span class="studio-nav-label">Proyectos</span>
   </button>
   <button class="studio-nav-btn" onclick="StudioCore.navTo(this,'aprendizaje')" title="Aprendizaje">
@@ -60,8 +63,40 @@
 
 <main class="studio-main">
 
+  <!-- DASHBOARD -->
+  <div id="page-dashboard" class="studio-page active">
+    <div class="studio-page-h1">Studio</div>
+    <div class="studio-page-sub">tu espacio creativo · proyectos · aprendizaje · ideas</div>
+    <div class="studio-dash-grid" id="studioDashGrid">
+      <div class="studio-dash-widget foco" id="sdwFoco">
+        <div class="sdw-label">◈ proyecto foco <button class="sdw-link" onclick="StudioCore.navTo(document.querySelector('[title=Proyectos]'),'proyectos')">ver todos →</button></div>
+        <div id="sdwFocoContent"><div style="font-family:var(--mono);font-size:10px;color:var(--muted)">cargando...</div></div>
+      </div>
+      <div class="studio-dash-widget" id="sdwStats">
+        <div class="sdw-label">resumen</div>
+        <div id="sdwStatsContent"></div>
+      </div>
+      <div class="studio-dash-widget">
+        <div class="sdw-label">◎ aprendizaje <button class="sdw-link" onclick="StudioCore.navTo(document.querySelector('[title=Aprendizaje]'),'aprendizaje')">→</button></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:20px 0;text-align:center">próximamente ✦</div>
+      </div>
+      <div class="studio-dash-widget">
+        <div class="sdw-label">✦ idea reciente <button class="sdw-link" onclick="StudioCore.navTo(document.querySelector('[title=Notas]'),'notas')">→</button></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:20px 0;text-align:center">próximamente ✦</div>
+      </div>
+      <div class="studio-dash-widget">
+        <div class="sdw-label">📚 biblioteca <button class="sdw-link" onclick="StudioCore.navTo(document.querySelector('[title=Biblioteca]'),'biblioteca')">→</button></div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:20px 0;text-align:center">próximamente ✦</div>
+      </div>
+      <div class="studio-dash-widget tareas">
+        <div class="sdw-label">próximas tareas</div>
+        <div id="sdwTareas"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- PROYECTOS -->
-  <div id="page-proyectos" class="studio-page active">
+  <div id="page-proyectos" class="studio-page">
     <div class="studio-page-h1">Proyectos</div>
     <div class="studio-page-sub">crea · construye · lanza</div>
 
@@ -165,7 +200,74 @@ document.addEventListener('keydown', e => {
 window.addEventListener('load', () => {
   Theme.init();
   StudioProyectos.init();
+  renderStudioDash();
 });
+
+function renderStudioDash() {
+  const proyectos = JSON.parse(localStorage.getItem('hub_proyectos') || localStorage.getItem('studio_proyectos') || '[]');
+  
+  // Proyecto foco — el más activo (mayor progreso entre construyendo/urgente)
+  const activos = proyectos.filter(p=>p.estado==='construyendo'||p.urgente);
+  const foco = activos.sort((a,b)=>(b.urgente?1:0)-(a.urgente?1:0)||b.progreso-a.progreso)[0] || proyectos[0];
+  
+  if (foco) {
+    const focoEl = document.getElementById('sdwFocoContent');
+    const bgStyle = foco.coverUrl ? `background-image:url('${foco.coverUrl}');background-size:cover;background-position:center` : '';
+    if (bgStyle) {
+      document.getElementById('sdwFoco').style.cssText += ';' + bgStyle;
+    }
+    if (focoEl) focoEl.innerHTML = `
+      <div class="sdw-foco-name" style="cursor:pointer" onclick="StudioCore.navTo(document.querySelector('[title=Proyectos]'),'proyectos');setTimeout(()=>StudioProyectos.openDetail(${foco.id}),100)">
+        ${foco.emoji||'◈'} ${foco.nombre}
+      </div>
+      <div class="sdw-foco-desc">${foco.desc||''}</div>
+      <div class="sdw-foco-progress-bar"><div class="sdw-foco-progress-fill" style="width:${foco.progreso||0}%"></div></div>
+      <div class="sdw-foco-meta">
+        <span>${foco.progreso||0}% completado</span>
+        ${foco.deadline ? '<span>deadline: '+foco.deadline+'</span>' : ''}
+        ${foco.urgente ? '<span style="color:var(--pink)">⚡ urgente</span>' : ''}
+      </div>`;
+  }
+
+  // Stats
+  const statsEl = document.getElementById('sdwStatsContent');
+  if (statsEl) {
+    const actN = proyectos.filter(p=>p.estado==='construyendo').length;
+    const totalTareas = proyectos.reduce((s,p)=>(s+(p.cards||[]).length),0);
+    const urgN = proyectos.filter(p=>p.urgente).length;
+    statsEl.innerHTML = `
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div><span class="sdw-num">${actN}</span><span class="sdw-num-lbl">activos</span></div>
+        <div><span class="sdw-num">${urgN}</span><span class="sdw-num-lbl" style="${urgN>0?'color:var(--pink)':''}">urgentes</span></div>
+        <div><span class="sdw-num">${proyectos.length}</span><span class="sdw-num-lbl">total</span></div>
+        <div><span class="sdw-num">${totalTareas}</span><span class="sdw-num-lbl">tareas</span></div>
+      </div>`;
+  }
+
+  // Próximas tareas
+  const tareasEl = document.getElementById('sdwTareas');
+  if (tareasEl) {
+    const tareas = [];
+    proyectos.forEach(p => {
+      (p.cards||[]).forEach(c => {
+        if (c.date || p.urgente) tareas.push({...c, proyNombre: p.nombre, proyEmoji: p.emoji||'◈', proyId: p.id});
+      });
+    });
+    tareas.sort((a,b)=>(a.date||'9999')>(b.date||'9999')?1:-1);
+    if (!tareas.length) {
+      tareasEl.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:12px 0">sin tareas con fecha asignada</div>';
+    } else {
+      tareasEl.innerHTML = tareas.slice(0,5).map(t => {
+        const isUrgent = t.date && new Date(t.date) <= new Date();
+        return `<div class="sdw-tarea-item">
+          <span class="sdw-tarea-proy">${t.proyEmoji} ${t.proyNombre.slice(0,12)}</span>
+          <span class="sdw-tarea-txt">${t.text}</span>
+          <span class="sdw-tarea-date${isUrgent?' urgente':''}">${t.date||'sin fecha'}</span>
+        </div>`;
+      }).join('');
+    }
+  }
+}
 </script>
 
 <script src="js/studio-proyectos.js" defer></script>
