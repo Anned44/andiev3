@@ -65,32 +65,58 @@
 
   <!-- DASHBOARD -->
   <div id="page-dashboard" class="studio-page active">
-    <div class="studio-page-h1">Studio</div>
-    <div class="studio-page-sub">tu espacio creativo · proyectos · aprendizaje · ideas</div>
-    <div class="studio-dash-grid" id="studioDashGrid">
-      <div class="studio-dash-widget foco" id="sdwFoco">
-        <div class="sdw-label">◈ proyecto foco <button class="sdw-link" onclick="StudioCore.navTo(document.querySelector('[title=Proyectos]'),'proyectos')">ver todos →</button></div>
-        <div id="sdwFocoContent"><div style="font-family:var(--mono);font-size:10px;color:var(--muted)">cargando...</div></div>
+
+    <!-- Saludo + frase -->
+    <div class="sdash-welcome">
+      <div>
+        <div class="sdash-greeting" id="sdashGreeting"></div>
+        <div class="sdash-date" id="sdashDate"></div>
+        <div class="sdash-frase" id="sdashFrase"></div>
       </div>
-      <div class="studio-dash-widget" id="sdwStats">
-        <div class="sdw-label">resumen</div>
-        <div id="sdwStatsContent"></div>
+    </div>
+
+    <!-- Hero operativo — 1 fila -->
+    <div class="sdash-hero">
+      <div class="sdash-hero-label">studio</div>
+      <div class="sdash-hero-stats" id="sdashStats"></div>
+      <div class="sdash-hero-btns">
+        <button class="sdash-btn sdash-btn-primary" onclick="StudioProyectos._goFoco()">→ proyecto activo</button>
+        <button class="sdash-btn" onclick="window.location.href='hub.html'">📅 planificar semana</button>
+        <button class="sdash-btn" onclick="StudioProyectos.newProyecto()">+ nuevo</button>
       </div>
-      <div class="studio-dash-widget">
-        <div class="sdw-label">◎ aprendizaje <button class="sdw-link" onclick="StudioCore.navTo(document.querySelector('[title=Aprendizaje]'),'aprendizaje')">→</button></div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:20px 0;text-align:center">próximamente ✦</div>
+    </div>
+
+    <!-- Grid 3 cols -->
+    <div class="sdash-grid">
+      <!-- Proyectos span 2 -->
+      <div class="sdash-widget sdash-w2">
+        <div class="sdash-wlabel">◈ proyectos <button class="sdash-wlink" onclick="StudioCore.navTo(document.querySelector('[title=Proyectos]'),'proyectos')">ver todos →</button></div>
+        <div id="sdwProyectos"></div>
       </div>
-      <div class="studio-dash-widget">
-        <div class="sdw-label">✦ idea reciente <button class="sdw-link" onclick="StudioCore.navTo(document.querySelector('[title=Notas]'),'notas')">→</button></div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:20px 0;text-align:center">próximamente ✦</div>
+      <!-- Resumen -->
+      <div class="sdash-widget">
+        <div class="sdash-wlabel">resumen</div>
+        <div id="sdwResumen"></div>
       </div>
-      <div class="studio-dash-widget">
-        <div class="sdw-label">📚 biblioteca <button class="sdw-link" onclick="StudioCore.navTo(document.querySelector('[title=Biblioteca]'),'biblioteca')">→</button></div>
-        <div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:20px 0;text-align:center">próximamente ✦</div>
+      <!-- Aprendizaje -->
+      <div class="sdash-widget">
+        <div class="sdash-wlabel">◎ aprendizaje <button class="sdash-wlink" onclick="StudioCore.navTo(document.querySelector('[title=Aprendizaje]'),'aprendizaje')">→</button></div>
+        <div class="sdash-stub">próximamente ✦</div>
       </div>
-      <div class="studio-dash-widget tareas">
-        <div class="sdw-label">próximas tareas</div>
-        <div id="sdwTareas"></div>
+      <!-- Notas/Ideas -->
+      <div class="sdash-widget">
+        <div class="sdash-wlabel">✦ notas / ideas <button class="sdash-wlink" onclick="StudioCore.navTo(document.querySelector('[title=Notas]'),'notas')">→</button></div>
+        <div class="sdash-stub">próximamente ✦</div>
+      </div>
+      <!-- Biblioteca -->
+      <div class="sdash-widget">
+        <div class="sdash-wlabel">📚 biblioteca <button class="sdash-wlink" onclick="StudioCore.navTo(document.querySelector('[title=Biblioteca]'),'biblioteca')">→</button></div>
+        <div class="sdash-stub">próximamente ✦</div>
+      </div>
+      <!-- Actividad span 3 -->
+      <div class="sdash-widget sdash-w3">
+        <div class="sdash-wlabel">actividad reciente</div>
+        <div id="sdwActividad" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"></div>
       </div>
     </div>
   </div>
@@ -203,68 +229,89 @@ window.addEventListener('load', () => {
   renderStudioDash();
 });
 
+const FRASES_PLAN = [
+  '¿Cuál es la tarea más importante de hoy?',
+  '¿Qué proyecto necesita tu atención ahora?',
+  '¿Qué entregas tienes esta semana?',
+  '¿Hay algún bloqueo que debas resolver hoy?',
+  '¿Qué progreso quieres ver al final del día?',
+  '¿En qué proyecto estás enfocada esta semana?',
+  '¿Qué tarea llevas tiempo postergando?',
+  '¿Qué necesitas terminar antes del viernes?',
+  '¿Cuál es el siguiente paso en tu proyecto principal?',
+  '¿Qué decisión pendiente debes tomar hoy?',
+  '¿Qué proyecto te genera más energía ahorita?',
+  '¿Qué puedes delegar o eliminar esta semana?',
+];
+const MN_ES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+const DF_ES = ['domingo','lunes','martes','miércoles','jueves','viernes','sábado'];
+
 function renderStudioDash() {
   const proyectos = JSON.parse(localStorage.getItem('hub_proyectos') || localStorage.getItem('studio_proyectos') || '[]');
-  
-  // Proyecto foco — el más activo (mayor progreso entre construyendo/urgente)
-  const activos = proyectos.filter(p=>p.estado==='construyendo'||p.urgente);
-  const foco = activos.sort((a,b)=>(b.urgente?1:0)-(a.urgente?1:0)||b.progreso-a.progreso)[0] || proyectos[0];
-  
-  if (foco) {
-    const focoEl = document.getElementById('sdwFocoContent');
-    const bgStyle = foco.coverUrl ? `background-image:url('${foco.coverUrl}');background-size:cover;background-position:center` : '';
-    if (bgStyle) {
-      document.getElementById('sdwFoco').style.cssText += ';' + bgStyle;
-    }
-    if (focoEl) focoEl.innerHTML = `
-      <div class="sdw-foco-name" style="cursor:pointer" onclick="StudioCore.navTo(document.querySelector('[title=Proyectos]'),'proyectos');setTimeout(()=>StudioProyectos.openDetail(${foco.id}),100)">
-        ${foco.emoji||'◈'} ${foco.nombre}
-      </div>
-      <div class="sdw-foco-desc">${foco.desc||''}</div>
-      <div class="sdw-foco-progress-bar"><div class="sdw-foco-progress-fill" style="width:${foco.progreso||0}%"></div></div>
-      <div class="sdw-foco-meta">
-        <span>${foco.progreso||0}% completado</span>
-        ${foco.deadline ? '<span>deadline: '+foco.deadline+'</span>' : ''}
-        ${foco.urgente ? '<span style="color:var(--pink)">⚡ urgente</span>' : ''}
-      </div>`;
+  const now = new Date();
+  const h = now.getHours();
+
+  // Saludo
+  const saludo = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
+  const greetEl = document.getElementById('sdashGreeting');
+  const dateEl  = document.getElementById('sdashDate');
+  const fraseEl = document.getElementById('sdashFrase');
+  if (greetEl) greetEl.textContent = saludo + ', Andrea';
+  if (dateEl)  dateEl.textContent  = DF_ES[now.getDay()] + ', ' + now.getDate() + ' de ' + MN_ES[now.getMonth()] + ' de ' + now.getFullYear();
+  if (fraseEl) fraseEl.textContent = '"' + FRASES_PLAN[(now.getDate() + now.getHours()) % FRASES_PLAN.length] + '"';
+
+  // Hero stats
+  const actN   = proyectos.filter(p=>p.estado==='construyendo').length;
+  const urgN   = proyectos.filter(p=>p.urgente).length;
+  const pendN  = proyectos.reduce((s,p)=>(s+(p.cards||[]).filter(c=>c.colId!==p.cols?.[p.cols.length-1]?.id).length),0);
+  const statsEl = document.getElementById('sdashStats');
+  if (statsEl) statsEl.innerHTML = `
+    <div class="sdash-hs"><span class="sdash-hs-n">${actN}</span><span class="sdash-hs-l">activos</span></div>
+    <div class="sdash-hdiv"></div>
+    <div class="sdash-hs"><span class="sdash-hs-n${urgN>0?' warn':''}">${urgN}</span><span class="sdash-hs-l">urgentes</span></div>
+    <div class="sdash-hdiv"></div>
+    <div class="sdash-hs"><span class="sdash-hs-n${pendN>0?' warn':''}">${pendN}</span><span class="sdash-hs-l">pendientes</span></div>
+    <div class="sdash-hdiv"></div>
+    <div class="sdash-hs"><span class="sdash-hs-n">${proyectos.length}</span><span class="sdash-hs-l">total</span></div>`;
+
+  // Proyectos widget
+  const proyEl = document.getElementById('sdwProyectos');
+  if (proyEl) {
+    const activos = proyectos.filter(p=>p.estado!=='terminado').slice(0,4);
+    proyEl.innerHTML = activos.map(p=>`
+      <div class="sdash-pi" onclick="StudioCore.navTo(document.querySelector('[title=Proyectos]'),'proyectos');setTimeout(()=>StudioProyectos.openDetail(${p.id}),120)" style="cursor:pointer">
+        <span style="font-size:14px;flex-shrink:0">${p.emoji||'◈'}</span>
+        <span class="sdash-pi-name">${p.nombre}</span>
+        <div class="sdash-pi-bar"><div class="sdash-pi-fill" style="width:${p.progreso||0}%"></div></div>
+        ${p.urgente?'<span class="sdash-pi-tag">⚡</span>':'<span class="sdash-pi-estado estado-'+(p.estado||'idea')+'" style="font-size:7px">'+(p.estado||'idea')+'</span>'}
+      </div>`).join('');
   }
 
-  // Stats
-  const statsEl = document.getElementById('sdwStatsContent');
-  if (statsEl) {
-    const actN = proyectos.filter(p=>p.estado==='construyendo').length;
-    const totalTareas = proyectos.reduce((s,p)=>(s+(p.cards||[]).length),0);
-    const urgN = proyectos.filter(p=>p.urgente).length;
-    statsEl.innerHTML = `
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-        <div><span class="sdw-num">${actN}</span><span class="sdw-num-lbl">activos</span></div>
-        <div><span class="sdw-num">${urgN}</span><span class="sdw-num-lbl" style="${urgN>0?'color:var(--pink)':''}">urgentes</span></div>
-        <div><span class="sdw-num">${proyectos.length}</span><span class="sdw-num-lbl">total</span></div>
-        <div><span class="sdw-num">${totalTareas}</span><span class="sdw-num-lbl">tareas</span></div>
-      </div>`;
-  }
+  // Resumen
+  const resEl = document.getElementById('sdwResumen');
+  const totalTareas = proyectos.reduce((s,p)=>(s+(p.cards||[]).length),0);
+  const doneTareas  = proyectos.reduce((s,p)=>(s+(p.cards||[]).filter(c=>c.colId===p.cols?.[p.cols.length-1]?.id).length),0);
+  if (resEl) resEl.innerHTML = `
+    <div class="sdash-nums">
+      <div><span class="sdash-nb">${proyectos.length}</span><span class="sdash-nl">proyectos</span></div>
+      <div><span class="sdash-nb${urgN>0?' warn':''}">${urgN}</span><span class="sdash-nl">urgentes</span></div>
+      <div><span class="sdash-nb">${doneTareas}</span><span class="sdash-nl">completadas</span></div>
+      <div><span class="sdash-nb">${totalTareas}</span><span class="sdash-nl">tareas total</span></div>
+    </div>`;
 
-  // Próximas tareas
-  const tareasEl = document.getElementById('sdwTareas');
-  if (tareasEl) {
-    const tareas = [];
-    proyectos.forEach(p => {
-      (p.cards||[]).forEach(c => {
-        if (c.date || p.urgente) tareas.push({...c, proyNombre: p.nombre, proyEmoji: p.emoji||'◈', proyId: p.id});
-      });
+  // Actividad
+  const actEl = document.getElementById('sdwActividad');
+  if (actEl) {
+    const items = [];
+    proyectos.forEach(p=>{
+      if ((p.cards||[]).length) items.push(`${p.emoji||'◈'} ${p.nombre} — ${(p.cards||[]).length} tareas`);
+      if (p.notas) items.push(`${p.emoji||'◈'} ${p.nombre} — notas actualizadas`);
     });
-    tareas.sort((a,b)=>(a.date||'9999')>(b.date||'9999')?1:-1);
-    if (!tareas.length) {
-      tareasEl.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:12px 0">sin tareas con fecha asignada</div>';
+    if (!items.length) {
+      actEl.innerHTML = '<div style="font-family:var(--mono);font-size:10px;color:var(--muted);grid-column:span 3">sin actividad reciente</div>';
     } else {
-      tareasEl.innerHTML = tareas.slice(0,5).map(t => {
-        const isUrgent = t.date && new Date(t.date) <= new Date();
-        return `<div class="sdw-tarea-item">
-          <span class="sdw-tarea-proy">${t.proyEmoji} ${t.proyNombre.slice(0,12)}</span>
-          <span class="sdw-tarea-txt">${t.text}</span>
-          <span class="sdw-tarea-date${isUrgent?' urgente':''}">${t.date||'sin fecha'}</span>
-        </div>`;
-      }).join('');
+      actEl.innerHTML = items.slice(0,3).map(i=>`
+        <div class="sdash-ai"><span class="sdash-dot"></span>${i}</div>`).join('');
     }
   }
 }
