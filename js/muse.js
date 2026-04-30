@@ -184,18 +184,26 @@ window.Muse = (function () {
     toast('✓ Referencia agregada');
   }
 
-  function handleRefFile(e) {
+  async function handleRefFile(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      const refs = lg('muse_refs', []);
-      refs.unshift({ id:Date.now(), url:ev.target.result, title:file.name.split('.')[0], cat:'general', domain:'local' });
-      ls('muse_refs', refs);
-      renderRefs(); renderStats();
-      toast('✓ Imagen agregada');
-    };
-    reader.readAsDataURL(file);
     e.target.value = '';
+
+    // Try Cloudinary first, fallback to local
+    let url = await uploadToCloudinary(file, 'referencias');
+    if (!url) url = await readFileLocal(file);
+
+    const refs = lg('muse_refs', []);
+    refs.unshift({
+      id: Date.now(),
+      url,
+      title: file.name.split('.')[0],
+      cat: 'general',
+      domain: url.startsWith('https://res.cloudinary') ? 'cloudinary' : 'local',
+      source: url.startsWith('https://res.cloudinary') ? 'cloudinary' : 'local',
+    });
+    ls('muse_refs', refs);
+    renderRefs(); renderStats();
+    toast('✓ Imagen agregada');
   }
 
   function delRef(id) {
@@ -318,17 +326,18 @@ window.Muse = (function () {
   ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
   let _bitImgData = '';
 
-  function handleBitImg(e) {
+  async function handleBitImg(e) {
     const file = e.target.files[0]; if (!file) return;
-    const reader = new FileReader();
-    reader.onload = ev => {
-      _bitImgData = ev.target.result;
-      const zone = document.getElementById('bitImgZone');
-      if (zone) zone.innerHTML = `<img src="${ev.target.result}" style="width:100%;max-height:120px;object-fit:cover;border-radius:8px">`;
-      toast('✓ Imagen lista');
-    };
-    reader.readAsDataURL(file);
     e.target.value = '';
+
+    // Try Cloudinary first, fallback to local
+    let url = await uploadToCloudinary(file, 'bitacora');
+    if (!url) url = await readFileLocal(file);
+
+    _bitImgData = url;
+    const zone = document.getElementById('bitImgZone');
+    if (zone) zone.innerHTML = `<img src="${url}" style="width:100%;max-height:120px;object-fit:cover;border-radius:8px">`;
+    toast('✓ Imagen lista');
   }
 
   function selBitMood(btn, mood) {
@@ -594,6 +603,52 @@ window.Muse = (function () {
     toast('✓ SVG exportado');
   }
 
+
+  /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+     CLOUDINARY UPLOAD
+  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+  async function uploadToCloudinary(file, folder) {
+    try {
+      toast('Subiendo imagen...');
+      const signRes = await fetch('/api/media/sign-upload', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ folder: 'andynet/' + folder }),
+      });
+      const sign = await signRes.json();
+      if (sign.error) { toast('Error: ' + sign.error); return null; }
+
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('signature', sign.signature);
+      formData.append('timestamp', sign.timestamp);
+      formData.append('api_key', sign.api_key);
+      formData.append('folder', sign.folder);
+      if (sign.tags) formData.append('tags', sign.tags);
+
+      const uploadRes = await fetch(sign.upload_url, { method:'POST', body:formData });
+      const data = await uploadRes.json();
+
+      if (data.secure_url) {
+        toast('✓ Imagen subida a Cloudinary');
+        return data.secure_url;
+      }
+      toast('Error al subir imagen');
+      return null;
+    } catch(e) {
+      // Fallback a FileReader local si no hay Cloudinary configurado
+      return null;
+    }
+  }
+
+  async function readFileLocal(file) {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = ev => resolve(ev.target.result);
+      reader.readAsDataURL(file);
+    });
+  }
+
   /* ━━ HELPERS ━━ */
   function esc(s) {
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -601,7 +656,7 @@ window.Muse = (function () {
 
   return {
     init, navTo, toggleTheme,
-    filterRefs, addRefByUrl, handleRefFile, delRef,
+    filterRefs, addRefByUrl, handleRefFile, delRef, uploadToCloudinary,
     savePaleta, copyHex, exportPaleta, delPaleta, generarArmonia,
     handleBitImg, selBitMood, saveBitEntry,
     selStyle, selRatio, generateIA, saveGenToMoodboard,
