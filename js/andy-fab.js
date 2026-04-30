@@ -179,12 +179,16 @@ window.AndyFab = (function () {
     if (!container) return;
 
     if (!_messages.length) {
+      const suggs = getSugerencias().map(s =>
+        `<button class="andy-sugg-chip" onclick="AndyFab.send('${s.replace(/'/g, "\'")}')">${s}</button>`
+      ).join('');
       container.innerHTML = `
         <div class="andy-welcome">
           <span class="andy-welcome-ico">✦</span>
           <div class="andy-welcome-title">Hola, Andrea</div>
           <div class="andy-welcome-sub">Soy Anet — conozco tus proyectos,<br>planner e inbox.<br>Puedo crear tareas, notas y eventos.</div>
-        </div>`;
+        </div>
+        <div class="andy-sheet-sugg" style="padding:0 0 8px;">${suggs}</div>`;
       return;
     }
 
@@ -496,9 +500,6 @@ window.AndyFab = (function () {
 
         <!-- Body dinámico: captura o chat msgs -->
         <div class="andy-sheet-msgs" id="andySheetBody" style="display:flex;flex-direction:column"></div>
-
-        <!-- Sugerencias (solo en modo chat) -->
-        <div class="andy-sheet-sugg" id="andySugg">${suggs}</div>
 
         <!-- Input chat (oculto en captura) -->
         <div class="andy-sheet-input" id="andyChatInput" style="display:none">
