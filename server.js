@@ -7,7 +7,7 @@ const url   = require(‘url’);
 const PORT = process.env.PORT || 3000;
 const HOST = ‘0.0.0.0’;
 
-const mimeTypes = {
+const MIME = {
 ‘.html’: ‘text/html’,
 ‘.css’:  ‘text/css’,
 ‘.js’:   ‘application/javascript’,
@@ -20,36 +20,25 @@ const mimeTypes = {
 ‘.woff2’:‘font/woff2’,
 };
 
-/* ── Preview de URLs (og:title, og:image, og:description) ── */
+/* ── Preview de URL ── */
 function fetchPreview(targetUrl, res) {
 let parsedUrl;
 try { parsedUrl = new URL(targetUrl); } catch {
 res.writeHead(400, corsHeaders(‘application/json’));
-res.end(JSON.stringify({ error: ‘URL inválida’ }));
+res.end(JSON.stringify({ error: ‘URL invalida’ }));
 return;
 }
 
 const lib = parsedUrl.protocol === ‘https:’ ? https : http;
-const options = {
+const req = lib.request({
 hostname: parsedUrl.hostname,
 path:     parsedUrl.pathname + parsedUrl.search,
 method:   ‘GET’,
 headers:  { ‘User-Agent’: ‘Mozilla/5.0 (compatible; AndyNet/3.0)’ },
 timeout:  5000,
-};
-
-const req = lib.request(options, r => {
-// Solo procesar HTML
-const ct = r.headers[‘content-type’] || ‘’;
-if (!ct.includes(‘text/html’)) {
-res.writeHead(200, corsHeaders(‘application/json’));
-res.end(JSON.stringify({
-title: parsedUrl.hostname,
-description: ‘’,
-image: ‘’,
-url: targetUrl,
-domain: parsedUrl.hostname,
-}));
+}, (r) => {
+if (r.statusCode >= 300 && r.statusCode < 400 && r.headers.location) {
+fetchPreview(r.headers.location, res);
 return;
 }
 
@@ -58,25 +47,24 @@ let html = '';
 r.setEncoding('utf8');
 r.on('data', chunk => {
   html += chunk;
-  if (html.length > 80000) r.destroy(); // no bajar más de 80kb
+  if (html.length > 80000) r.destroy();
 });
 r.on('end', () => {
-  const getMeta = (prop) => {
-    const re = new RegExp(`<meta[^>]+(?:property|name)=["']${prop}["'][^>]+content=["']([^"']+)["']`, 'i');
-    const re2 = new RegExp(`<meta[^>]+content=["']([^"']+)["'][^>]+(?:property|name)=["']${prop}["']`, 'i');
-    return (html.match(re) || html.match(re2) || [])[1] || '';
+  const getMeta = (name) => {
+    const m = html.match(new RegExp('<meta[^>]+(?:name|property)=["\']' + name + '["\'][^>]+content=["\']([^"\']+)["\']', 'i'))
+            || html.match(new RegExp('<meta[^>]+content=["\']([^"\']+)["\'][^>]+(?:name|property)=["\']' + name + '["\']', 'i'));
+    return m ? m[1].trim() : '';
   };
   const getTitle = () => {
-    return getMeta('og:title') || getMeta('twitter:title') ||
-      (html.match(/<title[^>]*>([^<]+)<\/title>/i) || [])[1] || '';
+    const m = html.match(/<title[^>]*>([^<]+)<\/title>/i);
+    return m ? m[1].trim() : '';
   };
 
   res.writeHead(200, corsHeaders('application/json'));
   res.end(JSON.stringify({
-    title:       getTitle().trim().slice(0, 120),
-    description: (getMeta('og:description') || getMeta('description')).trim().slice(0, 200),
+    title:       getMeta('og:title') || getMeta('twitter:title') || getTitle(),
+    description: (getMeta('og:description') || getMeta('description')).slice(0, 200),
     image:       getMeta('og:image') || getMeta('twitter:image'),
-    url:         targetUrl,
     domain:      parsedUrl.hostname.replace('www.', ''),
   }));
 });
@@ -86,20 +74,19 @@ r.on('end', () => {
 
 req.on(‘error’, () => {
 res.writeHead(200, corsHeaders(‘application/json’));
-res.end(JSON.stringify({ title: parsedUrl.hostname, description: ‘’, image: ‘’, url: targetUrl, domain: parsedUrl.hostname }));
+res.end(JSON.stringify({ title: ‘’, description: ‘’, image: ‘’, domain: ‘’ }));
 });
-req.on(‘timeout’, () => {
-req.destroy();
-res.writeHead(200, corsHeaders(‘application/json’));
-res.end(JSON.stringify({ title: parsedUrl.hostname, description: ‘’, image: ‘’, url: targetUrl, domain: parsedUrl.hostname }));
-});
+req.on(‘timeout’, () => { req.destroy(); });
 req.end();
 }
 
-function corsHeaders(ct) {
+/* ── CORS headers ── */
+function corsHeaders(contentType) {
 return {
-‘Content-Type’: ct,
-‘Access-Control-Allow-Origin’: ‘*’,
+‘Content-Type’: contentType,
+‘Access-Control-Allow-Origin’: ’*’,
+‘Access-Control-Allow-Methods’: ‘GET, POST, OPTIONS’,
+‘Access-Control-Allow-Headers’: ‘Content-Type’,
 ‘Cache-Control’: ‘public, max-age=3600’,
 };
 }
@@ -109,7 +96,6 @@ const server = http.createServer((req, res) => {
 const parsed  = url.parse(req.url, true);
 const urlPath = parsed.pathname;
 
-// CORS preflight
 if (req.method === ‘OPTIONS’) {
 res.writeHead(204, corsHeaders(‘text/plain’));
 res.end();
@@ -128,7 +114,7 @@ fetchPreview(targetUrl, res);
 return;
 }
 
-// API: Chat con Anet (Anthropic)
+// API: Chat con Anet
 if (urlPath === ‘/api/chat’) {
 if (req.method !== ‘POST’) {
 res.writeHead(405, corsHeaders(‘application/json’));
@@ -148,62 +134,47 @@ return;
 }
 
 ```
-    const systemPrompt = `Eres Anet, la asistente personal integrada en Andy.net — el sistema operativo personal de Andrea.
-```
+    const systemPrompt = [
+      'Eres Anet, la asistente personal integrada en Andy.net, el sistema operativo personal de Andrea.',
+      '',
+      'QUIEN ES ANDREA:',
+      '- Creadora, disenadora y builder de proyectos digitales',
+      '- Vive en Chihuahua, Mexico',
+      '- Proyectos: Botanica Adaptogens, Toltia, Andy.net, Editorial, AP Studio',
+      '- Usa Andy.net para planificar, crear y ejecutar su vida y proyectos',
+      '',
+      'TU ROL:',
+      '- Directa, sin relleno ni frases genericas',
+      '- Conoces su sistema completo y lo usas activamente',
+      '- Hablas siempre en espanol',
+      '- Generas ideas, brainstorming, analisis de carga de trabajo, priorizacion',
+      '- Puedes EJECUTAR ACCIONES REALES en el sistema',
+      '',
+      'ACCIONES QUE PUEDES EJECUTAR:',
+      'Cuando el usuario pida crear algo, incluye al FINAL de tu respuesta bloques de accion:',
+      '',
+      'Inbox: [ACCION:crear_tarea:texto] o [ACCION:crear_nota:texto]',
+      'Planner: [ACCION:crear_evento:texto|YYYY-MM-DD|morning]',
+      '  (bloques: morning, afternoon, night)',
+      'Nota viva: [ACCION:nota_viva:nombre proyecto|tipo|texto]',
+      '  (tipos: idea, decision, pendiente, hallazgo)',
+      'Avance: [ACCION:registrar_avance:nombre proyecto|tipo|texto]',
+      '  (tipos: entrega, decision, bloqueo, nota, inicio)',
+      '',
+      'REGLAS DE ACCIONES:',
+      '- Solo incluye [ACCION:...] cuando el usuario claramente pide crear o guardar algo',
+      '- Los bloques se ejecutan automaticamente y no son visibles para Andrea',
+      '- Confirma con lenguaje natural lo que hiciste',
+      '',
+      'CONTEXTO DEL SISTEMA:',
+      context || 'Sin contexto disponible',
+      '',
+      'REGLAS GENERALES:',
+      '- Nunca digas "Como IA" ni "No tengo acceso"',
+      '- Se concisa pero completa',
+      '- Usa el contexto para respuestas relevantes y personalizadas',
+    ].join('\n');
 
-QUIÉN ES ANDREA:
-
-- Creadora, diseñadora y builders de proyectos digitales
-- Vive en Chihuahua, México
-- Trabaja en múltiples proyectos simultáneos: Botánica Adáptogens, Toltia, Andy.net, Editorial, AP Studio, entre otros
-- Usa Andy.net para planificar, crear y ejecutar su vida y proyectos
-
-TU ROL:
-
-- Eres directa, sin relleno ni frases genéricas
-- Conoces su sistema completo y lo usas activamente
-- Hablas siempre en español
-- Generas ideas, haces brainstorming, analizas carga de trabajo, ayudas a priorizar
-- Puedes EJECUTAR ACCIONES REALES en el sistema
-
-ACCIONES QUE PUEDES EJECUTAR:
-Cuando el usuario te pida crear algo, incluye al FINAL de tu respuesta uno o más bloques de acción con este formato exacto:
-
-Para crear tarea o nota en inbox:
-[ACCION:crear_tarea:texto de la tarea]
-[ACCION:crear_nota:texto de la nota]
-
-Para crear evento en planner:
-[ACCION:crear_evento:texto del evento|fecha-YYYY-MM-DD|morning]
-(bloques: morning, afternoon, night)
-
-Para agregar nota viva a un proyecto:
-[ACCION:nota_viva:nombre del proyecto|tipo|texto]
-(tipos: idea, decision, pendiente, hallazgo)
-
-Para registrar avance en proyecto:
-[ACCION:registrar_avance:nombre del proyecto|tipo|texto]
-(tipos: entrega, decision, bloqueo, nota, inicio)
-
-REGLAS DE ACCIONES:
-
-- Solo incluye bloques [ACCION:…] cuando el usuario CLARAMENTE pide crear/guardar algo
-- Los bloques se ejecutan automáticamente y no son visibles para Andrea
-- Después de incluir un bloque confirma con lenguaje natural lo que hiciste
-- Puedes ejecutar múltiples acciones en una sola respuesta
-
-CONTEXTO ACTUAL DEL SISTEMA:
-${context || ‘Sin contexto disponible’}
-
-REGLAS GENERALES:
-
-- Nunca digas “Como IA…” ni “No tengo acceso a…”
-- Si no sabes algo del contexto, pregunta directamente
-- Sé concisa pero completa
-- Usa el contexto para dar respuestas relevantes y personalizadas
-- Respuestas cortas para preguntas simples, más detalladas para análisis`;
-  
-  ```
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -218,7 +189,7 @@ REGLAS GENERALES:
         messages: messages,
       }),
     });
-  
+
     const data = await response.json();
     res.writeHead(200, corsHeaders('application/json'));
     res.end(JSON.stringify(data));
@@ -226,40 +197,29 @@ REGLAS GENERALES:
     res.writeHead(500, corsHeaders('application/json'));
     res.end(JSON.stringify({ error: err.message }));
   }
-  ```
-  
-  });
-  return;
-  }
-  
-  // Archivos estáticos
-  let filePath = urlPath === ‘/’ || urlPath === ‘’ ? ‘/index.html’ : urlPath;
-  filePath = path.join(__dirname, filePath);
-  
-  fs.readFile(filePath, (err, data) => {
-  if (err) {
-  res.writeHead(404, { ‘Content-Type’: ‘text/plain’ });
-  res.end(‘Not Found’);
-  return;
-  }
-  const ext = path.extname(filePath);
-  res.writeHead(200, {
-  ‘Content-Type’:  mimeTypes[ext] || ‘application/octet-stream’,
-  ‘Cache-Control’: ‘no-store, no-cache, must-revalidate’,
-  ‘Pragma’:        ‘no-cache’,
-  ‘Expires’:       ‘0’,
-  });
-  res.end(data);
-  });
-  });
+});
+return;
+```
 
-server.listen(PORT, HOST, () => {
-console.log(`Andy.net v3 corriendo en http://${HOST}:${PORT}`);
+}
+
+// Archivos estaticos
+let filePath = urlPath === ‘/’ || urlPath === ‘’ ? ‘/index.html’ : urlPath;
+filePath = path.join(__dirname, filePath);
+
+fs.readFile(filePath, (err, data) => {
+if (err) {
+res.writeHead(404, { ‘Content-Type’: ‘text/plain’ });
+res.end(‘Not Found’);
+return;
+}
+const ext = path.extname(filePath).toLowerCase();
+const mime = MIME[ext] || ‘application/octet-stream’;
+res.writeHead(200, { ‘Content-Type’: mime, ‘Cache-Control’: ‘public, max-age=3600’ });
+res.end(data);
+});
 });
 
-server.on(‘error’, err => {
-if (err.code === ‘EADDRINUSE’) {
-console.error(`Puerto ${PORT} ocupado.`);
-process.exit(1);
-} else throw err;
+server.listen(PORT, HOST, () => {
+console.log(’Andy.net server running on ’ + HOST + ‘:’ + PORT);
 });
