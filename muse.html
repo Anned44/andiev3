@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Muse — Andy.net</title>
+<link rel="icon" type="image/png" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-180.png">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
+<script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+<link rel="stylesheet" href="css/muse.css">
+<link rel="stylesheet" href="css/andy-fab.css">
+</head>
+<body>
+
+<div class="muse-shell" id="museShell">
+
+  <!-- Orbes decorativos -->
+  <div class="muse-orb muse-orb-1"></div>
+  <div class="muse-orb muse-orb-2"></div>
+  <div class="muse-orb muse-orb-3"></div>
+  <div class="muse-orb muse-orb-4"></div>
+
+  <!-- SIDEBAR -->
+  <aside class="muse-sidebar">
+    <div class="muse-logo-glyph" title="Muse">✺</div>
+
+    <div class="muse-sb-icon active" data-panel="0" onclick="Muse.navTo(0,this)" title="Inicio" style="font-size:18px;">⌂</div>
+
+    <div class="muse-sb-icon" data-panel="1" onclick="Muse.navTo(1,this)" title="Moodboard">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+        <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+      </svg>
+    </div>
+
+    <div class="muse-sb-icon" data-panel="2" onclick="Muse.navTo(2,this)" title="Paletas" style="font-size:18px;">◉</div>
+
+    <div class="muse-sb-icon" data-panel="3" onclick="Muse.navTo(3,this)" title="Bitácora">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+      </svg>
+    </div>
+
+    <div class="muse-sb-icon" data-panel="4" onclick="Muse.navTo(4,this)" title="Generador IA" style="font-size:18px;">✦</div>
+
+    <div class="muse-sb-icon" data-panel="5" onclick="Muse.navTo(5,this)" title="Música">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/>
+      </svg>
+    </div>
+
+    <div class="muse-sb-icon" data-panel="6" onclick="Muse.navTo(6,this)" title="Escritura">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/>
+      </svg>
+    </div>
+
+    <div class="muse-sb-icon" data-panel="7" onclick="Muse.navTo(7,this)" title="Lienzo">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 19l7-7 3 3-7 7-3-3z"/>
+        <path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/>
+        <path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/>
+      </svg>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="muse-main">
+
+    <!-- HEADER -->
+    <header class="muse-header">
+      <span class="muse-header-logo">MUSE</span>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="muse-btn-ghost" onclick="window.location.href='index.html'">← Portal</button>
+        <button class="muse-btn-ghost" onclick="window.location.href='hub.html'">← Hub</button>
+        <button class="muse-btn-ghost" id="themeBtn" onclick="Muse.toggleTheme()">○ día</button>
+      </div>
+    </header>
+
+    <!-- CONTENT -->
+    <div class="muse-content">
+
+      <!-- PANEL 0: INICIO -->
+      <div class="muse-panel active" id="panel-0">
+        <div style="margin-bottom:28px;">
+          <p class="muse-section-label" id="dashDate">JUEVES, 30 DE ABRIL DE 2026</p>
+          <h1 class="muse-dash-greeting">Buenas tardes, Andrea</h1>
+          <p class="muse-dash-frase">"La creatividad es la inteligencia divirtiéndose." — Einstein</p>
+        </div>
+        <div class="muse-stat-grid">
+          <div class="muse-card muse-stat-card">
+            <span style="font-size:20px;display:block;margin-bottom:6px;">📌</span>
+            <span class="muse-stat-num" id="statRefs">0</span>
+            <span class="muse-stat-lbl">referencias</span>
+          </div>
+          <div class="muse-card muse-stat-card">
+            <span style="font-size:20px;display:block;margin-bottom:6px;">🎨</span>
+            <span class="muse-stat-num" id="statPaletas">0</span>
+            <span class="muse-stat-lbl">paletas</span>
+          </div>
+          <div class="muse-card muse-stat-card">
+            <span style="font-size:20px;display:block;margin-bottom:6px;">📖</span>
+            <span class="muse-stat-num" id="statBit">0</span>
+            <span class="muse-stat-lbl">entradas bitácora</span>
+          </div>
+          <div class="muse-card muse-stat-card">
+            <span style="font-size:20px;display:block;margin-bottom:6px;">🎵</span>
+            <span class="muse-stat-num" id="statMood" style="color:var(--muse-purple);">Flow</span>
+            <span class="muse-stat-lbl">mood del día</span>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+          <div>
+            <p class="muse-section-label">ÚLTIMA ACTIVIDAD</p>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="muse-card" style="padding:12px 14px;display:flex;align-items:center;gap:10px;">
+                <span style="font-size:16px;">🖼</span>
+                <div><div style="font-size:13px;font-weight:500;">Moodboard · +3 referencias</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muse-muted);">hace 2 horas</div></div>
+              </div>
+              <div class="muse-card" style="padding:12px 14px;display:flex;align-items:center;gap:10px;">
+                <span style="font-size:16px;">🎨</span>
+                <div><div style="font-size:13px;font-weight:500;">Paleta Rosa Pálido · guardada</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muse-muted);">ayer</div></div>
+              </div>
+              <div class="muse-card" style="padding:12px 14px;display:flex;align-items:center;gap:10px;">
+                <span style="font-size:16px;">📝</span>
+                <div><div style="font-size:13px;font-weight:500;">Bitácora · nueva entrada</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muse-muted);">hace 3 días</div></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <p class="muse-section-label">ACCESO RÁPIDO</p>
+            <div class="muse-quickaccess">
+              <button onclick="Muse.navTo(1,null)" class="muse-btn-primary muse-qa-btn">🖼<br><span style="font-size:11px;opacity:0.7;">+ Referencia</span></button>
+              <button onclick="Muse.navTo(2,null)" class="muse-btn-primary muse-qa-btn">🎨<br><span style="font-size:11px;opacity:0.7;">+ Paleta</span></button>
+              <button onclick="Muse.navTo(3,null)" class="muse-btn-primary muse-qa-btn">📖<br><span style="font-size:11px;opacity:0.7;">+ Entrada</span></button>
+              <button onclick="Muse.navTo(4,null)" class="muse-btn-primary muse-qa-btn">✦<br><span style="font-size:11px;opacity:0.7;">Generar imagen</span></button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 1: MOODBOARD -->
+      <div class="muse-panel" id="panel-1">
+        <div class="muse-ref-toolbar">
+          <input class="muse-input" id="refUrlInput" placeholder="https://... pega una URL de imagen" style="max-width:360px;">
+          <button onclick="Muse.addRefByUrl()" class="muse-btn-primary" style="white-space:nowrap;">+ Agregar</button>
+          <button onclick="document.getElementById('refFile').click()" style="background:rgba(255,255,255,0.5);border:1px solid rgba(255,255,255,0.7);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--muse-muted);cursor:pointer;white-space:nowrap;font-family:'DM Mono',monospace;">📁 Subir</button>
+          <input type="file" id="refFile" accept="image/*" style="display:none" onchange="Muse.handleRefFile(event)">
+        </div>
+        <div class="muse-ref-chips">
+          <button class="muse-chip active" data-cat="all" onclick="Muse.filterRefs(this,'all')">Todas</button>
+          <button class="muse-chip" data-cat="Branding" onclick="Muse.filterRefs(this,'Branding')">Branding</button>
+          <button class="muse-chip" data-cat="Tipografía" onclick="Muse.filterRefs(this,'Tipografía')">Tipografía</button>
+          <button class="muse-chip" data-cat="Color" onclick="Muse.filterRefs(this,'Color')">Color</button>
+          <button class="muse-chip" data-cat="UI" onclick="Muse.filterRefs(this,'UI')">UI</button>
+          <button class="muse-chip" data-cat="Fotografía" onclick="Muse.filterRefs(this,'Fotografía')">Fotografía</button>
+          <button class="muse-chip" data-cat="Ilustración" onclick="Muse.filterRefs(this,'Ilustración')">Ilustración</button>
+        </div>
+        <div id="refGrid" class="muse-masonry-grid"></div>
+      </div>
+
+      <!-- PANEL 2: PALETAS -->
+      <div class="muse-panel" id="panel-2">
+        <div class="muse-paletas-grid" id="paletasGrid"></div>
+        <div class="muse-card muse-new-paleta" style="padding:20px;">
+          <p class="muse-section-label">NUEVA PALETA</p>
+          <input class="muse-input" id="paletaNombre" placeholder="Nombre de la paleta..." style="margin-bottom:10px;">
+          <div class="muse-color-inputs" id="colorInputs">
+            <input type="color" class="muse-color-input" value="#9b7ab8">
+            <input type="color" class="muse-color-input" value="#c47a8a">
+            <input type="color" class="muse-color-input" value="#c8965a">
+            <input type="color" class="muse-color-input" value="#7a9a82">
+            <input type="color" class="muse-color-input" value="#5a7aaa">
+          </div>
+          <button onclick="Muse.savePaleta()" class="muse-btn-primary">Guardar paleta</button>
+        </div>
+      </div>
+
+      <!-- PANEL 3: BITÁCORA -->
+      <div class="muse-panel" id="panel-3">
+        <div class="muse-bitacora-grid">
+          <div>
+            <p class="muse-section-label">ENTRADAS</p>
+            <div class="muse-bit-list" id="bitacoraList"></div>
+          </div>
+          <div class="muse-card muse-bit-form">
+            <p class="muse-section-label">NUEVA ENTRADA</p>
+            <input class="muse-input" id="bitTitulo" placeholder="Título..." style="margin-bottom:10px;">
+            <div class="muse-bit-mood-row">
+              <span style="font-size:11px;color:var(--muse-muted);font-family:'DM Mono',monospace;">Mood:</span>
+              <button onclick="Muse.selBitMood(this,'🌟')" class="muse-mood-btn">🌟</button>
+              <button onclick="Muse.selBitMood(this,'✦')" class="muse-mood-btn">✦</button>
+              <button onclick="Muse.selBitMood(this,'🌊')" class="muse-mood-btn">🌊</button>
+              <button onclick="Muse.selBitMood(this,'🔥')" class="muse-mood-btn">🔥</button>
+              <button onclick="Muse.selBitMood(this,'🌙')" class="muse-mood-btn">🌙</button>
+            </div>
+            <textarea class="muse-input" id="bitTexto" rows="6" placeholder="¿Qué estás creando hoy?..." style="resize:none;margin-bottom:10px;"></textarea>
+            <div class="muse-bit-img-zone" id="bitImgZone" onclick="document.getElementById('bitImgFile').click()">🌿 Subir imagen (opcional)</div>
+            <input type="file" id="bitImgFile" accept="image/*" style="display:none" onchange="Muse.handleBitImg(event)">
+            <input class="muse-input" id="bitTags" placeholder="tags: diseño, tipografía..." style="margin-bottom:10px;">
+            <button onclick="Muse.saveBitEntry()" class="muse-btn-primary" style="width:100%;">Guardar entrada</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 4: GENERADOR IA -->
+      <div class="muse-panel" id="panel-4">
+        <div class="muse-gen-grid">
+          <div>
+            <h2 class="muse-gen-title">Describe lo que quieres crear</h2>
+            <p style="font-size:13px;color:var(--muse-muted);margin-bottom:16px;">Anet interpretará tu visión</p>
+            <textarea class="muse-input" id="genPrompt" rows="5" placeholder="Un jardín onírico al atardecer, colores cálidos, estilo acuarela..." style="resize:none;margin-bottom:16px;"></textarea>
+            <p class="muse-section-label">ESTILO VISUAL</p>
+            <div class="muse-style-chips" style="margin-bottom:16px;">
+              <button class="muse-style-chip active" onclick="Muse.selStyle(this)">Ilustración</button>
+              <button class="muse-style-chip" onclick="Muse.selStyle(this)">Fotografía</button>
+              <button class="muse-style-chip" onclick="Muse.selStyle(this)">Abstracto</button>
+              <button class="muse-style-chip" onclick="Muse.selStyle(this)">Minimalista</button>
+              <button class="muse-style-chip" onclick="Muse.selStyle(this)">Boceto</button>
+              <button class="muse-style-chip" onclick="Muse.selStyle(this)">Acuarela</button>
+              <button class="muse-style-chip" onclick="Muse.selStyle(this)">Conceptual</button>
+              <button class="muse-style-chip" onclick="Muse.selStyle(this)">Editorial</button>
+            </div>
+            <p class="muse-section-label">PROPORCIÓN</p>
+            <div style="display:flex;gap:6px;margin-bottom:20px;">
+              <button class="muse-style-chip active" onclick="Muse.selRatio(this)">1:1</button>
+              <button class="muse-style-chip" onclick="Muse.selRatio(this)">16:9</button>
+              <button class="muse-style-chip" onclick="Muse.selRatio(this)">4:3</button>
+              <button class="muse-style-chip" onclick="Muse.selRatio(this)">9:16</button>
+            </div>
+            <button onclick="Muse.generateIA()" class="muse-btn-primary" style="width:100%;padding:16px;font-size:14px;border-radius:14px;letter-spacing:0.08em;">✦ Generar con Anet</button>
+          </div>
+          <div class="muse-card muse-gen-result" id="genResult">
+            <div class="muse-gen-ico">✦</div>
+            <p style="font-size:14px;font-weight:500;margin-bottom:8px;">Tu imagen aparecerá aquí</p>
+            <p style="font-size:12px;color:var(--muse-muted);">Anet interpretará tu prompt y creará algo único</p>
+            <button disabled style="margin-top:20px;background:rgba(255,255,255,0.3);border:1px solid rgba(255,255,255,0.5);border-radius:8px;padding:8px 16px;font-size:11px;color:var(--muse-muted);font-family:'DM Mono',monospace;cursor:not-allowed;opacity:0.5;">Guardar en Moodboard</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 5: MÚSICA -->
+      <div class="muse-panel" id="panel-5">
+        <div class="muse-music-grid">
+          <div>
+            <div class="muse-card" style="padding:20px;margin-bottom:20px;">
+              <p style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.2rem;margin-bottom:14px;">¿Cómo suenas hoy?</p>
+              <div class="muse-mood-opts">
+                <div class="muse-mood-opt" data-mood="Enfocada" onclick="Muse.selMood(this)"><span style="font-size:18px;">🎯</span><span>Enfocada</span></div>
+                <div class="muse-mood-opt active" data-mood="Flow" onclick="Muse.selMood(this)"><span style="font-size:18px;">🌊</span><span>Flow</span></div>
+                <div class="muse-mood-opt" data-mood="Creativa" onclick="Muse.selMood(this)"><span style="font-size:18px;">✨</span><span>Creativa</span></div>
+                <div class="muse-mood-opt" data-mood="Introspectiva" onclick="Muse.selMood(this)"><span style="font-size:18px;">🌙</span><span>Introspectiva</span></div>
+                <div class="muse-mood-opt" data-mood="Energizada" onclick="Muse.selMood(this)"><span style="font-size:18px;">🔥</span><span>Energizada</span></div>
+              </div>
+            </div>
+            <p class="muse-section-label">PLAYLISTS</p>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div class="muse-card muse-playlist-card">
+                <div class="muse-playlist-cover" style="background:linear-gradient(135deg,#d8b4fe,#818cf8);">🎯</div>
+                <div style="flex:1;min-width:0;"><div style="font-weight:500;font-size:13px;">Deep Focus</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muse-muted);">Spotify · 🎯 Enfocada · 2h 34min</div></div>
+                <button style="background:rgba(147,51,234,0.12);border:1px solid rgba(147,51,234,0.3);border-radius:8px;padding:6px 14px;font-size:11px;color:var(--muse-purple);cursor:pointer;font-family:'DM Mono',monospace;flex-shrink:0;">Abrir →</button>
+              </div>
+              <div class="muse-card muse-playlist-card">
+                <div class="muse-playlist-cover" style="background:linear-gradient(135deg,#fde68a,#fca5a5);">✨</div>
+                <div style="flex:1;min-width:0;"><div style="font-weight:500;font-size:13px;">Creative Flow</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muse-muted);">Apple Music · ✨ Creativa · 1h 52min</div></div>
+                <button style="background:rgba(147,51,234,0.12);border:1px solid rgba(147,51,234,0.3);border-radius:8px;padding:6px 14px;font-size:11px;color:var(--muse-purple);cursor:pointer;font-family:'DM Mono',monospace;flex-shrink:0;">Abrir →</button>
+              </div>
+              <div class="muse-card muse-playlist-card">
+                <div class="muse-playlist-cover" style="background:linear-gradient(135deg,#c7d2fe,#a5b4fc);">🌙</div>
+                <div style="flex:1;min-width:0;"><div style="font-weight:500;font-size:13px;">Ambient Worlds</div><div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muse-muted);">Spotify · 🌙 Introspectiva · 3h 10min</div></div>
+                <button style="background:rgba(147,51,234,0.12);border:1px solid rgba(147,51,234,0.3);border-radius:8px;padding:6px 14px;font-size:11px;color:var(--muse-purple);cursor:pointer;font-family:'DM Mono',monospace;flex-shrink:0;">Abrir →</button>
+              </div>
+            </div>
+          </div>
+          <div class="muse-card" style="padding:20px;text-align:center;">
+            <p class="muse-section-label" style="text-align:center;">AHORA ESCUCHANDO</p>
+            <div style="width:80px;height:80px;border-radius:20px;background:linear-gradient(135deg,#d8b4fe,#f9a8d4);margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:36px;">🌊</div>
+            <p style="font-size:13px;font-weight:500;margin-bottom:4px;">Creative Flow</p>
+            <p style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muse-muted);margin-bottom:16px;">Apple Music</p>
+            <div style="display:flex;align-items:flex-end;justify-content:center;gap:3px;height:24px;">
+              <div class="muse-eq-bar" style="animation-delay:0s;"></div>
+              <div class="muse-eq-bar" style="animation-delay:.15s;"></div>
+              <div class="muse-eq-bar" style="animation-delay:.3s;"></div>
+              <div class="muse-eq-bar" style="animation-delay:.45s;"></div>
+              <div class="muse-eq-bar" style="animation-delay:.6s;"></div>
+              <div class="muse-eq-bar" style="animation-delay:.75s;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 6: ESCRITURA -->
+      <div class="muse-panel" id="panel-6">
+        <div class="muse-escritura-grid">
+          <div>
+            <p class="muse-section-label">FRAGMENTOS</p>
+            <div class="muse-escritura-list" id="escrituraList"></div>
+          </div>
+          <div class="muse-card muse-editor-card">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+              <select id="escrituraTipo" class="muse-input" style="width:auto;padding:6px 12px;font-family:'DM Mono',monospace;font-size:11px;">
+                <option value="poema">Poema</option>
+                <option value="fragmento">Fragmento</option>
+                <option value="idea">Idea</option>
+                <option value="narrativa">Narrativa</option>
+                <option value="reflexion">Reflexión</option>
+              </select>
+              <div style="flex:1;"></div>
+              <span style="font-family:'DM Mono',monospace;font-size:10px;color:var(--muse-muted);" id="wordCount">0 palabras</span>
+            </div>
+            <input class="muse-input muse-editor-titulo" id="escrituraTitulo" placeholder="Título...">
+            <textarea class="muse-input muse-editor-body" id="escrituraBody" rows="10" placeholder="Escribe aquí... deja que las palabras fluyan sin juzgar." oninput="Muse.updateWordCount(this)"></textarea>
+            <div style="display:flex;gap:8px;justify-content:flex-end;">
+              <button onclick="Muse.nuevaEscritura()" class="muse-btn-ghost">Nueva entrada</button>
+              <button onclick="Muse.saveEscritura()" class="muse-btn-primary">Guardar</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- PANEL 7: LIENZO -->
+      <div class="muse-panel" id="panel-7">
+        <div class="muse-lienzo-wrap">
+          <div class="muse-card muse-lienzo-toolbar">
+            <button class="muse-canvas-tool active" id="tool-pencil" onclick="Muse.setTool('pencil')" title="Pincel libre">✏️</button>
+            <button class="muse-canvas-tool" id="tool-rect" onclick="Muse.setTool('rect')" title="Rectángulo">⬜</button>
+            <button class="muse-canvas-tool" id="tool-circle" onclick="Muse.setTool('circle')" title="Círculo">⭕</button>
+            <button class="muse-canvas-tool" id="tool-line" onclick="Muse.setTool('line')" title="Línea">╱</button>
+            <button class="muse-canvas-tool" id="tool-text" onclick="Muse.setTool('text')" title="Texto" style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;">T</button>
+            <button class="muse-canvas-tool" id="tool-img" onclick="document.getElementById('canvasImgFile').click()" title="Imagen">🖼</button>
+            <input type="file" id="canvasImgFile" accept="image/*" style="display:none" onchange="Muse.addImgToCanvas(event)">
+            <div class="muse-tool-sep"></div>
+            <button class="muse-canvas-tool" onclick="Muse.canvasUndo()" title="Deshacer">↩</button>
+            <button class="muse-canvas-tool" onclick="Muse.canvasClear()" title="Limpiar">🗑</button>
+            <div class="muse-tool-sep"></div>
+            <input type="color" id="canvasColor" value="#9333ea" style="width:32px;height:32px;border:none;cursor:pointer;border-radius:50%;padding:2px;" onchange="Muse.setCanvasColor(this.value)">
+            <div style="width:100%;padding:0 4px;">
+              <p style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muse-muted);text-align:center;margin-bottom:3px;">grosor</p>
+              <input type="range" min="1" max="30" value="3" id="brushSize" style="width:100%;accent-color:#9333ea;" oninput="Muse.setBrushSize(this.value)">
+            </div>
+            <div style="width:100%;padding:0 4px;">
+              <p style="font-family:'DM Mono',monospace;font-size:8px;color:var(--muse-muted);text-align:center;margin-bottom:3px;">opac.</p>
+              <input type="range" min="10" max="100" value="100" id="brushOpacity" style="width:100%;accent-color:#9333ea;" oninput="Muse.setBrushOpacity(this.value)">
+            </div>
+          </div>
+          <div class="muse-canvas-area">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <h2 style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.3rem;font-weight:300;color:var(--muse-text);">Lienzo</h2>
+              <div style="display:flex;gap:8px;">
+                <button onclick="Muse.exportPNG()" class="muse-btn-primary" style="padding:8px 16px;font-size:11px;border-radius:8px;">Exportar PNG</button>
+                <button onclick="Muse.exportSVG()" class="muse-btn-ghost">Exportar SVG</button>
+              </div>
+            </div>
+            <div class="muse-canvas-wrap">
+              <canvas id="museCanvas"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /muse-content -->
+  </div><!-- /muse-main -->
+</div><!-- /muse-shell -->
+
+<div class="muse-toast" id="museToast"></div>
+
+<script src="js/muse.js"></script>
+<script src="js/andy-fab.js"></script>
+</body>
+</html>
