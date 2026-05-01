@@ -18,7 +18,7 @@
 <link rel="stylesheet" href="css/hub-planner.css">
 <link rel="stylesheet" href="css/hub-inbox.css">
 <link rel="stylesheet" href="css/andy-fab.css">
-<link rel="stylesheet" href="css/studio-layout.css">
+<link rel="stylesheet" href="css/appearance.css"><link rel="stylesheet" href="css/studio-layout.css">
 <link rel="stylesheet" href="css/studio-proyectos.css">
 
 <!-- Próximamente -->
@@ -377,5 +377,12 @@ window.addEventListener('load', () => {
 </script>
 
 <script src="js/andy-fab.js"></script>
+<div id="ap-include"></div>
+<script>
+  fetch('appearance-panel.html').then(r=>r.text()).then(h=>{
+    document.getElementById('ap-include').innerHTML=h;
+  });
+</script>
+<script src="js/appearance.js"></script>
 </body>
 </html>
