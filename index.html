@@ -930,7 +930,7 @@ function showToast(msg) {
 
 /* ── NAVEGACIÓN ── */
 function openHub() { window.location.href = 'hub.html'; }
-function openStudio() { showToast('→ Studio'); }
+function openStudio() { window.location.href = 'studio.html'; }
 function openMuse()   { window.location.href = 'muse.html'; }
 function openSelf()   { showToast('→ Self'); }
 function openPlannerDay(key) { showToast('📅 ' + key); }
@@ -977,8 +977,7 @@ setInterval(updateTime, 60000);
     const hero = document.querySelector('.hero');
     if (hero) {
       hero.style.background = theme === 'day'
-        ? 'linear-gradient(180deg, #2a1f3d 0%, #1a1228 60%, #f5f0e8 100%)'
-        : '';
+       '';
     }
   }
 
