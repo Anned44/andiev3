@@ -651,11 +651,29 @@ function buildPanel() {
   updateGradPreview();
 }
 
-// Botón de apertura del panel (desde cualquier página)
+/* ── Modo expandido ── */
+let _expanded = false;
+function toggleExpand() {
+  _expanded = !_expanded;
+  const drawer = document.querySelector('.ap-drawer');
+  const btn = document.getElementById('ap-expand-btn');
+  if (!drawer) return;
+  drawer.style.width = _expanded ? '100vw' : '';
+  drawer.style.maxWidth = _expanded ? '100vw' : '';
+  if (btn) btn.textContent = _expanded ? '←' : '→';
+}
+
+/* ── Init ── */
 document.addEventListener('DOMContentLoaded', () => {
   initAppearance();
-  // Bind al botón de settings si existe
   document.querySelectorAll('[data-open-appearance], #settingsBtn, .settings-btn').forEach(btn => {
     btn.addEventListener('click', openPanel);
   });
 });
+
+/* ── Llamar esto después de que el fetch del panel termine ── */
+window._onAppearancePanelLoaded = function() {
+  buildPanel();
+  loadFontGrid(_activeFontType, '');
+  document.getElementById('ap-expand-btn')?.addEventListener('click', toggleExpand);
+};
