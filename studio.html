@@ -331,7 +331,7 @@ function renderStudioDash() {
 <div id="ap-include"></div>
 <script>
   fetch('appearance-panel.html').then(r=>r.text()).then(h=>{
-    document.getElementById('ap-include').innerHTML=h;
+    document.getElementById('ap-include').innerHTML=h; if(window._onAppearancePanelLoaded) window._onAppearancePanelLoaded();
   });
 </script>
 <script src="js/appearance.js"></script>
