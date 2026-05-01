@@ -22,10 +22,10 @@
 .muse-shell {
   display: flex;
   height: 100vh;
-  background: linear-gradient(135deg, #fdf6f0 0%, #f5eeff 50%, #fce4f0 100%);
+  background: linear-gradient(135deg, #ede8f8 0%, #dde8f5 35%, #e8eef8 65%, #eeedf8 100%);
   background-attachment: fixed;
   color: var(--muse-text);
-  font-family: 'DM Sans', system-ui, sans-serif;
+  font-family: var(--sans, 'Geist', system-ui, sans-serif);
   position: relative;
   overflow: hidden;
 }
@@ -38,10 +38,10 @@
   z-index: 0;
   filter: blur(90px);
 }
-.muse-orb-1 { width:500px; height:500px; background:#d8b4fe; top:-100px; left:-100px; opacity:.35; filter:blur(120px); }
-.muse-orb-2 { width:400px; height:400px; background:#f9a8d4; bottom:-80px; right:-80px; opacity:.30; filter:blur(100px); }
-.muse-orb-3 { width:350px; height:350px; background:#c7d2fe; top:40%; right:-50px; opacity:.25; filter:blur(90px); }
-.muse-orb-4 { width:300px; height:300px; background:#fde68a; bottom:10%; left:20%; opacity:.20; filter:blur(80px); }
+.muse-orb-1 { width:500px; height:500px; background:#c4b8f0; top:-100px; left:-100px; opacity:.3; filter:blur(120px); }
+.muse-orb-2 { width:400px; height:400px; background:#b8d0e8; bottom:-80px; right:-80px; opacity:.25; filter:blur(100px); }
+.muse-orb-3 { width:350px; height:350px; background:#d0d8f0; top:40%; right:-50px; opacity:.22; filter:blur(90px); }
+.muse-orb-4 { width:300px; height:300px; background:#e8eaf8; bottom:10%; left:20%; opacity:.25; filter:blur(80px); }
 
 /* ── Glass surface ── */
 .muse-glass {
@@ -77,7 +77,7 @@
   cursor: pointer;
   border-radius: 10px;
   padding: 10px 20px;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--mono, 'Geist Mono', monospace);
   font-size: 12px;
 }
 .muse-btn-primary:hover { filter:brightness(1.05); transform:translateY(-1px); }
@@ -90,7 +90,7 @@
   font-size: 11px;
   color: var(--muse-muted);
   cursor: pointer;
-  font-family: 'DM Sans', system-ui;
+  font-family: var(--sans, 'Geist', system-ui);
   transition: all 0.2s;
 }
 .muse-btn-ghost:hover { background:rgba(255,255,255,0.7); }
@@ -105,7 +105,7 @@
   color: var(--muse-muted);
   cursor: pointer;
   transition: all 0.2s;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--mono, 'Geist Mono', monospace);
   letter-spacing: 0.04em;
 }
 .muse-chip:hover, .muse-chip.active {
@@ -124,7 +124,7 @@
   transition: all 0.2s;
   width: 100%;
   padding: 10px 14px;
-  font-family: 'DM Sans', system-ui;
+  font-family: var(--sans, 'Geist', system-ui);
   font-size: 13px;
 }
 .muse-input:focus {
@@ -203,7 +203,7 @@
   padding: 0 20px;
 }
 .muse-header-logo {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--mono, 'Geist Mono', monospace);
   font-size: 11px;
   letter-spacing: 0.2em;
   color: var(--muse-purple);
@@ -232,7 +232,7 @@
 
 /* ── SECTION LABEL ── */
 .muse-section-label {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--mono, 'Geist Mono', monospace);
   font-size: 10px;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -242,7 +242,7 @@
 
 /* ── PANEL 0: DASHBOARD ── */
 .muse-dash-greeting {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--serif, 'Cormorant Garamond', serif);
   font-style: italic;
   font-size: 2.8rem;
   font-weight: 300;
@@ -251,7 +251,7 @@
   margin-bottom: 8px;
 }
 .muse-dash-frase {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--serif, 'Cormorant Garamond', serif);
   font-style: italic;
   font-size: 1.05rem;
   color: var(--muse-muted);
@@ -272,7 +272,7 @@
   display: block;
 }
 .muse-stat-lbl {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--mono, 'Geist Mono', monospace);
   font-size: 10px;
   color: var(--muse-muted);
   letter-spacing: 0.1em;
@@ -286,7 +286,7 @@
   border-radius: 12px;
   padding: 14px;
   font-size: 12px;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--mono, 'Geist Mono', monospace);
   text-align: left;
   line-height: 1.6;
 }
@@ -324,14 +324,14 @@
 .muse-ref-card-body { padding: 10px 12px; }
 .muse-ref-card-title { font-size: 12px; color: var(--muse-text); font-weight: 500; margin-bottom: 2px; }
 .muse-ref-card-meta { display:flex; align-items:center; gap:6px; justify-content:space-between; }
-.muse-ref-card-domain { font-family:'DM Mono',monospace; font-size:9px; color:var(--muse-muted); }
+.muse-ref-card-domain { font-family:var(--mono,'Geist Mono',monospace); font-size:9px; color:var(--muse-muted); }
 .muse-ref-card-cat {
   font-size: 9px;
   background: rgba(147,51,234,0.1);
   color: var(--muse-purple);
   padding: 2px 8px;
   border-radius: 999px;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--mono, 'Geist Mono', monospace);
 }
 .muse-ref-del {
   position: absolute; top:6px; right:6px;
@@ -352,7 +352,7 @@
   cursor: pointer;
   color: var(--muse-muted);
   transition: all 0.2s;
-  font-family: 'DM Mono', monospace;
+  font-family: var(--mono, 'Geist Mono', monospace);
   font-size: 10px;
 }
 .muse-ref-add-card:hover { border-color: rgba(147,51,234,0.5); color: var(--muse-purple); }
@@ -370,7 +370,7 @@
 .muse-paleta-swatch:hover { flex: 1.5; }
 .muse-paleta-body { padding: 14px 16px; }
 .muse-paleta-nombre {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--serif, 'Cormorant Garamond', serif);
   font-style: italic;
   font-size: 1rem;
   color: var(--muse-text);
@@ -378,7 +378,7 @@
 }
 .muse-paleta-hexes { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:10px; }
 .muse-hex-chip {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--mono, 'Geist Mono', monospace);
   font-size: 9px;
   padding: 2px 8px;
   border-radius: 6px;
@@ -407,7 +407,7 @@
 /* Armonías */
 .muse-harmonia-chips { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:10px; }
 .muse-harmonia-chip {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--mono, 'Geist Mono', monospace);
   font-size: 9px;
   padding: 4px 12px;
   border-radius: 999px;
@@ -445,18 +445,18 @@
 .muse-bit-header { display:flex; align-items:center; gap:8px; margin-bottom:8px; }
 .muse-bit-mood { font-size: 18px; }
 .muse-bit-titulo {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--serif, 'Cormorant Garamond', serif);
   font-style: italic;
   font-size: 1.05rem;
   color: var(--muse-text);
   font-weight: 500;
   flex: 1;
 }
-.muse-bit-date { font-family:'DM Mono',monospace; font-size:9px; color:var(--muse-muted); }
+.muse-bit-date { font-family:var(--mono,'Geist Mono',monospace); font-size:9px; color:var(--muse-muted); }
 .muse-bit-texto { font-size:12px; color:var(--muse-muted); line-height:1.6; margin-bottom:8px; }
 .muse-bit-tags { display:flex; gap:5px; flex-wrap:wrap; }
 .muse-bit-tag {
-  font-family: 'DM Mono', monospace;
+  font-family: var(--mono, 'Geist Mono', monospace);
   font-size: 9px;
   background: rgba(147,51,234,0.08);
   color: var(--muse-purple);
@@ -476,7 +476,7 @@
   border-radius: 10px; padding:14px;
   text-align:center; cursor:pointer;
   margin-bottom:10px;
-  font-family:'DM Mono',monospace; font-size:10px; color:var(--muse-muted);
+  font-family:var(--mono,'Geist Mono',monospace); font-size:10px; color:var(--muse-muted);
   transition:all 0.2s;
 }
 .muse-bit-img-zone:hover { border-color:rgba(147,51,234,0.5); color:var(--muse-purple); }
@@ -489,7 +489,7 @@
   align-items: start;
 }
 .muse-gen-title {
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--serif, 'Cormorant Garamond', serif);
   font-style: italic;
   font-size: 1.6rem;
   font-weight: 300;
@@ -503,7 +503,7 @@
   border: 1px solid rgba(255,255,255,0.65);
   font-size: 11px; color:var(--muse-muted);
   cursor:pointer; transition:all 0.2s;
-  font-family:'DM Mono',monospace;
+  font-family:var(--mono,'Geist Mono',monospace);
 }
 .muse-style-chip.active, .muse-style-chip:hover {
   background: rgba(147,51,234,0.1);
@@ -571,7 +571,7 @@
 .muse-escritura-card { padding:14px 16px; cursor:pointer; }
 .muse-tipo-tag {
   padding: 3px 10px; border-radius:999px;
-  font-size: 10px; font-family:'DM Mono',monospace;
+  font-size: 10px; font-family:var(--mono,'Geist Mono',monospace);
   letter-spacing:0.06em; display:inline-block; margin-bottom:6px;
 }
 .tipo-poema     { background:rgba(147,51,234,.15); color:#7c3aed; }
@@ -580,21 +580,21 @@
 .tipo-narrativa { background:rgba(20,184,166,.12); color:#0f766e; }
 .tipo-reflexion { background:rgba(245,158,11,.12); color:#b45309; }
 .muse-escritura-titulo-card {
-  font-family:'Cormorant Garamond',serif; font-style:italic;
+  font-family:var(--serif,'Cormorant Garamond',serif); font-style:italic;
   font-size:1rem; color:var(--muse-text); margin-bottom:4px;
 }
 .muse-escritura-preview { font-size:11px; color:var(--muse-muted); line-height:1.5; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; }
 .muse-editor-card { padding:22px; }
 .muse-editor-titulo {
   font-size: 1.1rem;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--serif, 'Cormorant Garamond', serif);
   font-style: italic;
   font-weight: 300;
   margin-bottom: 12px;
 }
 .muse-editor-body {
   line-height: 1.8;
-  font-family: 'Cormorant Garamond', serif;
+  font-family: var(--serif, 'Cormorant Garamond', serif);
   font-size: 1rem;
   resize: none;
   min-height: 280px;
@@ -638,7 +638,7 @@
   backdrop-filter: blur(20px);
   border: 1px solid rgba(255,255,255,0.9);
   border-radius: 10px; padding:10px 20px;
-  font-family: 'DM Mono', monospace; font-size:12px;
+  font-family: var(--mono, 'Geist Mono', monospace); font-size:12px;
   color: var(--muse-text);
   opacity: 0; transition:all 0.3s; pointer-events:none;
   z-index: 999;
