@@ -976,8 +976,9 @@ setInterval(updateTime, 60000);
     // Hero fondo especial en modo día para que el título contraste
     const hero = document.querySelector('.hero');
     if (hero) {
-      hero.style.background = theme === 'day'
-       '';
+     hero.style.background = theme === 'day'
+  ? 'linear-gradient(180deg, #2d1b4e 0%, #4a2d6e 40%, #f2eff8 100%)'
+  : '';
     }
   }
 
