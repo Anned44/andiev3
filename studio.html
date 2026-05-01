@@ -15,7 +15,7 @@
 <link rel="stylesheet" href="css/studio-layout.css">
 <link rel="stylesheet" href="css/studio-proyectos.css">
 <link rel="stylesheet" href="css/andy-fab.css">
-<style>
+<link rel="stylesheet" href="css/appearance.css"><style>
 .stub-page{padding:60px 0;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;}
 .stub-page .stub-ico{font-size:2rem;display:block;margin-bottom:12px;opacity:.3;}
 /* Fix barra doble */
@@ -328,5 +328,12 @@ function renderStudioDash() {
 </script>
 
 <script src="js/andy-fab.js"></script>
+<div id="ap-include"></div>
+<script>
+  fetch('appearance-panel.html').then(r=>r.text()).then(h=>{
+    document.getElementById('ap-include').innerHTML=h;
+  });
+</script>
+<script src="js/appearance.js"></script>
 </body>
 </html>
