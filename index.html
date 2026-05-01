@@ -669,6 +669,7 @@ body {
 }
 </style>
 <link rel="stylesheet" href="css/andy-fab.css">
+<link rel="stylesheet" href="css/appearance.css">
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@1,600&display=swap" rel="stylesheet">
 </head>
 <body>
@@ -1058,5 +1059,12 @@ setInterval(updateTime, 60000);
 })();
 </script>
 <script src="js/andy-fab.js"></script>
+<div id="ap-include"></div>
+<script>
+  fetch('appearance-panel.html').then(r=>r.text()).then(h=>{
+    document.getElementById('ap-include').innerHTML=h;
+  });
+</script>
+<script src="js/appearance.js"></script>
 </body>
 </html>
