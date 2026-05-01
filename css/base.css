@@ -40,9 +40,15 @@
   --prio-baja:  #5a8a6a;
 
   /* ── Tipografía ── */
-  --serif:  'Cormorant Garamond', serif;
-  --mono:   'Geist Mono', monospace;
-  --sans:   'Geist', sans-serif;
+  --sans:         'Inter', system-ui, -apple-system, sans-serif;
+  --mono:         'IBM Plex Mono', 'SFMono-Regular', Menlo, monospace;
+  --serif:        'DM Serif Display', Georgia, serif;
+  --font-muse:    'Amarante', Georgia, serif;
+
+  /* Aliases semánticos */
+  --font-ui:      var(--sans);
+  --font-mono:    var(--mono);
+  --font-display: var(--serif);
 
   /* ── Layout ── */
   --header-h:  52px;
