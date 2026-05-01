@@ -121,3 +121,19 @@ input, textarea, select {
 [data-theme="day"] .hub-fab {
   box-shadow: 0 4px 16px rgba(79,133,232,0.3);
 }
+
+/* ── Portal tiles modo día ── */
+[data-theme="day"] .tile-name {
+  color: #2d1b4e;
+}
+[data-theme="day"] .tile-label,
+[data-theme="day"] .tile-items span {
+  color: #6a4f80;
+}
+[data-theme="day"] .tile:hover {
+  background: rgba(140,100,180,0.06);
+}
+/* ── Portal hero modo día ── */
+[data-theme="day"] .hero {
+  background: linear-gradient(180deg, #1e1428 0%, #2d1b4e 40%, #f5f0e8 100%) !important;
+}
