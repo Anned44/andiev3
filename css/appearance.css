@@ -51,9 +51,9 @@
   padding:0 18px;flex-shrink:0;
 }
 .ap-main-tab{
-  font-family:var(--mono,monospace);font-size:10px;
-  letter-spacing:0.08em;text-transform:uppercase;
-  color:var(--muted2);padding:10px 14px;background:none;
+  font-family:var(--mono,monospace);font-size:9px;
+  letter-spacing:0.06em;text-transform:uppercase;
+  color:var(--muted2);padding:10px 8px;background:none;
   border:none;border-bottom:2px solid transparent;cursor:pointer;transition:all .15s;
 }
 .ap-main-tab.active{color:var(--text2);border-bottom-color:var(--text2);}
@@ -258,6 +258,51 @@
 .ap-theme-card:hover{border-color:var(--bord2);}
 .ap-theme-swatch{height:32px;border-radius:6px;margin-bottom:6px;}
 .ap-theme-name{font-family:var(--mono,monospace);font-size:9px;color:var(--muted2);letter-spacing:0.05em;}
+
+/* ━━ SUPERFICIE ━━ */
+
+.ap-surface-grid {
+  display: grid; grid-template-columns: repeat(4,1fr); gap: 8px;
+}
+.ap-surface-card {
+  border: 1px solid var(--border); border-radius: 12px;
+  overflow: hidden; cursor: pointer; transition: all .15s;
+}
+.ap-surface-card:hover { border-color: var(--bord2); transform: translateY(-1px); }
+.ap-surface-card.active { border-color: var(--bord3); }
+.ap-surface-preview {
+  height: 80px; display: flex; align-items: center;
+  justify-content: center; padding: 10px;
+}
+.ap-surf-solid   { background: #120f1a; }
+.ap-surf-glass   { background: radial-gradient(ellipse at 30% 50%, rgba(155,122,184,.3) 0%, #0c0a12 70%); }
+.ap-surf-clay    { background: #1a1428; }
+.ap-surf-neu     { background: #18152a; }
+.ap-surf-flat    { background: linear-gradient(135deg,#6d28d9,#9333ea); }
+.ap-surf-material{ background: #12101e; }
+.ap-surf-skeu    { background: linear-gradient(145deg,#1a1428,#0c0a12); }
+.ap-surf-brut    { background: #0c0a12; }
+
+.ap-surf-demo-card {
+  background: var(--s2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 8px 10px; width: 100%;
+}
+.ap-surf-demo-title {
+  font-family: var(--serif,Georgia,serif); font-size: 13px;
+  color: var(--text2); margin-bottom: 3px;
+}
+.ap-surf-demo-sub {
+  font-family: var(--mono,monospace); font-size: 8px;
+  color: var(--muted); letter-spacing: .05em; text-transform: uppercase;
+}
+.ap-surface-name {
+  font-family: var(--mono,monospace); font-size: 9px; font-weight: 500;
+  color: var(--text); letter-spacing: .04em; padding: 6px 8px 2px;
+}
+.ap-surface-desc {
+  font-family: var(--mono,monospace); font-size: 8px;
+  color: var(--muted); letter-spacing: .03em; padding: 0 8px 8px;
+}
 
 /* ━━ BOTONES ━━ */
 
