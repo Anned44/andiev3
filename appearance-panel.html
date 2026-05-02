@@ -1,376 +1,394 @@
-<!-- APPEARANCE PANEL Andy.net v4 -->
-<div id="andy-appearance-panel" class="ap-overlay">
-  <div id="ap-preview-pane" style="display:none;flex:1;flex-direction:column;padding:16px 0 16px 16px;">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-right:16px;">
-      <span style="font-family:var(--mono,monospace);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">Preview en vivo</span>
-      <span style="font-family:var(--mono,monospace);font-size:9px;color:var(--muted2)">Cambios temporales · Guardar / Cancelar</span>
-    </div>
-    <div id="ap-preview-iframe-wrap" style="flex:1;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--s1);"></div>
-  </div>
-
-  <div class="ap-drawer">
-    <div class="ap-header">
+<div id="andy-appearance-panel" class="ap-overlay" aria-hidden="true">
+  <aside class="ap-drawer" role="dialog" aria-modal="true" aria-label="Appearance panel">
+    <header class="ap-header">
       <div>
-        <span class="ap-header-title">Apariencia</span>
-        <span class="ap-header-sub">Preview unificado por página y sistema</span>
-      </div>
-      <div style="display:flex;gap:6px;align-items:center;">
-        <button id="ap-expand-btn" class="ap-close" title="Pantalla completa">⤢</button>
-        <button class="ap-close" onclick="closePanel()">✕</button>
-      </div>
-    </div>
-
-    <div class="ap-main-tabs">
-      <button class="ap-main-tab active" data-tab="fonts">Tipografía</button>
-      <button class="ap-main-tab" data-tab="background">Fondo</button>
-      <button class="ap-main-tab" data-tab="effects">Efectos</button>
-      <button class="ap-main-tab" data-tab="surface">Superficie</button>
-      <button class="ap-main-tab" data-tab="theme">Tema</button>
-    </div>
-
-<!-- TIPOGRAFÍA -->
-<div class="ap-tab-panel active" data-tab="fonts">
-  <div class="ap-section-label">Página</div>
-  <div class="ap-page-tabs" id="ap-font-page-tabs">
-    <button class="ap-page-tab active" data-page="index">Portal</button>
-    <button class="ap-page-tab" data-page="hub">Hub</button>
-    <button class="ap-page-tab" data-page="studio">Studio</button>
-    <button class="ap-page-tab" data-page="muse">Muse</button>
-  </div>
-
-  <div class="ap-section-label">Rol tipográfico</div>
-  <div class="ap-font-type-btns">
-    <button class="ap-font-type-btn active" data-type="display" type="button">
-      <span class="ap-font-type-btn-preview" style="font-family:'DM Serif Display',Georgia,serif;">Ag</span>
-      <span class="ap-font-type-btn-lbl">Display</span>
-      <span class="ap-font-type-btn-desc">Títulos grandes</span>
-    </button>
-
-    <button class="ap-font-type-btn" data-type="quote" type="button">
-      <span class="ap-font-type-btn-preview" style="font-family:'Cormorant Garamond',Georgia,serif;">“ ”</span>
-      <span class="ap-font-type-btn-lbl">Quote</span>
-      <span class="ap-font-type-btn-desc">Frases, citas y textos especiales</span>
-    </button>
-
-    <button class="ap-font-type-btn" data-type="body" type="button">
-      <span class="ap-font-type-btn-preview" style="font-family:Inter,sans-serif;">Aa</span>
-      <span class="ap-font-type-btn-lbl">Body</span>
-      <span class="ap-font-type-btn-desc">Texto base de la app</span>
-    </button>
-
-    <button class="ap-font-type-btn" data-type="mono" type="button">
-      <span class="ap-font-type-btn-preview" style="font-family:'IBM Plex Mono',monospace;">01</span>
-      <span class="ap-font-type-btn-lbl">Mono</span>
-      <span class="ap-font-type-btn-desc">Fechas y datos</span>
-    </button>
-  </div>
-
-  <div class="ap-font-current">
-    <span class="ap-font-current-label">Seleccionada</span>
-    <span class="ap-font-current-name" id="ap-font-current-name">DM Serif Display</span>
-  </div>
-
-  <input
-    type="text"
-    id="ap-font-search"
-    class="ap-input"
-    placeholder="Buscar fuente... ej. Playfair, Lora, Raleway"
-  />
-
-  <div class="ap-font-filters">
-    <button class="ap-filter-btn active" data-cat="all" type="button">Todas</button>
-    <button class="ap-filter-btn" data-cat="serif" type="button">Serif</button>
-    <button class="ap-filter-btn" data-cat="sans-serif" type="button">Sans</button>
-    <button class="ap-filter-btn" data-cat="display" type="button">Display</button>
-    <button class="ap-filter-btn" data-cat="monospace" type="button">Mono</button>
-    <button class="ap-filter-btn" data-cat="handwriting" type="button">Script</button>
-  </div>
-
-  <div id="ap-font-grid" class="ap-font-grid">
-    <div class="ap-font-loading">Cargando Google Fonts...</div>
-  </div>
-</div>
-
-    <!-- FONDO -->
-    <div class="ap-tab-panel" data-tab="background">
-      <div class="ap-section-label">Página</div>
-      <div class="ap-page-tabs" id="ap-bg-page-tabs">
-        <button class="ap-page-tab active" data-page="index">Portal</button>
-        <button class="ap-page-tab" data-page="hub">Hub</button>
-        <button class="ap-page-tab" data-page="studio">Studio</button>
-        <button class="ap-page-tab" data-page="muse">Muse</button>
+        <span class="ap-header-title">Appearance</span>
+        <span class="ap-header-sub">Andy Net · Visual system</span>
       </div>
 
-      <div class="ap-section-label">Fondo base</div>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <button id="ap-expand-btn" class="ap-close" type="button" aria-label="Expand preview">⤢</button>
+        <button class="ap-close" type="button" aria-label="Close" onclick="closePanel()">✕</button>
+      </div>
+    </header>
+
+    <nav class="ap-main-tabs" aria-label="Appearance sections">
+      <button type="button" class="ap-main-tab active" data-tab="fonts">Fonts</button>
+      <button type="button" class="ap-main-tab" data-tab="background">Background</button>
+      <button type="button" class="ap-main-tab" data-tab="effects">Effects</button>
+      <button type="button" class="ap-main-tab" data-tab="surface">Surface</button>
+      <button type="button" class="ap-main-tab" data-tab="theme">Theme</button>
+    </nav>
+
+    <!-- FONTS -->
+    <section class="ap-tab-panel active" data-tab="fonts">
+      <div class="ap-section-label">Page</div>
+      <div id="ap-font-page-tabs" class="ap-page-tabs">
+        <button type="button" class="ap-page-tab active" data-page="index">Self</button>
+        <button type="button" class="ap-page-tab" data-page="hub">Hub</button>
+        <button type="button" class="ap-page-tab" data-page="studio">Studio</button>
+        <button type="button" class="ap-page-tab" data-page="muse">Muse</button>
+      </div>
+
+      <div class="ap-section-label">Text role</div>
+      <div class="ap-font-type-btns">
+        <button type="button" class="ap-font-type-btn active" data-type="display">
+          <span class="ap-font-type-btn-preview">A</span>
+          <span class="ap-font-type-btn-lbl">Display</span>
+          <span class="ap-font-type-btn-desc">Títulos</span>
+        </button>
+
+        <button type="button" class="ap-font-type-btn" data-type="quote">
+          <span class="ap-font-type-btn-preview">“</span>
+          <span class="ap-font-type-btn-lbl">Quote</span>
+          <span class="ap-font-type-btn-desc">Citas</span>
+        </button>
+
+        <button type="button" class="ap-font-type-btn" data-type="body">
+          <span class="ap-font-type-btn-preview">T</span>
+          <span class="ap-font-type-btn-lbl">Body</span>
+          <span class="ap-font-type-btn-desc">Texto</span>
+        </button>
+
+        <button type="button" class="ap-font-type-btn" data-type="mono">
+          <span class="ap-font-type-btn-preview">01</span>
+          <span class="ap-font-type-btn-lbl">Mono</span>
+          <span class="ap-font-type-btn-desc">UI / Data</span>
+        </button>
+      </div>
+
+      <div class="ap-font-current">
+        <span class="ap-font-current-label">Current</span>
+        <span id="ap-font-current-name" class="ap-font-current-name">DM Serif Display</span>
+      </div>
+
+      <input
+        id="ap-font-search"
+        class="ap-input"
+        type="text"
+        placeholder="Buscar fuente..."
+        autocomplete="off"
+      />
+
+      <div class="ap-font-filters">
+        <button type="button" class="ap-filter-btn active" data-cat="all">All</button>
+        <button type="button" class="ap-filter-btn" data-cat="serif">Serif</button>
+        <button type="button" class="ap-filter-btn" data-cat="sans-serif">Sans</button>
+        <button type="button" class="ap-filter-btn" data-cat="display">Display</button>
+        <button type="button" class="ap-filter-btn" data-cat="handwriting">Hand</button>
+        <button type="button" class="ap-filter-btn" data-cat="monospace">Mono</button>
+      </div>
+
+      <div id="ap-font-grid" class="ap-font-grid"></div>
+    </section>
+
+    <!-- BACKGROUND -->
+    <section class="ap-tab-panel" data-tab="background">
+      <div class="ap-section-label">Page</div>
+      <div id="ap-bg-page-tabs" class="ap-page-tabs">
+        <button type="button" class="ap-page-tab active" data-page="index">Self</button>
+        <button type="button" class="ap-page-tab" data-page="hub">Hub</button>
+        <button type="button" class="ap-page-tab" data-page="studio">Studio</button>
+        <button type="button" class="ap-page-tab" data-page="muse">Muse</button>
+      </div>
+
+      <div class="ap-section-label">Background type</div>
       <div class="ap-bg-types">
-        <button class="ap-bg-type-btn active" data-type="color">Color</button>
-        <button class="ap-bg-type-btn" data-type="gradient">Gradiente</button>
-        <button class="ap-bg-type-btn" data-type="photo">Foto</button>
+        <button type="button" class="ap-bg-type-btn active" data-type="color">Color</button>
+        <button type="button" class="ap-bg-type-btn" data-type="gradient">Gradient</button>
+        <button type="button" class="ap-bg-type-btn" data-type="photo">Photo</button>
       </div>
 
       <div class="ap-bg-panel active" data-type="color">
         <div class="ap-color-row">
-          <input type="color" id="ap-color-picker" class="ap-color-wheel" value="#0c0a12" />
+          <input id="ap-color-picker" class="ap-color-wheel" type="color" value="#0c0a12" />
           <div class="ap-color-info">
             <div id="ap-color-hex" class="ap-color-hex">#0c0a12</div>
-            <div class="ap-note">Color base de la página</div>
+            <div class="ap-note">Color sólido de fondo</div>
           </div>
-          <div id="ap-color-swatch" class="ap-color-swatch" style="background:#0c0a12;"></div>
+          <div id="ap-color-swatch" class="ap-color-swatch"></div>
         </div>
       </div>
 
       <div class="ap-bg-panel" data-type="gradient">
         <div class="ap-grad-stops">
           <div class="ap-grad-stop">
-            <label class="ap-note">Inicio</label>
-            <input type="color" id="ap-grad-1" class="ap-color-wheel" value="#1e1428" />
+            <label for="ap-grad-1">A</label>
+            <input id="ap-grad-1" class="ap-color-wheel" type="color" value="#1e1428" />
           </div>
           <div class="ap-grad-stop">
-            <label class="ap-note">Medio</label>
-            <input type="color" id="ap-grad-2" class="ap-color-wheel" value="#2d1b4e" />
+            <label for="ap-grad-2">B</label>
+            <input id="ap-grad-2" class="ap-color-wheel" type="color" value="#2d1b4e" />
           </div>
           <div class="ap-grad-stop">
-            <label class="ap-note">Final</label>
-            <input type="color" id="ap-grad-3" class="ap-color-wheel" value="#0c0a12" />
+            <label for="ap-grad-3">C</label>
+            <input id="ap-grad-3" class="ap-color-wheel" type="color" value="#0c0a12" />
           </div>
         </div>
 
         <div id="ap-grad-preview" class="ap-grad-preview"></div>
 
         <div class="ap-grad-dirs">
-          <button class="ap-grad-dir-btn active" data-dir="135deg"></button>
-          <button class="ap-grad-dir-btn" data-dir="180deg"></button>
-          <button class="ap-grad-dir-btn" data-dir="90deg"></button>
-          <button class="ap-grad-dir-btn" data-dir="45deg"></button>
-          <button class="ap-grad-dir-btn" data-dir="0deg"></button>
-          <button class="ap-grad-dir-btn" data-dir="radial">Radial</button>
+          <button type="button" class="ap-grad-dir-btn active" data-dir="135deg">↘</button>
+          <button type="button" class="ap-grad-dir-btn" data-dir="90deg">→</button>
+          <button type="button" class="ap-grad-dir-btn" data-dir="180deg">↓</button>
+          <button type="button" class="ap-grad-dir-btn" data-dir="45deg">↗</button>
+          <button type="button" class="ap-grad-dir-btn" data-dir="radial">◉</button>
         </div>
 
-        <button id="ap-grad-apply" class="ap-btn-primary">Aplicar gradiente</button>
+        <button id="ap-grad-apply" type="button" class="ap-btn-primary">Aplicar gradient</button>
       </div>
 
       <div class="ap-bg-panel" data-type="photo">
         <div id="ap-photo-zone" class="ap-photo-zone">
-          <img id="ap-photo-thumb" style="display:none;width:100%;height:100%;object-fit:cover;border-radius:10px;" alt="Preview de foto" />
           <div class="ap-photo-zone-inner">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2">
-              <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-              <circle cx="8.5" cy="8.5" r="1.5"></circle>
-              <polyline points="21 15 16 10 5 21"></polyline>
-            </svg>
-            <p>Arrastra o haz clic</p>
-            <p style="font-size:10px;opacity:.6;">JPG · PNG · WebP</p>
+            <strong>Arrastra o haz clic</strong>
+            <span>JPG · PNG · WebP</span>
           </div>
-          <input type="file" id="ap-photo-input" accept="image/*" style="display:none;" />
+          <img
+            id="ap-photo-thumb"
+            alt="Preview"
+            style="display:none;width:100%;height:100%;object-fit:cover;"
+          />
         </div>
 
+        <input id="ap-photo-input" type="file" accept="image/*" hidden />
+
         <div class="ap-range-row">
-          <span class="ap-range-lbl">Opacidad</span>
-          <input type="range" id="ap-photo-opacity" min="10" max="100" value="70" />
+          <span class="ap-range-lbl">Opacity</span>
+          <input id="ap-photo-opacity" type="range" min="0" max="100" value="70" />
           <span id="ap-opacity-val" class="ap-range-val">70</span>
         </div>
 
         <div class="ap-range-row">
           <span class="ap-range-lbl">Blur</span>
-          <input type="range" id="ap-photo-blur" min="0" max="20" value="0" />
+          <input id="ap-photo-blur" type="range" min="0" max="40" value="0" />
           <span id="ap-blur-val" class="ap-range-val">0px</span>
         </div>
       </div>
-    </div>
+    </section>
 
-    <!-- EFECTOS -->
-    <div class="ap-tab-panel" data-tab="effects">
-      <div class="ap-section-label">Página</div>
-      <div class="ap-page-tabs" id="ap-fx-page-tabs">
-        <button class="ap-page-tab active" data-page="index">Portal</button>
-        <button class="ap-page-tab" data-page="hub">Hub</button>
-        <button class="ap-page-tab" data-page="studio">Studio</button>
-        <button class="ap-page-tab" data-page="muse">Muse</button>
+    <!-- EFFECTS -->
+    <section class="ap-tab-panel" data-tab="effects">
+      <div class="ap-section-label">Page</div>
+      <div id="ap-fx-page-tabs" class="ap-page-tabs">
+        <button type="button" class="ap-page-tab active" data-page="index">Self</button>
+        <button type="button" class="ap-page-tab" data-page="hub">Hub</button>
+        <button type="button" class="ap-page-tab" data-page="studio">Studio</button>
+        <button type="button" class="ap-page-tab" data-page="muse">Muse</button>
       </div>
 
-      <div class="ap-section-label">Capa viva</div>
-      <div class="ap-surface-grid">
-        <button class="ap-surface-card ap-fx-card active" data-effect="none" type="button">
-          <div class="ap-surface-preview">
-            <div class="ap-surf-demo-card">
-              <div class="ap-surf-demo-title">Quiet</div>
-              <div class="ap-surf-demo-sub">Sin animación</div>
-            </div>
-          </div>
-          <div class="ap-surface-name">None</div>
-          <div class="ap-surface-desc">Solo fondo base</div>
+      <div class="ap-section-label">Effect</div>
+      <div class="ap-note">Haz clic para preview en vivo · confirma si te gusta</div>
+
+      <div class="ap-themes-grid" style="grid-template-columns:repeat(3,1fr); margin-bottom:12px;">
+        <button type="button" class="ap-fx-card ap-theme-card active" data-effect="none">
+          <div class="ap-theme-swatch" style="background:#15121f;"></div>
+          <div class="ap-theme-name">None</div>
         </button>
 
-        <button class="ap-surface-card ap-fx-card" data-effect="bubbles" type="button">
-          <div class="ap-surface-preview">
-            <div class="ap-surf-demo-card" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.2), rgba(155,122,184,.18), transparent 70%);">
-              <div class="ap-surf-demo-title">Bubbles</div>
-              <div class="ap-surf-demo-sub">Flotación suave</div>
-            </div>
-          </div>
-          <div class="ap-surface-name">Bubbles</div>
-          <div class="ap-surface-desc">Orbes sutiles</div>
+        <button type="button" class="ap-fx-card ap-theme-card" data-effect="bubbles">
+          <div class="ap-theme-swatch" style="background:radial-gradient(circle at 30% 30%, rgba(255,255,255,.5), transparent 35%), #171321;"></div>
+          <div class="ap-theme-name">Bubbles</div>
         </button>
 
-        <button class="ap-surface-card ap-fx-card" data-effect="constellation" type="button">
-          <div class="ap-surface-preview">
-            <div class="ap-surf-demo-card" style="background:linear-gradient(135deg,#120f1a,#1a1625);position:relative;">
-              <div style="position:absolute;inset:0;background:
-                radial-gradient(circle at 30% 35%, rgba(255,255,255,.9) 0 1px, transparent 2px),
-                radial-gradient(circle at 68% 42%, rgba(255,255,255,.75) 0 1px, transparent 2px),
-                radial-gradient(circle at 48% 68%, rgba(255,255,255,.65) 0 1px, transparent 2px);opacity:.8;"></div>
-              <div class="ap-surf-demo-title" style="position:relative;">Stars</div>
-              <div class="ap-surf-demo-sub" style="position:relative;">Puntos y líneas</div>
-            </div>
-          </div>
-          <div class="ap-surface-name">Constellation</div>
-          <div class="ap-surface-desc">Constelaciones finas</div>
+        <button type="button" class="ap-fx-card ap-theme-card" data-effect="constellation">
+          <div class="ap-theme-swatch" style="background:
+            radial-gradient(rgba(255,255,255,.9) 1px, transparent 1.5px),
+            #12101b;
+            background-size:16px 16px;"></div>
+          <div class="ap-theme-name">Constellation</div>
         </button>
 
-        <button class="ap-surface-card ap-fx-card" data-effect="aurora" type="button">
-          <div class="ap-surface-preview">
-            <div class="ap-surf-demo-card" style="background:
-              radial-gradient(circle at 20% 30%, rgba(124,92,255,.22), transparent 40%),
-              radial-gradient(circle at 70% 25%, rgba(79,195,247,.18), transparent 38%),
-              radial-gradient(circle at 50% 80%, rgba(123,228,149,.12), transparent 40%);">
-              <div class="ap-surf-demo-title">Aurora</div>
-              <div class="ap-surf-demo-sub">Neblina cromática</div>
-            </div>
-          </div>
-          <div class="ap-surface-name">Aurora</div>
-          <div class="ap-surface-desc">Luz ambiental</div>
+        <button type="button" class="ap-fx-card ap-theme-card" data-effect="aurora">
+          <div class="ap-theme-swatch" style="background:
+            radial-gradient(circle at 20% 40%, rgba(124,92,255,.6), transparent 35%),
+            radial-gradient(circle at 75% 30%, rgba(79,195,247,.45), transparent 35%),
+            #10111b;"></div>
+          <div class="ap-theme-name">Aurora</div>
         </button>
 
-        <button class="ap-surface-card ap-fx-card" data-effect="particles" type="button">
-          <div class="ap-surface-preview">
-            <div class="ap-surf-demo-card" style="background:linear-gradient(135deg,#1a1008,#2e1e0e);position:relative;">
-              <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,220,160,.85) 1px, transparent 1.5px);background-size:18px 18px;opacity:.32;"></div>
-              <div class="ap-surf-demo-title" style="position:relative;">Particles</div>
-              <div class="ap-surf-demo-sub" style="position:relative;">Polvo dorado</div>
-            </div>
-          </div>
-          <div class="ap-surface-name">Particles</div>
-          <div class="ap-surface-desc">Puntos suspendidos</div>
+        <button type="button" class="ap-fx-card ap-theme-card" data-effect="particles">
+          <div class="ap-theme-swatch" style="background:
+            radial-gradient(rgba(255,220,160,.8) 1px, transparent 1.5px),
+            #15131d;
+            background-size:12px 12px;"></div>
+          <div class="ap-theme-name">Particles</div>
         </button>
 
-        <button class="ap-surface-card ap-fx-card" data-effect="mist" type="button">
-          <div class="ap-surface-preview">
-            <div class="ap-surf-demo-card" style="background:
-              radial-gradient(circle at 30% 40%, rgba(255,255,255,.08), transparent 35%),
-              radial-gradient(circle at 70% 50%, rgba(155,122,184,.12), transparent 35%),
-              linear-gradient(135deg,#120f1a,#241e30);">
-              <div class="ap-surf-demo-title">Mist</div>
-              <div class="ap-surf-demo-sub">Bruma ligera</div>
-            </div>
-          </div>
-          <div class="ap-surface-name">Mist</div>
-          <div class="ap-surface-desc">Atmosférico sutil</div>
+        <button type="button" class="ap-fx-card ap-theme-card" data-effect="mist">
+          <div class="ap-theme-swatch" style="background:
+            radial-gradient(circle at 30% 50%, rgba(255,255,255,.35), transparent 38%),
+            radial-gradient(circle at 70% 40%, rgba(155,122,184,.35), transparent 35%),
+            #12101b;"></div>
+          <div class="ap-theme-name">Mist</div>
         </button>
       </div>
 
-      <div class="ap-section-label">Ajustes</div>
       <div class="ap-range-row">
-        <span class="ap-range-lbl">Intensidad</span>
-        <input type="range" id="ap-fx-intensity" min="0" max="100" value="50" />
+        <span class="ap-range-lbl">Intensity</span>
+        <input id="ap-fx-intensity" type="range" min="0" max="100" value="50" />
         <span id="ap-fx-intensity-val" class="ap-range-val">50</span>
       </div>
 
-      <div class="ap-range-row" style="margin-bottom:0;">
-        <span class="ap-range-lbl">Velocidad</span>
-        <select id="ap-fx-speed" class="ap-input" style="margin-bottom:0;width:auto;flex:1;">
-          <option value="slow">Lenta</option>
-          <option value="medium">Media</option>
-          <option value="fast">Rápida</option>
+      <div style="margin-top:12px;">
+        <label class="ap-section-label" for="ap-fx-speed">Speed</label>
+        <select id="ap-fx-speed" class="ap-input" style="margin-bottom:0;">
+          <option value="slow">Slow</option>
+          <option value="medium">Medium</option>
+          <option value="fast">Fast</option>
         </select>
       </div>
-    </div>
+    </section>
 
-    <!-- SUPERFICIE -->
-    <div class="ap-tab-panel" data-tab="surface">
-      <div class="ap-section-label">Sistema</div>
-      <p class="ap-note" style="margin-bottom:12px;">La superficie es global: widgets, tarjetas, paneles y módulos de toda la app.</p>
+    <!-- SURFACE -->
+    <section class="ap-tab-panel" data-tab="surface">
+      <div class="ap-section-label">Page</div>
+      <div id="ap-surface-page-tabs" class="ap-page-tabs">
+        <button type="button" class="ap-page-tab active" data-page="index">Self</button>
+        <button type="button" class="ap-page-tab" data-page="hub">Hub</button>
+        <button type="button" class="ap-page-tab" data-page="studio">Studio</button>
+        <button type="button" class="ap-page-tab" data-page="muse">Muse</button>
+      </div>
+
+      <div class="ap-note">Define colores de acento, bordes y superficies de esa página.</div>
 
       <div class="ap-surface-grid">
-        <button class="ap-surface-card active" data-surface="glass" type="button">
+        <button type="button" class="ap-surface-card active" data-surface="glass">
           <div class="ap-surface-preview ap-surf-glass">
-            <div class="ap-surf-demo-card" style="background:rgba(155,122,184,.10);border:1px solid rgba(155,122,184,.30);backdrop-filter:blur(10px);">
-              <div class="ap-surf-demo-title">Andinet</div>
-              <div class="ap-surf-demo-sub">widget</div>
+            <div class="ap-surf-demo-card">
+              <div class="ap-surf-demo-title">Glass</div>
+              <div class="ap-surf-demo-sub">Soft blur</div>
             </div>
           </div>
           <div class="ap-surface-name">Glass</div>
-          <div class="ap-surface-desc">Vidrio suave y luminoso</div>
+          <div class="ap-surface-desc">Translucent</div>
         </button>
 
-        <button class="ap-surface-card" data-surface="skeuomorphic" type="button">
-          <div class="ap-surface-preview ap-surf-skeu">
-            <div class="ap-surf-demo-card" style="background:linear-gradient(145deg,#2a2240,#1a1428);border:1px solid rgba(100,80,160,.35);box-shadow:0 3px 6px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.06);">
-              <div class="ap-surf-demo-title">Andinet</div>
-              <div class="ap-surf-demo-sub">widget</div>
+        <button type="button" class="ap-surface-card" data-surface="solid">
+          <div class="ap-surface-preview ap-surf-solid">
+            <div class="ap-surf-demo-card">
+              <div class="ap-surf-demo-title">Solid</div>
+              <div class="ap-surf-demo-sub">Dense card</div>
             </div>
           </div>
-          <div class="ap-surface-name">Skeuomorphic</div>
-          <div class="ap-surface-desc">Relieve con textura real</div>
+          <div class="ap-surface-name">Solid</div>
+          <div class="ap-surface-desc">Compacto</div>
         </button>
 
-        <button class="ap-surface-card" data-surface="neumorphism" type="button">
+        <button type="button" class="ap-surface-card" data-surface="clay">
+          <div class="ap-surface-preview ap-surf-clay">
+            <div class="ap-surf-demo-card">
+              <div class="ap-surf-demo-title">Clay</div>
+              <div class="ap-surf-demo-sub">Rounded</div>
+            </div>
+          </div>
+          <div class="ap-surface-name">Clay</div>
+          <div class="ap-surface-desc">Smooth</div>
+        </button>
+
+        <button type="button" class="ap-surface-card" data-surface="neu">
           <div class="ap-surface-preview ap-surf-neu">
-            <div class="ap-surf-demo-card" style="background:#18152a;border:none;box-shadow:5px 5px 12px rgba(0,0,0,.45), -3px -3px 8px rgba(255,255,255,.03);">
-              <div class="ap-surf-demo-title">Andinet</div>
-              <div class="ap-surf-demo-sub">widget</div>
+            <div class="ap-surf-demo-card">
+              <div class="ap-surf-demo-title">Neu</div>
+              <div class="ap-surf-demo-sub">Inset / raised</div>
             </div>
           </div>
-          <div class="ap-surface-name">Neumorphism</div>
-          <div class="ap-surface-desc">Volumen minimalista</div>
+          <div class="ap-surface-name">Neu</div>
+          <div class="ap-surface-desc">Depth</div>
+        </button>
+
+        <button type="button" class="ap-surface-card" data-surface="flat">
+          <div class="ap-surface-preview ap-surf-flat">
+            <div class="ap-surf-demo-card">
+              <div class="ap-surf-demo-title">Flat</div>
+              <div class="ap-surf-demo-sub">Bold plane</div>
+            </div>
+          </div>
+          <div class="ap-surface-name">Flat</div>
+          <div class="ap-surface-desc">Graphic</div>
+        </button>
+
+        <button type="button" class="ap-surface-card" data-surface="material">
+          <div class="ap-surface-preview ap-surf-material">
+            <div class="ap-surf-demo-card">
+              <div class="ap-surf-demo-title">Material</div>
+              <div class="ap-surf-demo-sub">Layered</div>
+            </div>
+          </div>
+          <div class="ap-surface-name">Material</div>
+          <div class="ap-surface-desc">Layered</div>
+        </button>
+
+        <button type="button" class="ap-surface-card" data-surface="skeu">
+          <div class="ap-surface-preview ap-surf-skeu">
+            <div class="ap-surf-demo-card">
+              <div class="ap-surf-demo-title">Skeu</div>
+              <div class="ap-surf-demo-sub">Rich shading</div>
+            </div>
+          </div>
+          <div class="ap-surface-name">Skeu</div>
+          <div class="ap-surface-desc">Tactile</div>
+        </button>
+
+        <button type="button" class="ap-surface-card" data-surface="brut">
+          <div class="ap-surface-preview ap-surf-brut">
+            <div class="ap-surf-demo-card">
+              <div class="ap-surf-demo-title">Brut</div>
+              <div class="ap-surf-demo-sub">Raw UI</div>
+            </div>
+          </div>
+          <div class="ap-surface-name">Brut</div>
+          <div class="ap-surface-desc">Raw</div>
         </button>
       </div>
-    </div>
+    </section>
 
-    <!-- TEMA -->
-    <div class="ap-tab-panel" data-tab="theme">
-      <div class="ap-section-label">Página</div>
-      <div class="ap-page-tabs" id="ap-theme-page-tabs">
-        <button class="ap-page-tab active" data-page="index">Portal</button>
-        <button class="ap-page-tab" data-page="hub">Hub</button>
-        <button class="ap-page-tab" data-page="studio">Studio</button>
-        <button class="ap-page-tab" data-page="muse">Muse</button>
+    <!-- THEME -->
+    <section class="ap-tab-panel" data-tab="theme">
+      <div class="ap-section-label">Page</div>
+      <div id="ap-theme-page-tabs" class="ap-page-tabs">
+        <button type="button" class="ap-page-tab active" data-page="index">Self</button>
+        <button type="button" class="ap-page-tab" data-page="hub">Hub</button>
+        <button type="button" class="ap-page-tab" data-page="studio">Studio</button>
+        <button type="button" class="ap-page-tab" data-page="muse">Muse</button>
       </div>
 
-      <div class="ap-section-label">Tema base</div>
       <div class="ap-themes-grid">
-        <button class="ap-theme-card active" data-theme="nocturne" type="button">
-          <div class="ap-theme-swatch" style="background:linear-gradient(135deg,#0c0a12,#241e30,#9b7ab8);"></div>
+        <button type="button" class="ap-theme-card active" data-theme="nocturne">
+          <div class="ap-theme-swatch" style="background:linear-gradient(135deg,#0c0a12,#241e30);"></div>
           <div class="ap-theme-name">Nocturne</div>
         </button>
 
-        <button class="ap-theme-card" data-theme="soleil" type="button">
-          <div class="ap-theme-swatch" style="background:linear-gradient(135deg,#f5f0e8,#e4ddd3,#9b7ab8);"></div>
+        <button type="button" class="ap-theme-card" data-theme="soleil">
+          <div class="ap-theme-swatch" style="background:linear-gradient(135deg,#f5f0e8,#d9d1c4);"></div>
           <div class="ap-theme-name">Soleil</div>
         </button>
 
-        <button class="ap-theme-card" data-theme="botanical" type="button">
-          <div class="ap-theme-swatch" style="background:linear-gradient(135deg,#0a120d,#1e2d20,#5a9a70);"></div>
+        <button type="button" class="ap-theme-card" data-theme="botanical">
+          <div class="ap-theme-swatch" style="background:linear-gradient(135deg,#0a120d,#263828);"></div>
           <div class="ap-theme-name">Botanical</div>
         </button>
 
-        <button class="ap-theme-card" data-theme="ambar" type="button">
-          <div class="ap-theme-swatch" style="background:linear-gradient(135deg,#120a06,#2e1e0e,#d4a050);"></div>
-          <div class="ap-theme-name">Ámbar</div>
+        <button type="button" class="ap-theme-card" data-theme="ambar">
+          <div class="ap-theme-swatch" style="background:linear-gradient(135deg,#120a06,#3a2814);"></div>
+          <div class="ap-theme-name">Ambar</div>
         </button>
 
-        <button class="ap-theme-card" data-theme="editorial" type="button">
-          <div class="ap-theme-swatch" style="background:linear-gradient(135deg,#f0eeec,#d0ccc4,#4060b0);"></div>
+        <button type="button" class="ap-theme-card" data-theme="editorial">
+          <div class="ap-theme-swatch" style="background:linear-gradient(135deg,#f0eeec,#c4beb6);"></div>
           <div class="ap-theme-name">Editorial</div>
         </button>
       </div>
+    </section>
 
-      <p class="ap-note" style="margin-top:14px;">Define colores de acento, bordes y superficies base de esa página.</p>
-    </div>
+    <footer class="ap-footer">
+      <button id="ap-reset-btn" type="button" class="ap-btn-ghost">Reset</button>
+      <button id="ap-export-btn" type="button" class="ap-btn-primary">Export</button>
+    </footer>
+  </aside>
 
-    <div class="ap-footer">
-      <button id="ap-reset-btn" class="ap-btn-ghost">Reset</button>
-      <button id="ap-export-btn" class="ap-btn-ghost">Exportar</button>
-      <button onclick="closePanel()" class="ap-btn-primary">Cerrar</button>
-    </div>
-  </div>
+  <section id="ap-preview-pane" aria-label="Live preview">
+    <div id="ap-preview-iframe-wrap"></div>
+  </section>
 </div>
