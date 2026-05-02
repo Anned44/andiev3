@@ -11,16 +11,20 @@
 <meta name="apple-mobile-web-app-title" content="Andy.net">
 <link rel="apple-touch-icon" href="/icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
-<!-- ── Andy.net v3 · Google Fonts ── -->
+
+<!-- ── Andy.net v4 · Google Fonts ── -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amarante&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/5.3.1/fabric.min.js"></script>
 <script src="https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js"></script>
+
 <link rel="stylesheet" href="css/muse.css">
 <link rel="stylesheet" href="css/andy-fab.css">
-<link rel="stylesheet" href="css/appearance.css"></head>
+<link rel="stylesheet" href="css/appearance.css">
 <link rel="stylesheet" href="css/surfaces.css">
+</head>
 <body>
 
 <div class="muse-shell" id="museShell">
@@ -86,6 +90,7 @@
         <button class="muse-btn-ghost" onclick="window.location.href='index.html'">← Portal</button>
         <button class="muse-btn-ghost" onclick="window.location.href='hub.html'">← Hub</button>
         <button class="muse-btn-ghost" id="themeBtn" onclick="Muse.toggleTheme()">○ día</button>
+        <button class="muse-btn-ghost" id="settingsBtn">⚙ Apariencia</button>
       </div>
     </header>
 
@@ -370,23 +375,27 @@
         </div>
       </div>
 
-    </div><!-- /muse-content -->
-  </div><!-- /muse-main -->
-</div><!-- /muse-shell -->
+    </div>
+  </div>
+</div>
 
 <div class="muse-toast" id="museToast"></div>
 
 <script src="js/muse.js"></script>
 <script src="js/andy-fab.js"></script>
+
+<!-- PANEL DE APARIENCIA v4 -->
 <div id="ap-include"></div>
-<script src="js/orbs.js"></script>
 <script>
-  fetch('appearance-panel.html').then(r=>r.text()).then(h=>{
-    document.getElementById('ap-include').innerHTML=h; if(window._onAppearancePanelLoaded) window._onAppearancePanelLoaded();
-  });
+  fetch('appearance-panel.html')
+    .then(r => r.text())
+    .then(h => {
+      document.getElementById('ap-include').innerHTML = h;
+      if (window.onAppearancePanelLoaded) window.onAppearancePanelLoaded();
+    })
+    .catch(err => console.error('Error cargando appearance-panel.html', err));
 </script>
 <script src="js/appearance.js"></script>
-</body>
-</html>
+
 </body>
 </html>
