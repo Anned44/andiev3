@@ -395,7 +395,7 @@ let _searchTimer = null;
 function openPanel() {
   _activeFontPage = PAGE_ID;
   _activeBgPage = PAGE_ID;
-  _activeFxPage = PAGE_ID;
+  _activeSurfacePage = PAGE_ID;
   _activeThemePage = PAGE_ID;
   document.getElementById('andy-appearance-panel')?.classList.add('open');
   syncPanel();
