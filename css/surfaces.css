@@ -1,0 +1,303 @@
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   SURFACES.CSS — Andy.net v3
+   8 estilos de superficie por página
+   Uso: <html data-surface-{pageId}="solid|glass|clay|neumorphism|flat|material|skeuomorphic|brutalist">
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ━━ VARIABLES DE SUPERFICIE ━━
+   Cada estilo sobreescribe estas variables
+   que usan todos los componentes
+*/
+:root {
+  --surf-bg:          var(--s2);
+  --surf-bg-alt:      var(--s3);
+  --surf-border:      1px solid var(--border);
+  --surf-border-alt:  1px solid var(--bord2);
+  --surf-radius:      var(--radius-md);
+  --surf-radius-lg:   var(--radius-lg);
+  --surf-shadow:      none;
+  --surf-shadow-lg:   none;
+  --surf-text:        var(--text);
+  --surf-text2:       var(--text2);
+  --surf-muted:       var(--muted2);
+  --surf-backdrop:    none;
+  --surf-highlight:   none;
+  --surf-btn-bg:      var(--s3);
+  --surf-btn-border:  1px solid var(--bord2);
+  --surf-btn-shadow:  none;
+  --surf-input-bg:    var(--s1);
+  --surf-input-border:1px solid var(--border);
+  --surf-tag-bg:      rgba(155,122,184,.15);
+  --surf-tag-color:   var(--muse);
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   1. SOLID (default — ya definido arriba)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   2. LIQUID GLASS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-surface="glass"] {
+  --surf-bg:          rgba(155,122,184,.07);
+  --surf-bg-alt:      rgba(155,122,184,.12);
+  --surf-border:      1px solid rgba(155,122,184,.25);
+  --surf-border-alt:  1px solid rgba(155,122,184,.4);
+  --surf-radius:      14px;
+  --surf-radius-lg:   20px;
+  --surf-shadow:      0 4px 24px rgba(155,122,184,.08), inset 0 1px 0 rgba(255,255,255,.08);
+  --surf-shadow-lg:   0 8px 40px rgba(155,122,184,.14), inset 0 1px 0 rgba(255,255,255,.1);
+  --surf-backdrop:    blur(20px) saturate(1.8);
+  --surf-highlight:   inset 0 1px 0 rgba(255,255,255,.12);
+  --surf-btn-bg:      rgba(155,122,184,.15);
+  --surf-btn-border:  1px solid rgba(155,122,184,.35);
+  --surf-btn-shadow:  inset 0 1px 0 rgba(255,255,255,.08);
+  --surf-input-bg:    rgba(0,0,0,.2);
+  --surf-input-border:1px solid rgba(155,122,184,.2);
+  --surf-tag-bg:      rgba(155,122,184,.2);
+  --surf-tag-color:   #d4b8f0;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   3. CLAY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-surface="clay"] {
+  --surf-bg:          #2a2040;
+  --surf-bg-alt:      #352848;
+  --surf-border:      none;
+  --surf-border-alt:  none;
+  --surf-radius:      20px;
+  --surf-radius-lg:   26px;
+  --surf-shadow:      8px 8px 20px rgba(0,0,0,.5), -4px -4px 12px rgba(255,255,255,.04), inset 0 1px 0 rgba(255,255,255,.06);
+  --surf-shadow-lg:   12px 12px 28px rgba(0,0,0,.55), -6px -6px 16px rgba(255,255,255,.045);
+  --surf-backdrop:    none;
+  --surf-highlight:   inset 0 2px 0 rgba(255,255,255,.07);
+  --surf-btn-bg:      #352848;
+  --surf-btn-border:  none;
+  --surf-btn-shadow:  4px 4px 8px rgba(0,0,0,.4), -2px -2px 5px rgba(255,255,255,.03);
+  --surf-input-bg:    #1e1630;
+  --surf-input-border:none;
+  --surf-tag-bg:      #3d3055;
+  --surf-tag-color:   #bb99ee;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   4. NEUMORPHISM
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-surface="neumorphism"] {
+  --surf-bg:          #18152a;
+  --surf-bg-alt:      #18152a;
+  --surf-border:      none;
+  --surf-border-alt:  none;
+  --surf-radius:      16px;
+  --surf-radius-lg:   22px;
+  --surf-shadow:      6px 6px 14px rgba(0,0,0,.45), -4px -4px 10px rgba(255,255,255,.03);
+  --surf-shadow-lg:   10px 10px 20px rgba(0,0,0,.5), -6px -6px 14px rgba(255,255,255,.035);
+  --surf-backdrop:    none;
+  --surf-highlight:   none;
+  --surf-btn-bg:      #18152a;
+  --surf-btn-border:  none;
+  --surf-btn-shadow:  4px 4px 8px rgba(0,0,0,.4), -2px -2px 6px rgba(255,255,255,.025);
+  --surf-input-bg:    #18152a;
+  --surf-input-border:none;
+  --surf-tag-bg:      #18152a;
+  --surf-tag-color:   #9b7ab8;
+}
+[data-surface="neumorphism"] .widget,
+[data-surface="neumorphism"] .muse-card,
+[data-surface="neumorphism"] .pln-block-card,
+[data-surface="neumorphism"] .meta-card,
+[data-surface="neumorphism"] .dash-inbox-item,
+[data-surface="neumorphism"] .studio-card {
+  box-shadow: 6px 6px 14px rgba(0,0,0,.45), -4px -4px 10px rgba(255,255,255,.03) !important;
+}
+/* Estado presionado */
+[data-surface="neumorphism"] button:active {
+  box-shadow: inset 3px 3px 7px rgba(0,0,0,.4), inset -2px -2px 5px rgba(255,255,255,.025) !important;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   5. FLAT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-surface="flat"] {
+  --surf-bg:          #7c3aed;
+  --surf-bg-alt:      #6d28d9;
+  --surf-border:      none;
+  --surf-border-alt:  none;
+  --surf-radius:      12px;
+  --surf-radius-lg:   16px;
+  --surf-shadow:      none;
+  --surf-shadow-lg:   none;
+  --surf-backdrop:    none;
+  --surf-highlight:   none;
+  --surf-text:        #ffffff;
+  --surf-text2:       #ffffff;
+  --surf-muted:       rgba(255,255,255,.6);
+  --surf-btn-bg:      rgba(255,255,255,.15);
+  --surf-btn-border:  none;
+  --surf-btn-shadow:  none;
+  --surf-input-bg:    rgba(255,255,255,.1);
+  --surf-input-border:none;
+  --surf-tag-bg:      rgba(255,255,255,.2);
+  --surf-tag-color:   #ffffff;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   6. MATERIAL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-surface="material"] {
+  --surf-bg:          #1e1b2e;
+  --surf-bg-alt:      #2d2848;
+  --surf-border:      none;
+  --surf-border-alt:  none;
+  --surf-radius:      12px;
+  --surf-radius-lg:   16px;
+  --surf-shadow:      0 1px 3px rgba(0,0,0,.3), 0 4px 12px rgba(0,0,0,.2);
+  --surf-shadow-lg:   0 2px 6px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.25);
+  --surf-backdrop:    none;
+  --surf-highlight:   none;
+  --surf-btn-bg:      #7c3aed;
+  --surf-btn-border:  none;
+  --surf-btn-shadow:  0 2px 8px rgba(124,58,237,.4);
+  --surf-input-bg:    #2d2848;
+  --surf-input-border:none;
+  --surf-tag-bg:      #2d2848;
+  --surf-tag-color:   #bb86fc;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   7. SKEUOMORPHIC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-surface="skeuomorphic"] {
+  --surf-bg:          linear-gradient(145deg,#2a2240,#1a1428);
+  --surf-bg-alt:      linear-gradient(145deg,#352850,#251a38);
+  --surf-border:      1px solid rgba(100,80,160,.4);
+  --surf-border-alt:  1px solid rgba(130,100,200,.5);
+  --surf-radius:      12px;
+  --surf-radius-lg:   16px;
+  --surf-shadow:      0 4px 8px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.08), inset 0 -1px 0 rgba(0,0,0,.3);
+  --surf-shadow-lg:   0 6px 16px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.1), inset 0 -1px 0 rgba(0,0,0,.35);
+  --surf-backdrop:    none;
+  --surf-highlight:   inset 0 1px 0 rgba(255,255,255,.08);
+  --surf-btn-bg:      linear-gradient(145deg,#352850,#251a38);
+  --surf-btn-border:  1px solid rgba(100,80,160,.35);
+  --surf-btn-shadow:  0 2px 4px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.06);
+  --surf-input-bg:    #120e1e;
+  --surf-input-border:1px solid rgba(80,60,120,.5);
+  --surf-tag-bg:      linear-gradient(145deg,#2d2248,#1e1630);
+  --surf-tag-color:   #cc99ff;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   8. BRUTALIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+[data-surface="brutalist"] {
+  --surf-bg:          #0c0a12;
+  --surf-bg-alt:      #0c0a12;
+  --surf-border:      2px solid #d4cfe0;
+  --surf-border-alt:  2px solid #ffffff;
+  --surf-radius:      0px;
+  --surf-radius-lg:   0px;
+  --surf-shadow:      4px 4px 0 #d4cfe0;
+  --surf-shadow-lg:   6px 6px 0 #d4cfe0;
+  --surf-backdrop:    none;
+  --surf-highlight:   none;
+  --surf-text:        #d4cfe0;
+  --surf-text2:       #ffffff;
+  --surf-btn-bg:      #d4cfe0;
+  --surf-btn-border:  none;
+  --surf-btn-shadow:  3px 3px 0 rgba(255,255,255,.3);
+  --surf-input-bg:    #0c0a12;
+  --surf-input-border:2px solid #d4cfe0;
+  --surf-tag-bg:      #d4cfe0;
+  --surf-tag-color:   #0c0a12;
+}
+[data-surface="brutalist"] h1,
+[data-surface="brutalist"] h2,
+[data-surface="brutalist"] h3 {
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  font-weight: 700;
+}
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   APLICAR VARIABLES A COMPONENTES
+   Todos los cards, widgets, inputs usan
+   las variables --surf-* automáticamente
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+
+/* Cards / widgets genéricos */
+.widget,
+.muse-card,
+.muse-panel .muse-card,
+.pln-block-card,
+.meta-card,
+.fin-add-form,
+.fin-movs-list,
+.studio-card,
+.dash-inbox-item,
+.inbox-item,
+.fab-modal,
+.andy-card {
+  background: var(--surf-bg) !important;
+  border: var(--surf-border) !important;
+  border-radius: var(--surf-radius) !important;
+  box-shadow: var(--surf-shadow) !important;
+  backdrop-filter: var(--surf-backdrop) !important;
+  -webkit-backdrop-filter: var(--surf-backdrop) !important;
+}
+
+/* Cards grandes */
+.hub-widget-lg,
+.studio-section,
+.muse-panel,
+.inbox-panel {
+  background: var(--surf-bg) !important;
+  border: var(--surf-border) !important;
+  border-radius: var(--surf-radius-lg) !important;
+  box-shadow: var(--surf-shadow-lg) !important;
+  backdrop-filter: var(--surf-backdrop) !important;
+  -webkit-backdrop-filter: var(--surf-backdrop) !important;
+}
+
+/* Botones */
+.btn-primary,
+.btn-ghost,
+.muse-btn-primary,
+.muse-btn-ghost,
+.hub-btn,
+.top-btn {
+  background: var(--surf-btn-bg) !important;
+  border: var(--surf-btn-border) !important;
+  border-radius: var(--surf-radius) !important;
+  box-shadow: var(--surf-btn-shadow) !important;
+}
+
+/* Inputs */
+.input-base,
+.muse-input,
+.fab-input,
+.fab-textarea {
+  background: var(--surf-input-bg) !important;
+  border: var(--surf-input-border) !important;
+  border-radius: var(--surf-radius) !important;
+}
+
+/* Tags / badges */
+.badge,
+.muse-chip,
+.ap-page-tab,
+.tag {
+  background: var(--surf-tag-bg) !important;
+  color: var(--surf-tag-color) !important;
+  border-radius: var(--surf-radius) !important;
+}
+
+/* Sidebar */
+.sidebar,
+.muse-sidebar {
+  background: var(--surf-bg) !important;
+  border-right: var(--surf-border) !important;
+  backdrop-filter: var(--surf-backdrop) !important;
+  -webkit-backdrop-filter: var(--surf-backdrop) !important;
+}
