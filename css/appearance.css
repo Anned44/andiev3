@@ -2,6 +2,22 @@
    APPEARANCE.CSS — Andy.net v3
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
+.ap-overlay.ap-fullscreen {
+  flex-direction: row;
+  align-items: stretch;
+}
+.ap-overlay.ap-fullscreen .ap-drawer {
+  width: 420px !important;
+  max-width: 420px !important;
+  transform: translateX(0) !important;
+  flex-shrink: 0;
+}
+#ap-preview-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
 .ap-overlay {
   position:fixed;inset:0;z-index:9000;
   background:rgba(0,0,0,0.55);backdrop-filter:blur(4px);
