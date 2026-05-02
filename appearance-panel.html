@@ -3,6 +3,16 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ -->
 
 <div id="andy-appearance-panel" class="ap-overlay">
+
+  <!-- Preview pane (solo visible en modo expandido) -->
+  <div id="ap-preview-pane" style="display:none;flex:1;flex-direction:column;padding:16px 0 16px 16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;padding-right:16px;">
+      <span style="font-family:var(--mono,monospace);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);">Preview en vivo</span>
+      <span style="font-family:var(--mono,monospace);font-size:9px;color:var(--muted2);">Los cambios se reflejan aquí</span>
+    </div>
+    <div id="ap-preview-iframe-wrap" style="flex:1;border-radius:12px;overflow:hidden;border:1px solid var(--border);background:var(--s1);"></div>
+  </div>
+
   <div class="ap-drawer">
 
     <!-- Header -->
