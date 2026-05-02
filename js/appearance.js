@@ -746,7 +746,10 @@ function buildPanel() {
     btn.onclick = () => {
       _activeFontPage = btn.dataset.page;
       syncPanel();
-      loadFontGrid(document.getElementById('ap-font-search')?.value || '', document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all');
+      loadFontGrid(
+        document.getElementById('ap-font-search')?.value || '',
+        document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all'
+      );
       previewCurrentStateFor(_activeFontPage);
     };
   });
@@ -755,14 +758,20 @@ function buildPanel() {
     btn.onclick = () => {
       _activeFontType = btn.dataset.type;
       syncPanel();
-      loadFontGrid(document.getElementById('ap-font-search')?.value || '', document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all');
+      loadFontGrid(
+        document.getElementById('ap-font-search')?.value || '',
+        document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all'
+      );
     };
   });
 
   document.getElementById('ap-font-search')?.addEventListener('input', function () {
     clearTimeout(_searchTimer);
     _searchTimer = setTimeout(() => {
-      loadFontGrid(this.value, document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all');
+      loadFontGrid(
+        this.value,
+        document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all'
+      );
     }, 250);
   });
 
@@ -788,7 +797,11 @@ function buildPanel() {
       ps.bgType = btn.dataset.type;
       saveState();
       syncPanel();
-      if (_activeBgPage === PAGE_ID) applyBackground(ps);
+
+      if (_activeBgPage === PAGE_ID) {
+        applyBackground(ps);
+      }
+
       previewCurrentStateFor(_activeBgPage);
     };
   });
@@ -798,7 +811,11 @@ function buildPanel() {
     ps.bgType = 'color';
     ps.bgValue = this.value;
     updateColorSwatch(this.value);
-    if (_activeBgPage === PAGE_ID) applyBackground(ps);
+
+    if (_activeBgPage === PAGE_ID) {
+      applyBackground(ps);
+    }
+
     saveState();
     previewCurrentStateFor(_activeBgPage);
   });
@@ -821,7 +838,11 @@ function buildPanel() {
     ps.bgType = 'gradient';
     ps.bgValue = buildGradient();
     saveState();
-    if (_activeBgPage === PAGE_ID) applyBackground(ps);
+
+    if (_activeBgPage === PAGE_ID) {
+      applyBackground(ps);
+    }
+
     previewCurrentStateFor(_activeBgPage);
   });
 
@@ -830,25 +851,34 @@ function buildPanel() {
 
   if (zone && inp) {
     zone.onclick = () => inp.click();
+
     zone.ondragover = e => {
       e.preventDefault();
       zone.classList.add('drag');
     };
+
     zone.ondragleave = () => zone.classList.remove('drag');
+
     zone.ondrop = e => {
       e.preventDefault();
       zone.classList.remove('drag');
       handlePhotoUpload(e.dataTransfer.files[0]);
     };
+
     inp.onchange = () => handlePhotoUpload(inp.files[0]);
   }
 
   document.getElementById('ap-photo-opacity')?.addEventListener('input', function () {
     const ps = getPS(_activeBgPage);
     ps.bgOpacity = parseInt(this.value, 10);
+
     const t = document.getElementById('ap-opacity-val');
     if (t) t.textContent = this.value;
-    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') applyBackground(ps);
+
+    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') {
+      applyBackground(ps);
+    }
+
     saveState();
     previewCurrentStateFor(_activeBgPage);
   });
@@ -856,9 +886,14 @@ function buildPanel() {
   document.getElementById('ap-photo-blur')?.addEventListener('input', function () {
     const ps = getPS(_activeBgPage);
     ps.bgBlur = parseInt(this.value, 10);
+
     const t = document.getElementById('ap-blur-val');
     if (t) t.textContent = `${this.value}px`;
-    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') applyBackground(ps);
+
+    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') {
+      applyBackground(ps);
+    }
+
     saveState();
     previewCurrentStateFor(_activeBgPage);
   });
@@ -877,7 +912,11 @@ function buildPanel() {
       ps.effect = card.dataset.effect;
       saveState();
       syncPanel();
-      if (_activeFxPage === PAGE_ID) applyEffects(ps);
+
+      if (_activeFxPage === PAGE_ID) {
+        applyEffects(ps);
+      }
+
       previewCurrentStateFor(_activeFxPage);
     };
   });
@@ -885,10 +924,16 @@ function buildPanel() {
   document.getElementById('ap-fx-intensity')?.addEventListener('input', function () {
     const ps = getPS(_activeFxPage);
     ps.fxIntensity = parseInt(this.value, 10);
+
     const t = document.getElementById('ap-fx-intensity-val');
     if (t) t.textContent = this.value;
+
     saveState();
-    if (_activeFxPage === PAGE_ID) applyEffects(ps);
+
+    if (_activeFxPage === PAGE_ID) {
+      applyEffects(ps);
+    }
+
     previewCurrentStateFor(_activeFxPage);
   });
 
@@ -896,21 +941,36 @@ function buildPanel() {
     const ps = getPS(_activeFxPage);
     ps.fxSpeed = this.value;
     saveState();
-    if (_activeFxPage === PAGE_ID) applyEffects(ps);
+
+    if (_activeFxPage === PAGE_ID) {
+      applyEffects(ps);
+    }
+
     previewCurrentStateFor(_activeFxPage);
+  });
+
+  panel.querySelectorAll('#ap-surface-page-tabs .ap-page-tab').forEach(btn => {
+    btn.onclick = () => {
+      _activeSurfacePage = btn.dataset.page;
+      syncPanel();
+      previewCurrentStateFor(_activeSurfacePage);
+    };
   });
 
   panel.querySelectorAll('.ap-surface-card[data-surface]').forEach(card => {
     card.onclick = () => {
-      const ps = getPS(PAGE_ID);
+      const ps = getPS(_activeSurfacePage);
       ps.surface = card.dataset.surface;
       saveState();
 
       panel.querySelectorAll('.ap-surface-card[data-surface]').forEach(c => c.classList.remove('active'));
       card.classList.add('active');
 
-      applySurface(ps.surface);
-      previewCurrentStateFor(PAGE_ID);
+      if (_activeSurfacePage === PAGE_ID) {
+        applySurface(PAGE_ID, ps.surface);
+      }
+
+      previewCurrentStateFor(_activeSurfacePage);
     };
   });
 
@@ -928,7 +988,11 @@ function buildPanel() {
       ps.theme = card.dataset.theme;
       saveState();
       syncPanel();
-      if (_activeThemePage === PAGE_ID) applyTheme(ps.theme);
+
+      if (_activeThemePage === PAGE_ID) {
+        applyTheme(ps.theme);
+      }
+
       previewCurrentStateFor(_activeThemePage);
     };
   });
@@ -943,7 +1007,9 @@ function buildPanel() {
 
   document.getElementById('ap-export-btn')?.addEventListener('click', () => {
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(AppState, null, 2)], { type: 'application/json' }));
+    a.href = URL.createObjectURL(
+      new Blob([JSON.stringify(AppState, null, 2)], { type: 'application/json' })
+    );
     a.download = 'andynet-appearance-v4.json';
     a.click();
   });
@@ -951,18 +1017,3 @@ function buildPanel() {
   updateGradPreview();
   syncPanel();
 }
-
-document.addEventListener('DOMContentLoaded', () => {
-  loadState();
-  applyAll(PAGE_ID);
-  applyQuoteRole();
-
-  document.querySelectorAll('[data-open-appearance], #settingsBtn, .settings-btn').forEach(btn => {
-    btn.addEventListener('click', openPanel);
-  });
-
-  window.onAppearancePanelLoaded = function () {
-    buildPanel();
-    loadFontGrid('', 'all');
-  };
-});
