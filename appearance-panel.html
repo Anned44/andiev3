@@ -28,7 +28,7 @@
       <button class="ap-main-tab" data-tab="theme">Tema</button>
     </div>
 
-   <!-- TIPOGRAFÍA -->
+<!-- TIPOGRAFÍA -->
 <div class="ap-tab-panel active" data-tab="fonts">
   <div class="ap-section-label">Página</div>
   <div class="ap-page-tabs" id="ap-font-page-tabs">
@@ -40,25 +40,25 @@
 
   <div class="ap-section-label">Rol tipográfico</div>
   <div class="ap-font-type-btns">
-    <button class="ap-font-type-btn active" data-type="display">
+    <button class="ap-font-type-btn active" data-type="display" type="button">
       <span class="ap-font-type-btn-preview" style="font-family:'DM Serif Display',Georgia,serif;">Ag</span>
       <span class="ap-font-type-btn-lbl">Display</span>
       <span class="ap-font-type-btn-desc">Títulos grandes</span>
     </button>
 
-    <button class="ap-font-type-btn" data-type="quote">
+    <button class="ap-font-type-btn" data-type="quote" type="button">
       <span class="ap-font-type-btn-preview" style="font-family:'Cormorant Garamond',Georgia,serif;">“ ”</span>
       <span class="ap-font-type-btn-lbl">Quote</span>
       <span class="ap-font-type-btn-desc">Frases, citas y textos especiales</span>
     </button>
 
-    <button class="ap-font-type-btn" data-type="body">
+    <button class="ap-font-type-btn" data-type="body" type="button">
       <span class="ap-font-type-btn-preview" style="font-family:Inter,sans-serif;">Aa</span>
       <span class="ap-font-type-btn-lbl">Body</span>
       <span class="ap-font-type-btn-desc">Texto base de la app</span>
     </button>
 
-    <button class="ap-font-type-btn" data-type="mono">
+    <button class="ap-font-type-btn" data-type="mono" type="button">
       <span class="ap-font-type-btn-preview" style="font-family:'IBM Plex Mono',monospace;">01</span>
       <span class="ap-font-type-btn-lbl">Mono</span>
       <span class="ap-font-type-btn-desc">Fechas y datos</span>
@@ -78,19 +78,18 @@
   />
 
   <div class="ap-font-filters">
-    <button class="ap-filter-btn active" data-cat="all">Todas</button>
-    <button class="ap-filter-btn" data-cat="serif">Serif</button>
-    <button class="ap-filter-btn" data-cat="sans-serif">Sans</button>
-    <button class="ap-filter-btn" data-cat="display">Display</button>
-    <button class="ap-filter-btn" data-cat="monospace">Mono</button>
-    <button class="ap-filter-btn" data-cat="handwriting">Script</button>
+    <button class="ap-filter-btn active" data-cat="all" type="button">Todas</button>
+    <button class="ap-filter-btn" data-cat="serif" type="button">Serif</button>
+    <button class="ap-filter-btn" data-cat="sans-serif" type="button">Sans</button>
+    <button class="ap-filter-btn" data-cat="display" type="button">Display</button>
+    <button class="ap-filter-btn" data-cat="monospace" type="button">Mono</button>
+    <button class="ap-filter-btn" data-cat="handwriting" type="button">Script</button>
+  </div>
+
+  <div id="ap-font-grid" class="ap-font-grid">
+    <div class="ap-font-loading">Cargando Google Fonts...</div>
   </div>
 </div>
-
-      <div id="ap-font-grid" class="ap-font-grid">
-        <div class="ap-font-loading">Cargando Google Fonts...</div>
-      </div>
-    </div>
 
     <!-- FONDO -->
     <div class="ap-tab-panel" data-tab="background">
