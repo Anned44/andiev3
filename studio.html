@@ -6,10 +6,12 @@
 <title>Studio — Andy.net</title>
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/icon-180.png">
-<!-- ── Andy.net v3 · Google Fonts ── -->
+
+<!-- ── Andy.net v4 · Google Fonts ── -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amarante&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/theme.css">
 <link rel="stylesheet" href="css/studio-layout.css">
@@ -17,7 +19,8 @@
 <link rel="stylesheet" href="css/andy-fab.css">
 <link rel="stylesheet" href="css/appearance.css">
 <link rel="stylesheet" href="css/surfaces.css">
-  <style>
+
+<style>
 .stub-page{padding:60px 0;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;}
 .stub-page .stub-ico{font-size:2rem;display:block;margin-bottom:12px;opacity:.3;}
 /* Fix barra doble */
@@ -45,6 +48,7 @@
       <span class="theme-toggle-icon">○</span>
       <span class="theme-toggle-label">día</span>
     </button>
+    <button id="settingsBtn" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:6px 14px;cursor:pointer;transition:all .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">⚙ Apariencia</button>
     <button onclick="window.location.href='index.html'" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:6px 14px;cursor:pointer;transition:all .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">← Portal</button>
     <button onclick="window.location.href='hub.html'" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:6px 14px;cursor:pointer;transition:all .15s" onmouseover="this.style.color='var(--text)'" onmouseout="this.style.color='var(--muted)'">→ Hub</button>
   </div>
@@ -182,6 +186,7 @@
 
 <!-- Theme -->
 <script src="js/theme.js"></script>
+
 <script>
 /* ── StudioCore ── */
 window.StudioCore = (function() {
@@ -196,7 +201,6 @@ window.StudioCore = (function() {
     const el = document.getElementById('page-'+page);
     if (el) el.classList.add('active');
 
-    // Colapsar sidebar
     const sb = document.querySelector('.studio-sidebar');
     if (sb) { sb.classList.add('collapsed'); setTimeout(()=>sb.classList.remove('collapsed'),800); }
   }
@@ -225,7 +229,6 @@ window.StudioCore = (function() {
   return { navTo, showToast, triggerAutosave };
 })();
 
-// Keyboard shortcuts
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
     StudioProyectos.backToGallery?.();
@@ -238,9 +241,10 @@ window.addEventListener('load', () => {
   renderStudioDash();
 });
 </script>
-<script src="js/studio-proyectos.js"></script>
-<script>
 
+<script src="js/studio-proyectos.js"></script>
+
+<script>
 const FRASES_PLAN = [
   '¿Cuál es la tarea más importante de hoy?',
   '¿Qué proyecto necesita tu atención ahora?',
@@ -263,7 +267,6 @@ function renderStudioDash() {
   const now = new Date();
   const h = now.getHours();
 
-  // Saludo
   const saludo = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
   const greetEl = document.getElementById('sdashGreeting');
   const dateEl  = document.getElementById('sdashDate');
@@ -272,7 +275,6 @@ function renderStudioDash() {
   if (dateEl)  dateEl.textContent  = DF_ES[now.getDay()] + ', ' + now.getDate() + ' de ' + MN_ES[now.getMonth()] + ' de ' + now.getFullYear();
   if (fraseEl) fraseEl.textContent = '"' + FRASES_PLAN[(now.getDate() + now.getHours()) % FRASES_PLAN.length] + '"';
 
-  // Hero stats
   const actN   = proyectos.filter(p=>p.estado==='construyendo').length;
   const urgN   = proyectos.filter(p=>p.urgente).length;
   const pendN  = proyectos.reduce((s,p)=>(s+(p.cards||[]).filter(c=>c.colId!==p.cols?.[p.cols.length-1]?.id).length),0);
@@ -286,7 +288,6 @@ function renderStudioDash() {
     <div class="sdash-hdiv"></div>
     <div class="sdash-hs"><span class="sdash-hs-n">${proyectos.length}</span><span class="sdash-hs-l">total</span></div>`;
 
-  // Proyectos widget
   const proyEl = document.getElementById('sdwProyectos');
   if (proyEl) {
     const activos = proyectos.filter(p=>p.estado!=='terminado').slice(0,4);
@@ -299,7 +300,6 @@ function renderStudioDash() {
       </div>`).join('');
   }
 
-  // Resumen
   const resEl = document.getElementById('sdwResumen');
   const totalTareas = proyectos.reduce((s,p)=>(s+(p.cards||[]).length),0);
   const doneTareas  = proyectos.reduce((s,p)=>(s+(p.cards||[]).filter(c=>c.colId===p.cols?.[p.cols.length-1]?.id).length),0);
@@ -311,7 +311,6 @@ function renderStudioDash() {
       <div><span class="sdash-nb">${totalTareas}</span><span class="sdash-nl">tareas total</span></div>
     </div>`;
 
-  // Actividad
   const actEl = document.getElementById('sdwActividad');
   if (actEl) {
     const items = [];
@@ -330,13 +329,19 @@ function renderStudioDash() {
 </script>
 
 <script src="js/andy-fab.js"></script>
+
+<!-- PANEL DE APARIENCIA v4 -->
 <div id="ap-include"></div>
-<script src="js/orbs.js"></script>
 <script>
-  fetch('appearance-panel.html').then(r=>r.text()).then(h=>{
-    document.getElementById('ap-include').innerHTML=h; if(window._onAppearancePanelLoaded) window._onAppearancePanelLoaded();
-  });
+  fetch('appearance-panel.html')
+    .then(r => r.text())
+    .then(h => {
+      document.getElementById('ap-include').innerHTML = h;
+      if (window.onAppearancePanelLoaded) window.onAppearancePanelLoaded();
+    })
+    .catch(err => console.error('Error cargando appearance-panel.html', err));
 </script>
 <script src="js/appearance.js"></script>
+
 </body>
 </html>
