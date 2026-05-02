@@ -60,6 +60,7 @@ function applyAll() {
   applyTheme(ps.theme);
   applyBackground(ps);
   applyFonts(ps.fonts);
+  applySurface(PAGE_ID, ps.surface || 'solid');
 }
 
 function applyTheme(themeId) {
@@ -137,6 +138,7 @@ async function searchFonts(query, cat) {
 /* ━━ PANEL STATE ━━ */
 let _expanded = false;
 let _activeFontPage = PAGE_ID;
+let _activeSurfacePage = PAGE_ID;
 let _activeFontType = 'display';
 let _activeBgPage   = PAGE_ID;
 let _activeThemePage = PAGE_ID;
@@ -259,8 +261,7 @@ function updateColorSwatch(hex) {
   const l = document.getElementById('ap-color-hex'); if(l) l.textContent = hex;
 }
 function applyColorBg(hex) {
-  const ps = getPS(_activeBgPage); ps.bgType = 'color'; ps.bgValue = hex;
-  if (_activeBgPage === PAGE_ID) applyBackground(ps); saveState();
+  previewBg(_activeBgPage, { bgType:'color', bgValue:hex });
 }
 function buildGradient() {
   const c1 = document.getElementById('ap-grad-1')?.value||'#1e1428';
@@ -272,22 +273,18 @@ function buildGradient() {
 }
 function updateGradPreview() { const p = document.getElementById('ap-grad-preview'); if(p) p.style.background = buildGradient(); }
 function applyGradientBg() {
-  const ps = getPS(_activeBgPage); ps.bgType = 'gradient'; ps.bgValue = buildGradient();
-  if (_activeBgPage === PAGE_ID) applyBackground(ps); saveState(); showToast('Gradiente aplicado');
+  previewBg(_activeBgPage, { bgType:'gradient', bgValue:buildGradient() });
 }
 function handlePhotoUpload(file) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    const ps = getPS(_activeBgPage);
-    ps.bgType = 'photo'; ps.bgValue = e.target.result;
-    ps.bgOpacity = parseInt(document.getElementById('ap-photo-opacity')?.value||70);
-    ps.bgBlur    = parseInt(document.getElementById('ap-photo-blur')?.value||0);
-    if (_activeBgPage === PAGE_ID) applyBackground(ps); saveState();
+    const opacity = parseInt(document.getElementById('ap-photo-opacity')?.value||70);
+    const blur = parseInt(document.getElementById('ap-photo-blur')?.value||0);
     const thumb = document.getElementById('ap-photo-thumb');
-    if (thumb) { thumb.src = e.target.result; thumb.style.display = 'block'; }
+    if (thumb) { thumb.src = e.target.result; thumb.style.display='block'; }
     document.getElementById('ap-photo-zone')?.classList.add('has-photo');
-    showToast('Foto aplicada');
+    previewBg(_activeBgPage, { bgType:'photo', bgValue:e.target.result, bgOpacity:opacity, bgBlur:blur });
   };
   reader.readAsDataURL(file);
 }
@@ -324,18 +321,15 @@ async function generateAIBackground(prompt) {
 }
 
 function applyOrbsBg() {
-  const ps = getPS(_activeBgPage);
-  ps.bgType = 'orbs';
-  ps.orbsBg = document.getElementById('ap-orbs-bg')?.value || '#0c0a12';
-  ps.orbsConfig = {
-    count:     parseInt(document.getElementById('ap-orbs-count')?.value || 4),
-    blur:      parseInt(document.getElementById('ap-orbs-blur')?.value  || 80),
-    opacity:   parseFloat(document.getElementById('ap-orbs-opacity')?.value || 0.55),
-    speed:     document.getElementById('ap-orbs-speed')?.value || 'slow',
-    colors:    getOrbColors(),
+  const orbsBg = document.getElementById('ap-orbs-bg')?.value || '#0c0a12';
+  const orbsConfig = {
+    count:   parseInt(document.getElementById('ap-orbs-count')?.value || 4),
+    blur:    parseInt(document.getElementById('ap-orbs-blur')?.value  || 80),
+    opacity: parseFloat(document.getElementById('ap-orbs-opacity')?.value || 0.55),
+    speed:   document.getElementById('ap-orbs-speed')?.value || 'slow',
+    colors:  getOrbColors(),
   };
-  if (_activeBgPage === PAGE_ID) applyBackground(ps);
-  saveState(); showToast('Orbes aplicados ✦');
+  previewBg(_activeBgPage, { bgType:'orbs', orbsBg, orbsConfig });
 }
 
 function getOrbColors() {
@@ -375,10 +369,110 @@ async function previewOrbs() {
   document.body.style.backgroundColor = document.getElementById('ap-orbs-bg')?.value || '#0c0a12';
   if (window.AndyOrbs) window.AndyOrbs.createOrbs(PAGE_ID, tempConfig);
 }
+/* ━━ SUPERFICIES ━━ */
+
+const SURFACES = ['solid','glass','clay','neumorphism','flat','material','skeuomorphic','brutalist'];
+
+function applySurface(pageId, surfaceId) {
+  if (pageId !== PAGE_ID) return;
+  document.documentElement.removeAttribute('data-surface');
+  if (surfaceId && surfaceId !== 'solid') {
+    document.documentElement.setAttribute('data-surface', surfaceId);
+  }
+}
+
+function previewSurface(surfaceId) {
+  document.documentElement.removeAttribute('data-surface');
+  if (surfaceId && surfaceId !== 'solid') {
+    document.documentElement.setAttribute('data-surface', surfaceId);
+  }
+  document.documentElement.setAttribute('data-surface-preview', surfaceId || 'solid');
+  const confirm = document.getElementById('ap-surface-confirm');
+  const cancel  = document.getElementById('ap-surface-cancel');
+  if (confirm) confirm.style.display = 'flex';
+  if (cancel)  cancel.style.display  = 'flex';
+}
+
+function confirmSurface() {
+  const preview = document.documentElement.getAttribute('data-surface-preview');
+  if (!preview) return;
+  const ps = getPS(_activeSurfacePage);
+  ps.surface = preview;
+  document.documentElement.removeAttribute('data-surface-preview');
+  applySurface(_activeSurfacePage, preview);
+  saveState();
+  showToast(`Superficie: ${preview}`);
+  const confirm = document.getElementById('ap-surface-confirm');
+  const cancel  = document.getElementById('ap-surface-cancel');
+  if (confirm) confirm.style.display = 'none';
+  if (cancel)  cancel.style.display  = 'none';
+  syncSurfaceCards();
+}
+
+function cancelSurface() {
+  document.documentElement.removeAttribute('data-surface-preview');
+  const ps = getPS(_activeSurfacePage);
+  applySurface(_activeSurfacePage, ps.surface || 'solid');
+  const confirm = document.getElementById('ap-surface-confirm');
+  const cancel  = document.getElementById('ap-surface-cancel');
+  if (confirm) confirm.style.display = 'none';
+  if (cancel)  cancel.style.display  = 'none';
+  syncSurfaceCards();
+}
+
+function syncSurfaceCards() {
+  const ps = getPS(_activeSurfacePage);
+  const current = ps.surface || 'solid';
+  document.querySelectorAll('.ap-surface-card').forEach(c =>
+    c.classList.toggle('active', c.dataset.surface === current));
+  document.querySelectorAll('#ap-surface-page-tabs .ap-page-tab').forEach(b =>
+    b.classList.toggle('active', b.dataset.page === _activeSurfacePage));
+}
+
+/* ━━ TOAST ━━ */
 function showToast(msg) {
   let t = document.getElementById('andy-toast');
   if (!t) { t = document.createElement('div'); t.id='andy-toast'; t.className='toast'; document.body.appendChild(t); }
   t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000);
+}
+
+/* ━━ PREVIEW vs GUARDAR ━━ */
+let _previewState = null;
+
+function previewBg(pageId, changes) {
+  _previewState = { pageId, ...changes };
+  if (pageId === PAGE_ID) applyBackground({ ...getPS(pageId), ...changes });
+  showPreviewBar();
+}
+
+function confirmPreview() {
+  if (!_previewState) return;
+  Object.assign(getPS(_previewState.pageId), _previewState);
+  saveState(); _previewState = null;
+  hidePreviewBar(); showToast('Guardado ✓');
+}
+
+function cancelPreview() {
+  _previewState = null;
+  applyBackground(getPS(PAGE_ID));
+  hidePreviewBar(); showToast('Cancelado');
+}
+
+function showPreviewBar() {
+  document.getElementById('andy-preview-bar')?.remove();
+  const bar = document.createElement('div');
+  bar.id = 'andy-preview-bar';
+  bar.style.cssText = 'position:fixed;bottom:0;left:0;right:0;z-index:9999;background:rgba(12,10,18,0.95);backdrop-filter:blur(12px);border-top:1px solid rgba(155,122,184,0.3);display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 20px;';
+  bar.innerHTML = `
+    <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.06em;color:rgba(180,140,220,.7);text-transform:uppercase;">Preview activo — ¿te gusta?</span>
+    <button onclick="confirmPreview()" style="background:#9b7ab8;border:none;border-radius:8px;color:#fff;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:8px 18px;cursor:pointer;">Guardar ✓</button>
+    <button onclick="cancelPreview()" style="background:none;border:1px solid rgba(180,140,220,.3);border-radius:8px;color:rgba(180,140,220,.7);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:8px 14px;cursor:pointer;">Cancelar ✕</button>
+  `;
+  document.body.appendChild(bar);
+}
+
+function hidePreviewBar() {
+  document.getElementById('andy-preview-bar')?.remove();
 }
 
 /* ━━ EXPORT / RESET ━━ */
@@ -475,6 +569,12 @@ function buildPanel() {
       btn.classList.add('active');
       panel.querySelectorAll('.ap-bg-panel').forEach(p=>p.classList.remove('active'));
       panel.querySelector(`.ap-bg-panel[data-type="${btn.dataset.type}"]`)?.classList.add('active');
+      if (btn.dataset.type === 'orbs') {
+        const ps = getPS(_activeBgPage);
+        const inp = document.getElementById('ap-orbs-bg');
+        if (inp) inp.value = ps.orbsBg || '#0c0a12';
+        syncOrbColorInputs(parseInt(document.getElementById('ap-orbs-count')?.value||4));
+      }
     };
   });
 
@@ -530,6 +630,22 @@ function buildPanel() {
     };
   });
   panel.querySelectorAll('.ap-theme-card').forEach(c=>{c.onclick=()=>selectTheme(c.dataset.theme);});
+
+  /* ── SUPERFICIE ── */
+  panel.querySelectorAll('#ap-surface-page-tabs .ap-page-tab').forEach(btn => {
+    btn.onclick = () => {
+      panel.querySelectorAll('#ap-surface-page-tabs .ap-page-tab').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      _activeSurfacePage = btn.dataset.page;
+      cancelSurface();
+      syncSurfaceCards();
+    };
+  });
+  panel.querySelectorAll('.ap-surface-card').forEach(card => {
+    card.onclick = () => previewSurface(card.dataset.surface);
+  });
+  document.getElementById('ap-surface-confirm')?.addEventListener('click', confirmSurface);
+  document.getElementById('ap-surface-cancel')?.addEventListener('click', cancelSurface);
 
   /* Expandir / export / reset */
   document.getElementById('ap-expand-btn')?.addEventListener('click',toggleExpand);
