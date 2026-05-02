@@ -429,19 +429,83 @@ function initPreviewIframe() {
   const container = document.getElementById('ap-preview-iframe-wrap');
   if (!container) return;
 
+ let _previewIframe = null;
+
+function getActiveMainTab() {
+  return document.querySelector('.ap-main-tab.active')?.dataset.tab || 'fonts';
+}
+
+function getPreviewPageId() {
+  const activeMainTab = getActiveMainTab();
+
+  if (activeMainTab === 'fonts') return _activeFontPage || PAGE_ID;
+  if (activeMainTab === 'background') return _activeBgPage || PAGE_ID;
+  if (activeMainTab === 'surface') return _activeSurfacePage || PAGE_ID;
+  if (activeMainTab === 'theme') return _activeThemePage || PAGE_ID;
+
+  return PAGE_ID;
+}
+
+function getPreviewPageUrl(pageId) {
+  switch (pageId) {
+    case 'hub':
+      return 'hub.html';
+    case 'studio':
+      return 'studio.html';
+    case 'muse':
+      return 'muse.html';
+    case 'index':
+    default:
+      return 'index.html';
+  }
+}
+
+function toggleExpand() {
+  _expanded = !_expanded;
+
+  const overlay = document.getElementById('andy-appearance-panel');
+  const btn = document.getElementById('ap-expand-btn');
+  const pane = document.getElementById('ap-preview-pane');
+
+  if (_expanded) {
+    overlay?.classList.add('ap-fullscreen');
+    if (btn) btn.textContent = '←';
+    if (pane) pane.style.display = 'flex';
+    initPreviewIframe();
+  } else {
+    overlay?.classList.remove('ap-fullscreen');
+    if (btn) btn.textContent = '→';
+    if (pane) pane.style.display = 'none';
+  }
+}
+
+function initPreviewIframe() {
+  const container = document.getElementById('ap-preview-iframe-wrap');
+  if (!container) return;
+
+  const pageId = getPreviewPageId();
+  const nextSrc = getPreviewPageUrl(pageId);
+
   let iframe = container.querySelector('iframe');
+
   if (!iframe) {
     iframe = document.createElement('iframe');
-    iframe.src = location.href;
     iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:12px;background:#0c0a12;';
     iframe.onload = () => {
       _previewIframe = iframe;
-      sendPreviewState();
+      sendPreviewState({ pageId });
     };
     container.innerHTML = '';
     container.appendChild(iframe);
+  }
+
+  _previewIframe = iframe;
+
+  if (iframe.dataset.pageId !== pageId) {
+    iframe.dataset.pageId = pageId;
+    iframe.src = nextSrc;
   } else {
-    _previewIframe = iframe;
+    sendPreviewState({ pageId });
   }
 }
 
@@ -456,14 +520,13 @@ function sendPreviewState(overrides = {}) {
       type: 'andy-preview',
       pageId: previewPageId,
       theme: overrides.theme ?? ps.theme ?? 'nocturne',
-      surface: overrides.surface ?? ps.surface ?? 'glass',
+      surface: overrides.surface ?? ps.surface ?? 'solid',
       bgType: overrides.bgType ?? ps.bgType ?? 'color',
       bgValue: overrides.bgValue ?? ps.bgValue ?? '#0c0a12',
       bgOpacity: overrides.bgOpacity ?? ps.bgOpacity ?? 70,
       bgBlur: overrides.bgBlur ?? ps.bgBlur ?? 0,
-      effect: overrides.effect ?? ps.effect ?? 'none',
-      fxIntensity: overrides.fxIntensity ?? ps.fxIntensity ?? 50,
-      fxSpeed: overrides.fxSpeed ?? ps.fxSpeed ?? 'slow',
+      orbsConfig: overrides.orbsConfig ?? ps.orbsConfig,
+      orbsBg: overrides.orbsBg ?? ps.orbsBg,
       fonts: overrides.fonts ?? ps.fonts
     }, '*');
   } catch (e) {}
