@@ -486,8 +486,8 @@ window.addEventListener('message', e => {
   });
   applySurface(d.surface);
   applyFonts(d.fonts);
+  applyQuoteRole();
 });
-
 function updateColorSwatch(hex) {
   const sw = document.getElementById('ap-color-swatch');
   const tx = document.getElementById('ap-color-hex');
