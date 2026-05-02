@@ -211,6 +211,7 @@ function applyQuoteRole(scope = document) {
     el.style.fontFamily = quoteFont;
   });
 }
+
 function mkBgLayer() {
   let l = document.getElementById('andy-bg-layer');
   if (!l) {
