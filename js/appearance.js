@@ -903,9 +903,3 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFontGrid('', 'all');
   };
 });
-
-  window.onAppearancePanelLoaded = function () {
-    buildPanel();
-    loadFontGrid('', 'all');
-  };
-});
