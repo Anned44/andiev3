@@ -191,6 +191,26 @@ function applyFonts(fonts) {
   applyQuoteRole();
 }
 
+function applyQuoteRole(scope = document) {
+  const quoteFont = getComputedStyle(document.documentElement)
+    .getPropertyValue('--font-quote')
+    .trim();
+
+  if (!quoteFont) return;
+
+  const selectors = [
+    'blockquote',
+    '.quote',
+    '.hero-quote',
+    '.quote-text',
+    '.manifesto-line',
+    '[data-quote]'
+  ];
+
+  scope.querySelectorAll(selectors.join(',')).forEach(el => {
+    el.style.fontFamily = quoteFont;
+  });
+}
 function mkBgLayer() {
   let l = document.getElementById('andy-bg-layer');
   if (!l) {
