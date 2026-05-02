@@ -159,33 +159,36 @@ function applyTheme(themeId) {
 
 function applyFonts(fonts) {
   if (!fonts) return;
+
   const f = normalizeFonts(fonts, PAGE_ID);
   const r = document.documentElement;
 
-  if (f.display) {
+  if (f.display?.css) {
     r.style.setProperty('--font-display', f.display.css);
     r.style.setProperty('--serif', f.display.css);
     loadGFont(f.display.name);
   }
 
-  if (f.quote) {
+  if (f.quote?.css) {
     r.style.setProperty('--font-quote', f.quote.css);
     r.style.setProperty('--font-subtitle', f.quote.css);
     loadGFont(f.quote.name);
   }
 
-  if (f.body) {
+  if (f.body?.css) {
     r.style.setProperty('--font-body', f.body.css);
     r.style.setProperty('--font-ui', f.body.css);
     r.style.setProperty('--sans', f.body.css);
     loadGFont(f.body.name);
   }
 
-  if (f.mono) {
+  if (f.mono?.css) {
     r.style.setProperty('--font-mono', f.mono.css);
     r.style.setProperty('--mono', f.mono.css);
     loadGFont(f.mono.name);
   }
+
+  applyQuoteRole();
 }
 
 function mkBgLayer() {
