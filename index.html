@@ -12,10 +12,12 @@
 <link rel="apple-touch-icon" href="/icon-180.png">
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <title>Andy.net</title>
-<!-- ── Andy.net v3 · Google Fonts ── -->
+<!-- ── Andy.net v4 · Google Fonts ── -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amarante&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@1,600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/andy-fab.css">
 <link rel="stylesheet" href="css/appearance.css">
 <link rel="stylesheet" href="css/surfaces.css">
 <style>
@@ -670,9 +672,6 @@ body {
   50%      { transform: translateY(-8px); }
 }
 </style>
-<link rel="stylesheet" href="css/andy-fab.css">
-<link rel="stylesheet" href="css/appearance.css">
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@1,600&display=swap" rel="stylesheet">
 </head>
 <body>
 
@@ -770,8 +769,6 @@ body {
     <span class="stat-lbl">días juntos</span>
   </div>
 </div>
-
-<!-- BOTTOM BAR -->
 
 <!-- TOAST -->
 <div class="toast" id="toast"></div>
@@ -923,8 +920,6 @@ function renderStats() {
   } catch(e) {}
 }
 
-/* FAB handled by AndyFab */
-
 /* ── TOAST ── */
 let _toastTimer;
 function showToast(msg) {
@@ -956,6 +951,7 @@ renderCal();
 renderStats();
 setInterval(updateTime, 60000);
 </script>
+
 <!-- TEMA -->
 <script>
 (function() {
@@ -980,12 +976,11 @@ setInterval(updateTime, 60000);
     if (btn) {
       btn.querySelector('.toggle-icon').textContent = theme === 'day' ? '◑' : '○';
     }
-    // Hero fondo especial en modo día para que el título contraste
     const hero = document.querySelector('.hero');
     if (hero) {
-     hero.style.background = theme === 'day'
-  ? 'linear-gradient(180deg, #0d0818 0%, #1e1035 50%, #f2eff8 100%)'
-  : '';
+      hero.style.background = theme === 'day'
+        ? 'linear-gradient(180deg, #0d0818 0%, #1e1035 50%, #f2eff8 100%)'
+        : '';
     }
   }
 
@@ -994,10 +989,11 @@ setInterval(updateTime, 60000);
     applyTheme(current === 'night' ? 'day' : 'night');
   };
 
-  // Aplicar al cargar
   applyTheme(localStorage.getItem(KEY) || 'night');
 })();
 </script>
+
+<!-- HERO CANVAS ORBS -->
 <script>
 (function() {
   const canvas = document.getElementById('heroCanvas');
@@ -1048,7 +1044,6 @@ setInterval(updateTime, 60000);
       ctx.beginPath(); ctx.arc(o.x, o.y, p, 0, Math.PI*2);
       ctx.fillStyle = g; ctx.fill();
 
-      // highlight tipo esfera de jabón
       const hl = ctx.createRadialGradient(o.x-p*.35, o.y-p*.35, 0, o.x-p*.35, o.y-p*.35, p*.42);
       hl.addColorStop(0, `rgba(255,255,255,${a*1.1})`);
       hl.addColorStop(1, `rgba(255,255,255,0)`);
@@ -1060,14 +1055,22 @@ setInterval(updateTime, 60000);
   draw();
 })();
 </script>
+
+<!-- ANDY FAB -->
 <script src="js/andy-fab.js"></script>
+
+<!-- PANEL DE APARIENCIA v4 -->
 <div id="ap-include"></div>
 <script>
-  fetch('appearance-panel.html').then(r=>r.text()).then(h=>{
-    document.getElementById('ap-include').innerHTML=h; if(window._onAppearancePanelLoaded) window._onAppearancePanelLoaded();
-  });
+  fetch('appearance-panel.html')
+    .then(r => r.text())
+    .then(h => {
+      document.getElementById('ap-include').innerHTML = h;
+      if (window.onAppearancePanelLoaded) window.onAppearancePanelLoaded();
+    })
+    .catch(err => console.error('Error cargando appearance-panel.html', err));
 </script>
-  <script src="js/orbs.js"></script>
 <script src="js/appearance.js"></script>
+
 </body>
 </html>
