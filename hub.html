@@ -6,10 +6,12 @@
 <title>Hub — Andy.net</title>
 <link rel="icon" type="image/png" sizes="192x192" href="/icon-192.png">
 <link rel="apple-touch-icon" href="/icon-180.png">
-<!-- ── Andy.net v3 · Google Fonts ── -->
+
+<!-- ── Andy.net v4 · Google Fonts ── -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Amarante&family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
 <!-- Base styles -->
 <link rel="stylesheet" href="css/base.css">
 <link rel="stylesheet" href="css/theme.css">
@@ -111,6 +113,7 @@ input[type=range]{flex:1;accent-color:var(--hub);}
       <span class="theme-toggle-icon">○</span>
       <span class="theme-toggle-label">día</span>
     </button>
+    <button class="btn-ghost" id="settingsBtn">⚙ Apariencia</button>
     <button class="btn-ghost" onclick="HubCore.goPortal()">← Portal</button>
   </div>
 </header>
@@ -340,7 +343,6 @@ input[type=range]{flex:1;accent-color:var(--hub);}
   </div>
 </div>
 
-
 <div class="toast" id="toast"></div>
 
 <!-- Theme — carga primero para evitar flash -->
@@ -350,9 +352,9 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 <script src="js/hub-core.js" defer></script>
 <script src="js/hub-dashboard.js" defer></script>
 <script src="js/hub-planner.js" defer></script>
-
 <script src="js/hub-inbox.js" defer></script>
 <script src="js/studio-proyectos.js" defer></script>
+
 <!-- Próximamente -->
 <!-- <script src="js/hub-metas.js" defer></script> -->
 <!-- <script src="js/hub-finanzas.js" defer></script> -->
@@ -367,7 +369,7 @@ window.addEventListener('load', () => {
   Theme.init();
   HubCore.init();
   HubDashboard.init();
-  // Forzar dashboard después de que todos los módulos inicialicen
+
   setTimeout(() => {
     document.querySelectorAll('.hub-page').forEach(p => p.classList.remove('active'));
     document.getElementById('page-dashboard').classList.add('active');
@@ -379,15 +381,19 @@ window.addEventListener('load', () => {
 </script>
 
 <script src="js/andy-fab.js"></script>
+
+<!-- PANEL DE APARIENCIA v4 -->
 <div id="ap-include"></div>
-<script src="js/orbs.js"></script>
 <script>
-  fetch('appearance-panel.html').then(r=>r.text()).then(h=>{
-    document.getElementById('ap-include').innerHTML=h; if(window._onAppearancePanelLoaded) window._onAppearancePanelLoaded();
-  });
+  fetch('appearance-panel.html')
+    .then(r => r.text())
+    .then(h => {
+      document.getElementById('ap-include').innerHTML = h;
+      if (window.onAppearancePanelLoaded) window.onAppearancePanelLoaded();
+    })
+    .catch(err => console.error('Error cargando appearance-panel.html', err));
 </script>
 <script src="js/appearance.js"></script>
-</body>
-</html>
+
 </body>
 </html>
