@@ -3,19 +3,35 @@
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 .ap-overlay.ap-fullscreen {
-  flex-direction: row;
-  align-items: stretch;
+  flex-direction: row !important;
+  align-items: stretch !important;
+  justify-content: flex-start !important;
 }
 .ap-overlay.ap-fullscreen .ap-drawer {
   width: 420px !important;
   max-width: 420px !important;
   transform: translateX(0) !important;
-  flex-shrink: 0;
+  flex-shrink: 0 !important;
+  order: 2;
+}
+.ap-overlay.ap-fullscreen #ap-preview-pane {
+  display: flex !important;
+  flex: 1 !important;
+  flex-direction: column !important;
+  order: 1;
+  padding: 16px;
+  min-width: 0;
 }
 #ap-preview-pane {
+  display: none;
+}
+#ap-preview-iframe-wrap {
   flex: 1;
-  display: flex;
-  flex-direction: column;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--s1);
+  min-height: 0;
 }
 
 .ap-overlay {
