@@ -891,10 +891,17 @@ function buildPanel() {
 document.addEventListener('DOMContentLoaded', () => {
   loadState();
   applyAll(PAGE_ID);
+  applyQuoteRole();
 
   document.querySelectorAll('[data-open-appearance], #settingsBtn, .settings-btn').forEach(btn => {
     btn.addEventListener('click', openPanel);
   });
+
+  window.onAppearancePanelLoaded = function () {
+    buildPanel();
+    loadFontGrid('', 'all');
+  };
+});
 
   window.onAppearancePanelLoaded = function () {
     buildPanel();
