@@ -83,7 +83,6 @@ function makePageDefault(pageId) {
 
 function normalizeFonts(fonts = {}, pageId = PAGE_ID) {
   const base = JSON.parse(JSON.stringify(pageId === 'muse' ? MUSE_FONT_DEFAULTS : FONT_DEFAULTS));
-
   return {
     display: fonts.display || base.display,
     quote: fonts.quote || fonts.subtitle || base.quote,
@@ -256,11 +255,7 @@ function applyBackground(ps) {
 
 function applySurface(surfaceId) {
   document.documentElement.removeAttribute('data-surface');
-  if (surfaceId && surfaceId !== 'glass') {
-    document.documentElement.setAttribute('data-surface', surfaceId);
-  } else {
-    document.documentElement.setAttribute('data-surface', 'glass');
-  }
+  document.documentElement.setAttribute('data-surface', surfaceId && surfaceId !== 'glass' ? surfaceId : 'glass');
 }
 
 function ensureFxLayer() {
@@ -272,6 +267,31 @@ function ensureFxLayer() {
     document.body.appendChild(fx);
   }
   return fx;
+}
+
+function ensureFxKeyframes() {
+  if (document.getElementById('andy-fx-keyframes')) return;
+  const s = document.createElement('style');
+  s.id = 'andy-fx-keyframes';
+  s.textContent = `
+    @keyframes andyFxFloat {
+      0% { transform: translateY(0) translateX(0) scale(1); }
+      100% { transform: translateY(-16px) translateX(10px) scale(1.04); }
+    }
+    @keyframes andyFxDrift {
+      0% { transform: translate3d(0,0,0); }
+      100% { transform: translate3d(18px,-12px,0); }
+    }
+    @keyframes andyFxAurora {
+      0% { transform: translateX(-2%) translateY(0) scale(1); }
+      100% { transform: translateX(2%) translateY(-2%) scale(1.06); }
+    }
+    @keyframes andyFxMist {
+      0% { transform: translateX(-1%) translateY(0) scale(1); opacity:.75; }
+      100% { transform: translateX(2%) translateY(-1%) scale(1.06); opacity:1; }
+    }
+  `;
+  document.head.appendChild(s);
 }
 
 function applyEffects(ps) {
@@ -336,31 +356,6 @@ function applyEffects(ps) {
   ensureFxKeyframes();
 }
 
-function ensureFxKeyframes() {
-  if (document.getElementById('andy-fx-keyframes')) return;
-  const s = document.createElement('style');
-  s.id = 'andy-fx-keyframes';
-  s.textContent = `
-    @keyframes andyFxFloat {
-      0% { transform: translateY(0) translateX(0) scale(1); }
-      100% { transform: translateY(-16px) translateX(10px) scale(1.04); }
-    }
-    @keyframes andyFxDrift {
-      0% { transform: translate3d(0,0,0); }
-      100% { transform: translate3d(18px,-12px,0); }
-    }
-    @keyframes andyFxAurora {
-      0% { transform: translateX(-2%) translateY(0) scale(1); }
-      100% { transform: translateX(2%) translateY(-2%) scale(1.06); }
-    }
-    @keyframes andyFxMist {
-      0% { transform: translateX(-1%) translateY(0) scale(1); opacity:.75; }
-      100% { transform: translateX(2%) translateY(-1%) scale(1.06); opacity:1; }
-    }
-  `;
-  document.head.appendChild(s);
-}
-
 function applyAll(pageId = PAGE_ID) {
   const ps = getPS(pageId);
   applyTheme(ps.theme);
@@ -370,31 +365,45 @@ function applyAll(pageId = PAGE_ID) {
   applySurface(ps.surface || 'glass');
 }
 
-function getPreviewPageId() {
-  const activeMainTab = document.querySelector('.ap-main-tab.active')?.dataset.tab || 'fonts';
-
-  if (activeMainTab === 'fonts') return _activeFontPage;
-  if (activeMainTab === 'background') return _activeBgPage;
-  if (activeMainTab === 'effects') return _activeFxPage;
-  if (activeMainTab === 'theme') return _activeThemePage;
-  if (activeMainTab === 'surface') return PAGE_ID;
-
-  return PAGE_ID;
-}
-
 let _expanded = false;
 let _previewIframe = null;
 let _activeFontPage = PAGE_ID;
 let _activeBgPage = PAGE_ID;
 let _activeFxPage = PAGE_ID;
 let _activeThemePage = PAGE_ID;
+let _activeSurfacePage = PAGE_ID;
 let _activeFontType = 'display';
 let _gradDir = '135deg';
 let _searchTimer = null;
 
+function getActiveMainTab() {
+  return document.querySelector('.ap-main-tab.active')?.dataset.tab || 'fonts';
+}
+
+function getPreviewPageId() {
+  const activeMainTab = getActiveMainTab();
+  if (activeMainTab === 'fonts') return _activeFontPage || PAGE_ID;
+  if (activeMainTab === 'background') return _activeBgPage || PAGE_ID;
+  if (activeMainTab === 'effects') return _activeFxPage || PAGE_ID;
+  if (activeMainTab === 'theme') return _activeThemePage || PAGE_ID;
+  if (activeMainTab === 'surface') return _activeSurfacePage || PAGE_ID;
+  return PAGE_ID;
+}
+
+function getPreviewPageUrl(pageId) {
+  switch (pageId) {
+    case 'hub': return 'hub.html';
+    case 'studio': return 'studio.html';
+    case 'muse': return 'muse.html';
+    case 'index':
+    default: return 'index.html';
+  }
+}
+
 function openPanel() {
   _activeFontPage = PAGE_ID;
   _activeBgPage = PAGE_ID;
+  _activeFxPage = PAGE_ID;
   _activeSurfacePage = PAGE_ID;
   _activeThemePage = PAGE_ID;
   document.getElementById('andy-appearance-panel')?.classList.add('open');
@@ -416,8 +425,7 @@ function toggleExpand() {
     overlay?.classList.add('ap-fullscreen');
     if (btn) btn.textContent = '←';
     if (pane) pane.style.display = 'flex';
-    initPreviewIframe();
-    sendPreviewState();
+    previewCurrentStateFor(getPreviewPageId());
   } else {
     overlay?.classList.remove('ap-fullscreen');
     if (btn) btn.textContent = '⤢';
@@ -425,67 +433,11 @@ function toggleExpand() {
   }
 }
 
-function initPreviewIframe() {
+function initPreviewIframe(pageId = getPreviewPageId()) {
   const container = document.getElementById('ap-preview-iframe-wrap');
-  if (!container) return;
+  if (!container) return null;
 
- let _previewIframe = null;
-
-function getActiveMainTab() {
-  return document.querySelector('.ap-main-tab.active')?.dataset.tab || 'fonts';
-}
-
-function getPreviewPageId() {
-  const activeMainTab = getActiveMainTab();
-
-  if (activeMainTab === 'fonts') return _activeFontPage || PAGE_ID;
-  if (activeMainTab === 'background') return _activeBgPage || PAGE_ID;
-  if (activeMainTab === 'surface') return _activeSurfacePage || PAGE_ID;
-  if (activeMainTab === 'theme') return _activeThemePage || PAGE_ID;
-
-  return PAGE_ID;
-}
-
-function getPreviewPageUrl(pageId) {
-  switch (pageId) {
-    case 'hub':
-      return 'hub.html';
-    case 'studio':
-      return 'studio.html';
-    case 'muse':
-      return 'muse.html';
-    case 'index':
-    default:
-      return 'index.html';
-  }
-}
-
-function toggleExpand() {
-  _expanded = !_expanded;
-
-  const overlay = document.getElementById('andy-appearance-panel');
-  const btn = document.getElementById('ap-expand-btn');
-  const pane = document.getElementById('ap-preview-pane');
-
-  if (_expanded) {
-    overlay?.classList.add('ap-fullscreen');
-    if (btn) btn.textContent = '←';
-    if (pane) pane.style.display = 'flex';
-    initPreviewIframe();
-  } else {
-    overlay?.classList.remove('ap-fullscreen');
-    if (btn) btn.textContent = '→';
-    if (pane) pane.style.display = 'none';
-  }
-}
-
-function initPreviewIframe() {
-  const container = document.getElementById('ap-preview-iframe-wrap');
-  if (!container) return;
-
-  const pageId = getPreviewPageId();
   const nextSrc = getPreviewPageUrl(pageId);
-
   let iframe = container.querySelector('iframe');
 
   if (!iframe) {
@@ -493,7 +445,7 @@ function initPreviewIframe() {
     iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:12px;background:#0c0a12;';
     iframe.onload = () => {
       _previewIframe = iframe;
-      sendPreviewState({ pageId });
+      sendPreviewState({ pageId: iframe.dataset.pageId || pageId });
     };
     container.innerHTML = '';
     container.appendChild(iframe);
@@ -504,7 +456,18 @@ function initPreviewIframe() {
   if (iframe.dataset.pageId !== pageId) {
     iframe.dataset.pageId = pageId;
     iframe.src = nextSrc;
-  } else {
+  }
+
+  return iframe;
+}
+
+function previewCurrentStateFor(pageId) {
+  if (!_expanded) return;
+
+  const iframe = initPreviewIframe(pageId);
+  if (!iframe) return;
+
+  if (iframe.dataset.pageId === pageId && iframe.contentWindow) {
     sendPreviewState({ pageId });
   }
 }
@@ -520,13 +483,14 @@ function sendPreviewState(overrides = {}) {
       type: 'andy-preview',
       pageId: previewPageId,
       theme: overrides.theme ?? ps.theme ?? 'nocturne',
-      surface: overrides.surface ?? ps.surface ?? 'solid',
+      surface: overrides.surface ?? ps.surface ?? 'glass',
       bgType: overrides.bgType ?? ps.bgType ?? 'color',
       bgValue: overrides.bgValue ?? ps.bgValue ?? '#0c0a12',
       bgOpacity: overrides.bgOpacity ?? ps.bgOpacity ?? 70,
       bgBlur: overrides.bgBlur ?? ps.bgBlur ?? 0,
-      orbsConfig: overrides.orbsConfig ?? ps.orbsConfig,
-      orbsBg: overrides.orbsBg ?? ps.orbsBg,
+      effect: overrides.effect ?? ps.effect ?? 'none',
+      fxIntensity: overrides.fxIntensity ?? ps.fxIntensity ?? 50,
+      fxSpeed: overrides.fxSpeed ?? ps.fxSpeed ?? 'slow',
       fonts: overrides.fonts ?? ps.fonts
     }, '*');
   } catch (e) {}
@@ -534,6 +498,7 @@ function sendPreviewState(overrides = {}) {
 
 window.addEventListener('message', e => {
   if (!e.data || e.data.type !== 'andy-preview') return;
+
   const d = e.data;
 
   applyTheme(d.theme);
@@ -552,6 +517,7 @@ window.addEventListener('message', e => {
   applyFonts(d.fonts);
   applyQuoteRole();
 });
+
 function updateColorSwatch(hex) {
   const sw = document.getElementById('ap-color-swatch');
   const tx = document.getElementById('ap-color-hex');
@@ -573,11 +539,6 @@ function updateGradPreview() {
   if (p) p.style.background = buildGradient();
 }
 
-function previewCurrentStateFor(pageId) {
-  if (!_expanded) return;
-  sendPreviewState({ pageId });
-}
-
 function syncPanel() {
   document.querySelectorAll('#ap-font-page-tabs .ap-page-tab')
     .forEach(b => b.classList.toggle('active', b.dataset.page === _activeFontPage));
@@ -590,6 +551,9 @@ function syncPanel() {
 
   document.querySelectorAll('#ap-theme-page-tabs .ap-page-tab')
     .forEach(b => b.classList.toggle('active', b.dataset.page === _activeThemePage));
+
+  document.querySelectorAll('#ap-surface-page-tabs .ap-page-tab')
+    .forEach(b => b.classList.toggle('active', b.dataset.page === _activeSurfacePage));
 
   document.querySelectorAll('.ap-font-type-btn')
     .forEach(b => b.classList.toggle('active', b.dataset.type === _activeFontType));
@@ -625,6 +589,10 @@ function syncPanel() {
   if (fxInt) fxInt.value = fps.fxIntensity ?? 50;
   if (fxIntVal) fxIntVal.textContent = fps.fxIntensity ?? 50;
   if (fxSpeed) fxSpeed.value = fps.fxSpeed || 'slow';
+
+  const sps = getPS(_activeSurfacePage);
+  document.querySelectorAll('.ap-surface-card[data-surface]')
+    .forEach(c => c.classList.toggle('active', c.dataset.surface === (sps.surface || 'glass')));
 }
 
 function syncFontBtnPreviews() {
@@ -651,6 +619,7 @@ async function loadFontGrid(query, cat) {
   grid.innerHTML = `<div class="ap-font-loading">Cargando Google Fonts...</div>`;
   const fonts = await searchFonts(query, cat);
   const current = getPS(_activeFontPage).fonts?.[_activeFontType]?.name;
+
   const sampleMap = {
     display: 'Andy Net',
     quote: 'Mientras se aplaza la vida, pasa.',
@@ -697,7 +666,10 @@ function selectFont(family, category) {
   if (_activeFontPage === PAGE_ID) applyFonts(ps.fonts);
   saveState();
   syncFontBtnPreviews();
-  loadFontGrid(document.getElementById('ap-font-search')?.value || '', document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all');
+  loadFontGrid(
+    document.getElementById('ap-font-search')?.value || '',
+    document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all'
+  );
   previewCurrentStateFor(_activeFontPage);
 }
 
@@ -738,6 +710,7 @@ function buildPanel() {
       panel.querySelectorAll('.ap-tab-panel').forEach(p => p.classList.remove('active'));
       btn.classList.add('active');
       panel.querySelector(`.ap-tab-panel[data-tab="${btn.dataset.tab}"]`)?.classList.add('active');
+      syncPanel();
       previewCurrentStateFor(getPreviewPageId());
     };
   });
@@ -797,11 +770,7 @@ function buildPanel() {
       ps.bgType = btn.dataset.type;
       saveState();
       syncPanel();
-
-      if (_activeBgPage === PAGE_ID) {
-        applyBackground(ps);
-      }
-
+      if (_activeBgPage === PAGE_ID) applyBackground(ps);
       previewCurrentStateFor(_activeBgPage);
     };
   });
@@ -811,11 +780,7 @@ function buildPanel() {
     ps.bgType = 'color';
     ps.bgValue = this.value;
     updateColorSwatch(this.value);
-
-    if (_activeBgPage === PAGE_ID) {
-      applyBackground(ps);
-    }
-
+    if (_activeBgPage === PAGE_ID) applyBackground(ps);
     saveState();
     previewCurrentStateFor(_activeBgPage);
   });
@@ -838,11 +803,7 @@ function buildPanel() {
     ps.bgType = 'gradient';
     ps.bgValue = buildGradient();
     saveState();
-
-    if (_activeBgPage === PAGE_ID) {
-      applyBackground(ps);
-    }
-
+    if (_activeBgPage === PAGE_ID) applyBackground(ps);
     previewCurrentStateFor(_activeBgPage);
   });
 
@@ -851,34 +812,25 @@ function buildPanel() {
 
   if (zone && inp) {
     zone.onclick = () => inp.click();
-
     zone.ondragover = e => {
       e.preventDefault();
       zone.classList.add('drag');
     };
-
     zone.ondragleave = () => zone.classList.remove('drag');
-
     zone.ondrop = e => {
       e.preventDefault();
       zone.classList.remove('drag');
       handlePhotoUpload(e.dataTransfer.files[0]);
     };
-
     inp.onchange = () => handlePhotoUpload(inp.files[0]);
   }
 
   document.getElementById('ap-photo-opacity')?.addEventListener('input', function () {
     const ps = getPS(_activeBgPage);
     ps.bgOpacity = parseInt(this.value, 10);
-
     const t = document.getElementById('ap-opacity-val');
     if (t) t.textContent = this.value;
-
-    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') {
-      applyBackground(ps);
-    }
-
+    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') applyBackground(ps);
     saveState();
     previewCurrentStateFor(_activeBgPage);
   });
@@ -886,14 +838,9 @@ function buildPanel() {
   document.getElementById('ap-photo-blur')?.addEventListener('input', function () {
     const ps = getPS(_activeBgPage);
     ps.bgBlur = parseInt(this.value, 10);
-
     const t = document.getElementById('ap-blur-val');
     if (t) t.textContent = `${this.value}px`;
-
-    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') {
-      applyBackground(ps);
-    }
-
+    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') applyBackground(ps);
     saveState();
     previewCurrentStateFor(_activeBgPage);
   });
@@ -912,11 +859,7 @@ function buildPanel() {
       ps.effect = card.dataset.effect;
       saveState();
       syncPanel();
-
-      if (_activeFxPage === PAGE_ID) {
-        applyEffects(ps);
-      }
-
+      if (_activeFxPage === PAGE_ID) applyEffects(ps);
       previewCurrentStateFor(_activeFxPage);
     };
   });
@@ -924,16 +867,10 @@ function buildPanel() {
   document.getElementById('ap-fx-intensity')?.addEventListener('input', function () {
     const ps = getPS(_activeFxPage);
     ps.fxIntensity = parseInt(this.value, 10);
-
     const t = document.getElementById('ap-fx-intensity-val');
     if (t) t.textContent = this.value;
-
     saveState();
-
-    if (_activeFxPage === PAGE_ID) {
-      applyEffects(ps);
-    }
-
+    if (_activeFxPage === PAGE_ID) applyEffects(ps);
     previewCurrentStateFor(_activeFxPage);
   });
 
@@ -941,11 +878,7 @@ function buildPanel() {
     const ps = getPS(_activeFxPage);
     ps.fxSpeed = this.value;
     saveState();
-
-    if (_activeFxPage === PAGE_ID) {
-      applyEffects(ps);
-    }
-
+    if (_activeFxPage === PAGE_ID) applyEffects(ps);
     previewCurrentStateFor(_activeFxPage);
   });
 
@@ -967,7 +900,7 @@ function buildPanel() {
       card.classList.add('active');
 
       if (_activeSurfacePage === PAGE_ID) {
-        applySurface(PAGE_ID, ps.surface);
+        applySurface(ps.surface);
       }
 
       previewCurrentStateFor(_activeSurfacePage);
@@ -988,11 +921,7 @@ function buildPanel() {
       ps.theme = card.dataset.theme;
       saveState();
       syncPanel();
-
-      if (_activeThemePage === PAGE_ID) {
-        applyTheme(ps.theme);
-      }
-
+      if (_activeThemePage === PAGE_ID) applyTheme(ps.theme);
       previewCurrentStateFor(_activeThemePage);
     };
   });
@@ -1017,3 +946,18 @@ function buildPanel() {
   updateGradPreview();
   syncPanel();
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  applyAll(PAGE_ID);
+  applyQuoteRole();
+
+  document.querySelectorAll('[data-open-appearance], #settingsBtn, .settings-btn').forEach(btn => {
+    btn.addEventListener('click', openPanel);
+  });
+
+  window.onAppearancePanelLoaded = function () {
+    buildPanel();
+    loadFontGrid('', 'all');
+  };
+});
