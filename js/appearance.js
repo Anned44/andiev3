@@ -83,6 +83,7 @@ function makePageDefault(pageId) {
 
 function normalizeFonts(fonts = {}, pageId = PAGE_ID) {
   const base = JSON.parse(JSON.stringify(pageId === 'muse' ? MUSE_FONT_DEFAULTS : FONT_DEFAULTS));
+
   return {
     display: fonts.display || base.display,
     quote: fonts.quote || fonts.subtitle || base.quote,
@@ -203,7 +204,9 @@ function applyQuoteRole(scope = document) {
     '.hero-quote',
     '.quote-text',
     '.manifesto-line',
-    '[data-quote]'
+    '[data-quote]',
+    '#heroQuote',
+    '.hero-eyebrow'
   ];
 
   scope.querySelectorAll(selectors.join(',')).forEach(el => {
@@ -225,6 +228,7 @@ function mkBgLayer() {
 function clearBackgroundLayers() {
   document.body.style.backgroundImage = '';
   document.body.style.backgroundColor = '';
+  document.body.style.backgroundAttachment = '';
   const bg = document.getElementById('andy-bg-layer');
   if (bg) bg.remove();
   const fx = document.getElementById('andy-fx-layer');
@@ -770,6 +774,7 @@ function buildPanel() {
       ps.bgType = btn.dataset.type;
       saveState();
       syncPanel();
+
       if (_activeBgPage === PAGE_ID) applyBackground(ps);
       previewCurrentStateFor(_activeBgPage);
     };
@@ -780,6 +785,7 @@ function buildPanel() {
     ps.bgType = 'color';
     ps.bgValue = this.value;
     updateColorSwatch(this.value);
+
     if (_activeBgPage === PAGE_ID) applyBackground(ps);
     saveState();
     previewCurrentStateFor(_activeBgPage);
@@ -803,6 +809,7 @@ function buildPanel() {
     ps.bgType = 'gradient';
     ps.bgValue = buildGradient();
     saveState();
+
     if (_activeBgPage === PAGE_ID) applyBackground(ps);
     previewCurrentStateFor(_activeBgPage);
   });
@@ -812,25 +819,34 @@ function buildPanel() {
 
   if (zone && inp) {
     zone.onclick = () => inp.click();
+
     zone.ondragover = e => {
       e.preventDefault();
       zone.classList.add('drag');
     };
+
     zone.ondragleave = () => zone.classList.remove('drag');
+
     zone.ondrop = e => {
       e.preventDefault();
       zone.classList.remove('drag');
       handlePhotoUpload(e.dataTransfer.files[0]);
     };
+
     inp.onchange = () => handlePhotoUpload(inp.files[0]);
   }
 
   document.getElementById('ap-photo-opacity')?.addEventListener('input', function () {
     const ps = getPS(_activeBgPage);
     ps.bgOpacity = parseInt(this.value, 10);
+
     const t = document.getElementById('ap-opacity-val');
     if (t) t.textContent = this.value;
-    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') applyBackground(ps);
+
+    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') {
+      applyBackground(ps);
+    }
+
     saveState();
     previewCurrentStateFor(_activeBgPage);
   });
@@ -838,9 +854,14 @@ function buildPanel() {
   document.getElementById('ap-photo-blur')?.addEventListener('input', function () {
     const ps = getPS(_activeBgPage);
     ps.bgBlur = parseInt(this.value, 10);
+
     const t = document.getElementById('ap-blur-val');
     if (t) t.textContent = `${this.value}px`;
-    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') applyBackground(ps);
+
+    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') {
+      applyBackground(ps);
+    }
+
     saveState();
     previewCurrentStateFor(_activeBgPage);
   });
@@ -859,6 +880,7 @@ function buildPanel() {
       ps.effect = card.dataset.effect;
       saveState();
       syncPanel();
+
       if (_activeFxPage === PAGE_ID) applyEffects(ps);
       previewCurrentStateFor(_activeFxPage);
     };
@@ -867,10 +889,16 @@ function buildPanel() {
   document.getElementById('ap-fx-intensity')?.addEventListener('input', function () {
     const ps = getPS(_activeFxPage);
     ps.fxIntensity = parseInt(this.value, 10);
+
     const t = document.getElementById('ap-fx-intensity-val');
     if (t) t.textContent = this.value;
+
     saveState();
-    if (_activeFxPage === PAGE_ID) applyEffects(ps);
+
+    if (_activeFxPage === PAGE_ID) {
+      applyEffects(ps);
+    }
+
     previewCurrentStateFor(_activeFxPage);
   });
 
@@ -878,7 +906,11 @@ function buildPanel() {
     const ps = getPS(_activeFxPage);
     ps.fxSpeed = this.value;
     saveState();
-    if (_activeFxPage === PAGE_ID) applyEffects(ps);
+
+    if (_activeFxPage === PAGE_ID) {
+      applyEffects(ps);
+    }
+
     previewCurrentStateFor(_activeFxPage);
   });
 
@@ -921,7 +953,11 @@ function buildPanel() {
       ps.theme = card.dataset.theme;
       saveState();
       syncPanel();
-      if (_activeThemePage === PAGE_ID) applyTheme(ps.theme);
+
+      if (_activeThemePage === PAGE_ID) {
+        applyTheme(ps.theme);
+      }
+
       previewCurrentStateFor(_activeThemePage);
     };
   });
