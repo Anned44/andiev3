@@ -157,13 +157,62 @@ function openPanel() {
 function closePanel() {
   document.getElementById('andy-appearance-panel')?.classList.remove('open');
 }
+let _previewIframe = null;
+
 function toggleExpand() {
   _expanded = !_expanded;
-  const d = document.querySelector('.ap-drawer');
-  const b = document.getElementById('ap-expand-btn');
-  if (d) { d.style.width = _expanded ? '100vw' : ''; d.style.maxWidth = _expanded ? '100vw' : ''; }
-  if (b) b.textContent = _expanded ? '←' : '→';
+  const overlay = document.getElementById('andy-appearance-panel');
+  const btn     = document.getElementById('ap-expand-btn');
+
+  if (_expanded) {
+    overlay.classList.add('ap-fullscreen');
+    if (btn) btn.textContent = '←';
+    initPreviewIframe();
+  } else {
+    overlay.classList.remove('ap-fullscreen');
+    if (btn) btn.textContent = '→';
+  }
 }
+
+function initPreviewIframe() {
+  const container = document.getElementById('ap-preview-iframe-wrap');
+  if (!container || container.querySelector('iframe')) return;
+  const iframe = document.createElement('iframe');
+  iframe.src = location.href;
+  iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:12px;background:#0c0a12;';
+  iframe.onload = () => { _previewIframe = iframe; sendPreviewState(); };
+  container.appendChild(iframe);
+}
+
+function sendPreviewState(overrides) {
+  if (!_previewIframe) return;
+  const ps = getPS(PAGE_ID);
+  try {
+    _previewIframe.contentWindow.postMessage({
+      type: 'andy-preview',
+      theme:      overrides?.theme   || ps.theme   || 'nocturne',
+      surface:    overrides?.surface || ps.surface || 'solid',
+      bgType:     overrides?.bgType  || ps.bgType  || 'color',
+      bgValue:    overrides?.bgValue || ps.bgValue || '#0c0a12',
+      bgOpacity:  ps.bgOpacity || 70,
+      bgBlur:     ps.bgBlur    || 0,
+      orbsConfig: ps.orbsConfig,
+      orbsBg:     ps.orbsBg,
+      fonts:      overrides?.fonts   || ps.fonts,
+    }, '*');
+  } catch(e) {}
+}
+
+// Receptor en la página — aplica estilos del preview sin guardar
+window.addEventListener('message', e => {
+  if (!e.data || e.data.type !== 'andy-preview') return;
+  const d = e.data;
+  applyTheme(d.theme);
+  applySurface(PAGE_ID, d.surface);
+  applyBackground({ bgType:d.bgType, bgValue:d.bgValue, bgOpacity:d.bgOpacity, bgBlur:d.bgBlur, orbsConfig:d.orbsConfig, orbsBg:d.orbsBg });
+  applyFonts(d.fonts);
+});
+
 
 /* ── Sync panel con estado ── */
 function syncPanel() {
@@ -238,12 +287,12 @@ function selectFont(family, category) {
                    (category === 'serif' || category === 'display') ? 'Georgia,serif' : 'system-ui,sans-serif';
   const ps = getPS(_activeFontPage);
   ps.fonts[_activeFontType] = { name: family, css: `'${family}',${fallback}` };
-  // Aplicar si es la página actual
   if (_activeFontPage === PAGE_ID) applyFonts(ps.fonts);
   saveState();
   document.querySelectorAll('.ap-font-card').forEach(c => c.classList.toggle('active', c.dataset.family === family));
   syncFontBtnPreviews();
   showToast(`${_activeFontType}: ${family}`);
+  sendPreviewState();
 }
 
 /* ━━ TEMA ━━ */
@@ -253,6 +302,7 @@ function selectTheme(themeId) {
   saveState();
   document.querySelectorAll('.ap-theme-card').forEach(c => c.classList.toggle('active', c.dataset.theme === themeId));
   showToast(`Tema: ${themeId}`);
+  sendPreviewState({ theme: themeId });
 }
 
 /* ━━ FONDO ━━ */
@@ -391,6 +441,7 @@ function previewSurface(surfaceId) {
   const cancel  = document.getElementById('ap-surface-cancel');
   if (confirm) confirm.style.display = 'flex';
   if (cancel)  cancel.style.display  = 'flex';
+  sendPreviewState({ surface: surfaceId });
 }
 
 function confirmSurface() {
@@ -443,6 +494,7 @@ function previewBg(pageId, changes) {
   _previewState = { pageId, ...changes };
   if (pageId === PAGE_ID) applyBackground({ ...getPS(pageId), ...changes });
   showPreviewBar();
+  sendPreviewState({ bgType:changes.bgType, bgValue:changes.bgValue });
 }
 
 function confirmPreview() {
