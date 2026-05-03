@@ -1,4 +1,3 @@
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    APPEARANCE.JS — Andy.net v4
    Preview unificado por página + 4 roles tipográficos
    Roles: display / quote / body / mono
