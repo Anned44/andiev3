@@ -99,7 +99,6 @@ function commitAppearanceChange(mutator) {
   saveState();
   sendPreviewState();
 }
-
 function undoAppearance() {
   if (!_undoStack.length) {
     showToast('Nada que deshacer');
