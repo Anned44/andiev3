@@ -1061,4 +1061,9 @@ document.addEventListener('DOMContentLoaded', () => {
   document.querySelectorAll('[data-open-appearance], #settingsBtn, .settings-btn').forEach(btn => {
     btn.addEventListener('click', openPanel);
   });
+
+  window.onAppearancePanelLoaded = function () {
+    buildPanel();
+    loadFontGrid('', 'all');
+  };
 });
