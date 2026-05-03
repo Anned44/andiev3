@@ -68,11 +68,16 @@ const EFFECT_DEFAULTS = {
   speed: 'slow'
 };
 
-let AppState = {};
-let _undoStack = [];
-const UNDO_LIMIT = 40;
-let _toastTimer = null;
+window.__andyAppearanceState = window.__andyAppearanceState || {
+  AppState: {},
+  undoStack: [],
+  toastTimer: null
+};
 
+let AppState = window.__andyAppearanceState.AppState;
+let _undoStack = window.__andyAppearanceState.undoStack;
+const UNDO_LIMIT = 40;
+  
 function cloneState(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
