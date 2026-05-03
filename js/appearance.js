@@ -1052,27 +1052,13 @@ function bindFooterActions() {
   document.getElementById('ap-close-corner')?.addEventListener('click', closePanel);
 }
 
-function ensureAppearancePanel() {
-  if (document.getElementById('andy-appearance-panel')) return;
-
-  buildPanel();
-  loadFontGrid('', 'all');
-  bindFooterActions();
-}
-
 document.addEventListener('DOMContentLoaded', () => {
   loadState();
   applyAll();
   applyQuoteRole();
+  bindFooterActions();
 
   document.querySelectorAll('[data-open-appearance], #settingsBtn, .settings-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-      ensureAppearancePanel();
-      openPanel();
-    });
+    btn.addEventListener('click', openPanel);
   });
-
-  window.onAppearancePanelLoaded = function () {
-    bindFooterActions();
-  };
 });
