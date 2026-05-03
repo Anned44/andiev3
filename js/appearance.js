@@ -94,12 +94,11 @@ function showToast(message = 'Listo') {
   toast.textContent = message;
   toast.classList.add('show');
 
-  clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => {
-    toast.classList.remove('show');
-  }, 1800);
+ clearTimeout(window.__andyAppearanceState.toastTimer);
+window.__andyAppearanceState.toastTimer = setTimeout(() => {
+  toast.classList.remove('show');
+}, 1800);
 }
-
 function makePageDefault(pageId) {
   return {
     theme: 'nocturne',
