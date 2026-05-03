@@ -1060,3 +1060,20 @@ document.addEventListener('DOMContentLoaded', () => {
     loadFontGrid('', 'all');
   };
 });
+function bindFooterActions() {
+  const saveBtn = document.getElementById('ap-save-btn');
+  const resetBtn = document.getElementById('ap-reset-btn');
+  const undoBtn = document.getElementById('ap-undo-btn');
+  const closeBtn = document.getElementById('ap-close-corner');
+
+  if (saveBtn) saveBtn.addEventListener('click', saveAppearance);
+  if (resetBtn) resetBtn.addEventListener('click', resetCurrentPageAppearance);
+  if (undoBtn) undoBtn.addEventListener('click', undoAppearance);
+  if (closeBtn) closeBtn.addEventListener('click', closePanel);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  loadState();
+  applyAll();
+  bindFooterActions();
+});
