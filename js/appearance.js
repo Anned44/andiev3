@@ -1046,7 +1046,7 @@ function buildPanel() {
   syncPanel();
 }
 
- /* ===== BIND FOOTER ===== */
+function bindFooterActions() {
   document.getElementById('ap-save-btn')?.addEventListener('click', saveAppearance);
   document.getElementById('ap-reset-btn')?.addEventListener('click', resetCurrentPageAppearance);
   document.getElementById('ap-undo-btn')?.addEventListener('click', undoAppearance);
@@ -1055,7 +1055,7 @@ function buildPanel() {
 
 document.addEventListener('DOMContentLoaded', () => {
   loadState();
-  applyAll(PAGE_ID);
+  applyAll();
   applyQuoteRole();
 
   document.querySelectorAll('[data-open-appearance], #settingsBtn, .settings-btn').forEach(btn => {
@@ -1065,5 +1065,6 @@ document.addEventListener('DOMContentLoaded', () => {
   window.onAppearancePanelLoaded = function () {
     buildPanel();
     loadFontGrid('', 'all');
+    bindFooterActions();
   };
 });
