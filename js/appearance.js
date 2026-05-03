@@ -2,7 +2,8 @@ if (window.__andyAppearanceBooted) {
   console.warn('appearance.js ya estaba cargado');
 } else {
   window.__andyAppearanceBooted = true;
-   
+
+/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    APPEARANCE.JS — Andy.net v4
    Preview unificado por página + 4 roles tipográficos
    Roles: display / quote / body / mono
@@ -1013,3 +1014,5 @@ document.addEventListener('DOMContentLoaded', () => {
     btn.addEventListener('click', openPanel);
   });
 });
+
+}
