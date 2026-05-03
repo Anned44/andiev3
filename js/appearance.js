@@ -479,18 +479,22 @@ function getPreviewPageUrl(pageId) {
 }
 
 function openPanel() {
-  _activeFontPage = PAGE_ID;
-  _activeBgPage = PAGE_ID;
-  _activeFxPage = PAGE_ID;
-  _activeSurfacePage = PAGE_ID;
-  _activeThemePage = PAGE_ID;
-  document.getElementById('andy-appearance-panel')?.classList.add('open');
-  syncPanel();
-  loadFontGrid('', 'all');
+  const panel = document.getElementById('andy-appearance-panel');
+  panel?.removeAttribute('inert');
+  panel?.classList.add('open');
+  panel?.setAttribute('aria-hidden', 'false');
 }
 
 function closePanel() {
-  document.getElementById('andy-appearance-panel')?.classList.remove('open');
+  const panel = document.getElementById('andy-appearance-panel');
+
+  if (document.activeElement && panel?.contains(document.activeElement)) {
+    document.activeElement.blur();
+  }
+
+  panel?.classList.remove('open');
+  panel?.setAttribute('aria-hidden', 'true');
+  panel?.setAttribute('inert', '');
 }
 
 function toggleExpand() {
