@@ -91,43 +91,6 @@ function showToast(message = 'Listo') {
   }, 1800);
 }
 
-function commitAppearanceChange(mutator) {
-  pushUndoState();
-  mutator(getPS(PAGE_ID));
-  applyAll();
-  syncPanel();
-  saveState();
-  sendPreviewState();
-}
-function undoAppearance() {
-  if (!_undoStack.length) {
-    showToast('Nada que deshacer');
-    return;
-  }
-
-  AppState = _undoStack.pop();
-  applyAll();
-  syncPanel();
-  saveState();
-  sendPreviewState();
-  showToast('Último cambio deshecho');
-}
-
-function resetCurrentPageAppearance() {
-  pushUndoState();
-  AppState[PAGE_ID] = makePageDefault(PAGE_ID);
-  applyAll();
-  syncPanel();
-  saveState();
-  sendPreviewState();
-  showToast('Reset aplicado');
-}
-
-function saveAppearance() {
-  saveState();
-  showToast('Cambios guardados');
-}
-
 function makePageDefault(pageId) {
   return {
     theme: 'nocturne',
@@ -177,6 +140,46 @@ function loadState() {
     const s = JSON.parse(localStorage.getItem(STORAGE_KEY));
     if (s) AppState = s;
   } catch (e) {}
+}
+
+function commitAppearanceChange(mutator, pageId = PAGE_ID) {
+  pushUndoState();
+  mutator(getPS(pageId));
+
+  if (pageId === PAGE_ID) {
+    applyAll();
+  }
+
+  syncPanel();
+  saveState();
+  previewCurrentStateFor(pageId);
+}
+
+function undoAppearance() {
+  if (!_undoStack.length) {
+    showToast('Nada que deshacer');
+    return;
+  }
+
+  AppState = _undoStack.pop();
+  applyAll();
+  syncPanel();
+  saveState();
+  previewCurrentStateFor(getPreviewPageId());
+  showToast('Último cambio deshecho');
+}
+
+function resetCurrentPageAppearance() {
+  commitAppearanceChange(ps => {
+    Object.assign(ps, makePageDefault(PAGE_ID));
+  }, PAGE_ID);
+
+  showToast('Reset aplicado');
+}
+
+function saveAppearance() {
+  saveState();
+  showToast('Cambios guardados');
 }
 
 const _loadedFonts = new Set();
@@ -723,42 +726,39 @@ function selectFont(family, category) {
       ? 'Georgia, serif'
       : 'system-ui, sans-serif';
 
-  const ps = getPS(_activeFontPage);
-  ps.fonts[_activeFontType] = {
-    name: family,
-    css: `'${family}', ${fallback}`
-  };
+  commitAppearanceChange(ps => {
+    ps.fonts[_activeFontType] = {
+      name: family,
+      css: `'${family}', ${fallback}`
+    };
+  }, _activeFontPage);
 
-  if (_activeFontPage === PAGE_ID) applyFonts(ps.fonts);
-  saveState();
   syncFontBtnPreviews();
   loadFontGrid(
     document.getElementById('ap-font-search')?.value || '',
     document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all'
   );
-  previewCurrentStateFor(_activeFontPage);
 }
 
 function handlePhotoUpload(file) {
   if (!file) return;
+
   const reader = new FileReader();
   reader.onload = e => {
-    const ps = getPS(_activeBgPage);
-    ps.bgType = 'photo';
-    ps.bgValue = e.target.result;
-    ps.bgOpacity = parseInt(document.getElementById('ap-photo-opacity')?.value || 70, 10);
-    ps.bgBlur = parseInt(document.getElementById('ap-photo-blur')?.value || 0, 10);
+    commitAppearanceChange(ps => {
+      ps.bgType = 'photo';
+      ps.bgValue = e.target.result;
+      ps.bgOpacity = parseInt(document.getElementById('ap-photo-opacity')?.value || 70, 10);
+      ps.bgBlur = parseInt(document.getElementById('ap-photo-blur')?.value || 0, 10);
+    }, _activeBgPage);
 
     const thumb = document.getElementById('ap-photo-thumb');
     if (thumb) {
       thumb.src = e.target.result;
       thumb.style.display = 'block';
     }
-
-    if (_activeBgPage === PAGE_ID) applyBackground(ps);
-    saveState();
-    previewCurrentStateFor(_activeBgPage);
   };
+
   reader.readAsDataURL(file);
 }
 
@@ -832,25 +832,19 @@ function buildPanel() {
 
   panel.querySelectorAll('.ap-bg-type-btn').forEach(btn => {
     btn.onclick = () => {
-      const ps = getPS(_activeBgPage);
-      ps.bgType = btn.dataset.type;
-      saveState();
-      syncPanel();
-
-      if (_activeBgPage === PAGE_ID) applyBackground(ps);
-      previewCurrentStateFor(_activeBgPage);
+      commitAppearanceChange(ps => {
+        ps.bgType = btn.dataset.type;
+      }, _activeBgPage);
     };
   });
 
   document.getElementById('ap-color-picker')?.addEventListener('input', function () {
-    const ps = getPS(_activeBgPage);
-    ps.bgType = 'color';
-    ps.bgValue = this.value;
     updateColorSwatch(this.value);
 
-    if (_activeBgPage === PAGE_ID) applyBackground(ps);
-    saveState();
-    previewCurrentStateFor(_activeBgPage);
+    commitAppearanceChange(ps => {
+      ps.bgType = 'color';
+      ps.bgValue = this.value;
+    }, _activeBgPage);
   });
 
   ['ap-grad-1', 'ap-grad-2', 'ap-grad-3'].forEach(id => {
@@ -867,13 +861,10 @@ function buildPanel() {
   });
 
   document.getElementById('ap-grad-apply')?.addEventListener('click', () => {
-    const ps = getPS(_activeBgPage);
-    ps.bgType = 'gradient';
-    ps.bgValue = buildGradient();
-    saveState();
-
-    if (_activeBgPage === PAGE_ID) applyBackground(ps);
-    previewCurrentStateFor(_activeBgPage);
+    commitAppearanceChange(ps => {
+      ps.bgType = 'gradient';
+      ps.bgValue = buildGradient();
+    }, _activeBgPage);
   });
 
   const zone = document.getElementById('ap-photo-zone');
@@ -899,33 +890,21 @@ function buildPanel() {
   }
 
   document.getElementById('ap-photo-opacity')?.addEventListener('input', function () {
-    const ps = getPS(_activeBgPage);
-    ps.bgOpacity = parseInt(this.value, 10);
-
     const t = document.getElementById('ap-opacity-val');
     if (t) t.textContent = this.value;
 
-    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') {
-      applyBackground(ps);
-    }
-
-    saveState();
-    previewCurrentStateFor(_activeBgPage);
+    commitAppearanceChange(ps => {
+      ps.bgOpacity = parseInt(this.value, 10);
+    }, _activeBgPage);
   });
 
   document.getElementById('ap-photo-blur')?.addEventListener('input', function () {
-    const ps = getPS(_activeBgPage);
-    ps.bgBlur = parseInt(this.value, 10);
-
     const t = document.getElementById('ap-blur-val');
     if (t) t.textContent = `${this.value}px`;
 
-    if (_activeBgPage === PAGE_ID && ps.bgType === 'photo') {
-      applyBackground(ps);
-    }
-
-    saveState();
-    previewCurrentStateFor(_activeBgPage);
+    commitAppearanceChange(ps => {
+      ps.bgBlur = parseInt(this.value, 10);
+    }, _activeBgPage);
   });
 
   panel.querySelectorAll('#ap-fx-page-tabs .ap-page-tab').forEach(btn => {
@@ -938,42 +917,25 @@ function buildPanel() {
 
   panel.querySelectorAll('.ap-fx-card').forEach(card => {
     card.onclick = () => {
-      const ps = getPS(_activeFxPage);
-      ps.effect = card.dataset.effect;
-      saveState();
-      syncPanel();
-
-      if (_activeFxPage === PAGE_ID) applyEffects(ps);
-      previewCurrentStateFor(_activeFxPage);
+      commitAppearanceChange(ps => {
+        ps.effect = card.dataset.effect;
+      }, _activeFxPage);
     };
   });
 
   document.getElementById('ap-fx-intensity')?.addEventListener('input', function () {
-    const ps = getPS(_activeFxPage);
-    ps.fxIntensity = parseInt(this.value, 10);
-
     const t = document.getElementById('ap-fx-intensity-val');
     if (t) t.textContent = this.value;
 
-    saveState();
-
-    if (_activeFxPage === PAGE_ID) {
-      applyEffects(ps);
-    }
-
-    previewCurrentStateFor(_activeFxPage);
+    commitAppearanceChange(ps => {
+      ps.fxIntensity = parseInt(this.value, 10);
+    }, _activeFxPage);
   });
 
   document.getElementById('ap-fx-speed')?.addEventListener('change', function () {
-    const ps = getPS(_activeFxPage);
-    ps.fxSpeed = this.value;
-    saveState();
-
-    if (_activeFxPage === PAGE_ID) {
-      applyEffects(ps);
-    }
-
-    previewCurrentStateFor(_activeFxPage);
+    commitAppearanceChange(ps => {
+      ps.fxSpeed = this.value;
+    }, _activeFxPage);
   });
 
   panel.querySelectorAll('#ap-surface-page-tabs .ap-page-tab').forEach(btn => {
@@ -986,18 +948,9 @@ function buildPanel() {
 
   panel.querySelectorAll('.ap-surface-card[data-surface]').forEach(card => {
     card.onclick = () => {
-      const ps = getPS(_activeSurfacePage);
-      ps.surface = card.dataset.surface;
-      saveState();
-
-      panel.querySelectorAll('.ap-surface-card[data-surface]').forEach(c => c.classList.remove('active'));
-      card.classList.add('active');
-
-      if (_activeSurfacePage === PAGE_ID) {
-        applySurface(ps.surface);
-      }
-
-      previewCurrentStateFor(_activeSurfacePage);
+      commitAppearanceChange(ps => {
+        ps.surface = card.dataset.surface;
+      }, _activeSurfacePage);
     };
   });
 
@@ -1011,26 +964,13 @@ function buildPanel() {
 
   panel.querySelectorAll('.ap-theme-card').forEach(card => {
     card.onclick = () => {
-      const ps = getPS(_activeThemePage);
-      ps.theme = card.dataset.theme;
-      saveState();
-      syncPanel();
-
-      if (_activeThemePage === PAGE_ID) {
-        applyTheme(ps.theme);
-      }
-
-      previewCurrentStateFor(_activeThemePage);
+      commitAppearanceChange(ps => {
+        ps.theme = card.dataset.theme;
+      }, _activeThemePage);
     };
   });
 
   document.getElementById('ap-expand-btn')?.addEventListener('click', toggleExpand);
-
-  document.getElementById('ap-reset-btn')?.addEventListener('click', () => {
-    if (!confirm('¿Resetear apariencia?')) return;
-    localStorage.removeItem(STORAGE_KEY);
-    location.reload();
-  });
 
   document.getElementById('ap-export-btn')?.addEventListener('click', () => {
     const a = document.createElement('a');
@@ -1056,14 +996,12 @@ document.addEventListener('DOMContentLoaded', () => {
   loadState();
   applyAll();
   applyQuoteRole();
+
+  buildPanel();
   bindFooterActions();
+  loadFontGrid('', 'all');
 
   document.querySelectorAll('[data-open-appearance], #settingsBtn, .settings-btn').forEach(btn => {
     btn.addEventListener('click', openPanel);
   });
-
-  window.onAppearancePanelLoaded = function () {
-    buildPanel();
-    loadFontGrid('', 'all');
-  };
 });
