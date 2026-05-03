@@ -65,6 +65,69 @@ const EFFECT_DEFAULTS = {
 };
 
 let AppState = {};
+let _undoStack = [];
+const UNDO_LIMIT = 40;
+let _toastTimer = null;
+
+function cloneState(obj) {
+  return JSON.parse(JSON.stringify(obj));
+}
+
+function pushUndoState() {
+  _undoStack.push(cloneState(AppState));
+  if (_undoStack.length > UNDO_LIMIT) _undoStack.shift();
+}
+
+function showToast(message = 'Listo') {
+  const toast = document.getElementById('andy-toast');
+  if (!toast) return;
+
+  toast.textContent = message;
+  toast.classList.add('show');
+
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 1800);
+}
+
+function commitAppearanceChange(mutator) {
+  pushUndoState();
+  mutator(getPS(PAGE_ID));
+  applyAll();
+  syncPanel();
+  saveState();
+  sendPreviewState();
+}
+
+function undoAppearance() {
+  if (!_undoStack.length) {
+    showToast('Nada que deshacer');
+    return;
+  }
+
+  AppState = _undoStack.pop();
+  applyAll();
+  syncPanel();
+  saveState();
+  sendPreviewState();
+  showToast('Último cambio deshecho');
+}
+
+function resetCurrentPageAppearance() {
+  pushUndoState();
+  AppState[PAGE_ID] = makePageDefault(PAGE_ID);
+  applyAll();
+  syncPanel();
+  saveState();
+  sendPreviewState();
+  showToast('Reset aplicado');
+}
+
+function saveAppearance() {
+  saveState();
+  showToast('Cambios guardados');
+}
 
 function makePageDefault(pageId) {
   return {
