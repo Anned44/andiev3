@@ -479,10 +479,19 @@ function getPreviewPageUrl(pageId) {
 }
 
 function openPanel() {
+  _activeFontPage = PAGE_ID;
+  _activeBgPage = PAGE_ID;
+  _activeFxPage = PAGE_ID;
+  _activeSurfacePage = PAGE_ID;
+  _activeThemePage = PAGE_ID;
+
   const panel = document.getElementById('andy-appearance-panel');
   panel?.removeAttribute('inert');
   panel?.classList.add('open');
   panel?.setAttribute('aria-hidden', 'false');
+
+  syncPanel();
+  loadFontGrid('', 'all');
 }
 
 function closePanel() {
