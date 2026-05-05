@@ -3,7 +3,6 @@
     <header class="ap-header">
       <div>
         <span class="ap-header-title">Appearance</span>
-        <span class="ap-header-sub">Andy Net · Visual system</span>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
         <button id="ap-expand-btn" class="ap-close" type="button" aria-label="Expand preview">⤢</button>
@@ -19,46 +18,40 @@
       <button type="button" class="ap-main-tab" data-tab="theme">Theme</button>
     </nav>
 
+    <!-- FONTS TAB — nuevo layout -->
     <section class="ap-tab-panel active" data-tab="fonts">
-      <div class="ap-section-label">Page</div>
-      <div id="ap-font-page-tabs" class="ap-page-tabs">
-        <button type="button" class="ap-page-tab active" data-page="index">Portal</button>
-        <button type="button" class="ap-page-tab" data-page="hub">Hub</button>
-        <button type="button" class="ap-page-tab" data-page="studio">Studio</button>
-        <button type="button" class="ap-page-tab" data-page="muse">Muse</button>
-      </div>
 
-      <div class="ap-section-label">Text role</div>
-      <div class="ap-font-type-btns">
-        <button type="button" class="ap-font-type-btn active" data-type="display">
-          <span class="ap-font-type-btn-preview">A</span>
-          <span class="ap-font-type-btn-lbl">Display</span>
-          <span class="ap-font-type-btn-desc">Títulos</span>
+      <!-- Role pills -->
+      <div class="ap-role-strip">
+        <button type="button" class="ap-role-pill active" data-type="display">
+          <span class="ap-role-pill-name">Display</span>
+          <span class="ap-role-pill-desc">Títulos</span>
         </button>
-        <button type="button" class="ap-font-type-btn" data-type="quote">
-          <span class="ap-font-type-btn-preview">"</span>
-          <span class="ap-font-type-btn-lbl">Quote</span>
-          <span class="ap-font-type-btn-desc">Citas</span>
+        <button type="button" class="ap-role-pill" data-type="quote">
+          <span class="ap-role-pill-name">Quote</span>
+          <span class="ap-role-pill-desc">Citas · Sub</span>
         </button>
-        <button type="button" class="ap-font-type-btn" data-type="body">
-          <span class="ap-font-type-btn-preview">T</span>
-          <span class="ap-font-type-btn-lbl">Body</span>
-          <span class="ap-font-type-btn-desc">Texto</span>
+        <button type="button" class="ap-role-pill" data-type="body">
+          <span class="ap-role-pill-name">Body</span>
+          <span class="ap-role-pill-desc">Texto</span>
         </button>
-        <button type="button" class="ap-font-type-btn" data-type="mono">
-          <span class="ap-font-type-btn-preview">01</span>
-          <span class="ap-font-type-btn-lbl">Mono</span>
-          <span class="ap-font-type-btn-desc">UI / Data</span>
+        <button type="button" class="ap-role-pill" data-type="mono">
+          <span class="ap-role-pill-name">Mono</span>
+          <span class="ap-role-pill-desc">UI · Data</span>
         </button>
       </div>
 
-      <div class="ap-font-current">
-        <span class="ap-font-current-label">Current</span>
-        <span id="ap-font-current-name" class="ap-font-current-name">DM Serif Display</span>
+      <!-- Preview box — el recuadro grande que cambia al seleccionar -->
+      <div class="ap-font-preview-box">
+        <div class="ap-font-preview-role" id="ap-preview-role-label">Display · activo</div>
+        <div class="ap-font-preview-text" id="ap-font-preview-text">Andrea</div>
+        <div class="ap-font-preview-meta" id="ap-font-preview-meta">DM Serif Display · serif</div>
       </div>
 
+      <!-- Search -->
       <input id="ap-font-search" class="ap-input" type="text" placeholder="Buscar fuente..." autocomplete="off" />
 
+      <!-- Filters -->
       <div class="ap-font-filters">
         <button type="button" class="ap-filter-btn active" data-cat="all">All</button>
         <button type="button" class="ap-filter-btn" data-cat="serif">Serif</button>
@@ -68,18 +61,12 @@
         <button type="button" class="ap-filter-btn" data-cat="monospace">Mono</button>
       </div>
 
-      <div id="ap-font-grid" class="ap-font-grid"></div>
+      <!-- Font list rows -->
+      <div id="ap-font-grid" class="ap-font-list"></div>
+
     </section>
 
     <section class="ap-tab-panel" data-tab="background">
-      <div class="ap-section-label">Page</div>
-      <div id="ap-bg-page-tabs" class="ap-page-tabs">
-        <button type="button" class="ap-page-tab active" data-page="index">Portal</button>
-        <button type="button" class="ap-page-tab" data-page="hub">Hub</button>
-        <button type="button" class="ap-page-tab" data-page="studio">Studio</button>
-        <button type="button" class="ap-page-tab" data-page="muse">Muse</button>
-      </div>
-
       <div class="ap-section-label">Background type</div>
       <div class="ap-bg-types">
         <button type="button" class="ap-bg-type-btn active" data-type="color">Color</button>
@@ -147,14 +134,6 @@
     </section>
 
     <section class="ap-tab-panel" data-tab="effects">
-      <div class="ap-section-label">Page</div>
-      <div id="ap-fx-page-tabs" class="ap-page-tabs">
-        <button type="button" class="ap-page-tab active" data-page="index">Portal</button>
-        <button type="button" class="ap-page-tab" data-page="hub">Hub</button>
-        <button type="button" class="ap-page-tab" data-page="studio">Studio</button>
-        <button type="button" class="ap-page-tab" data-page="muse">Muse</button>
-      </div>
-
       <div class="ap-section-label">Effect</div>
       <div class="ap-themes-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:12px">
         <button type="button" class="ap-fx-card ap-theme-card active" data-effect="none">
@@ -182,13 +161,11 @@
           <div class="ap-theme-name">Mist</div>
         </button>
       </div>
-
       <div class="ap-range-row">
         <span class="ap-range-lbl">Intensity</span>
         <input id="ap-fx-intensity" type="range" min="0" max="100" value="50" />
         <span id="ap-fx-intensity-val" class="ap-range-val">50</span>
       </div>
-
       <div style="margin-top:12px">
         <label class="ap-section-label" for="ap-fx-speed">Speed</label>
         <select id="ap-fx-speed" class="ap-input" style="margin-bottom:0">
@@ -202,7 +179,6 @@
     <section class="ap-tab-panel" data-tab="surface">
       <div class="ap-section-label">Sistema global</div>
       <div class="ap-note">La superficie afecta widgets, tarjetas y paneles de toda la app.</div>
-
       <div class="ap-surface-grid">
         <button type="button" class="ap-surface-card active" data-surface="glass">
           <div class="ap-surface-preview ap-surf-glass">
@@ -238,14 +214,6 @@
     </section>
 
     <section class="ap-tab-panel" data-tab="theme">
-      <div class="ap-section-label">Page</div>
-      <div id="ap-theme-page-tabs" class="ap-page-tabs">
-        <button type="button" class="ap-page-tab active" data-page="index">Portal</button>
-        <button type="button" class="ap-page-tab" data-page="hub">Hub</button>
-        <button type="button" class="ap-page-tab" data-page="studio">Studio</button>
-        <button type="button" class="ap-page-tab" data-page="muse">Muse</button>
-      </div>
-
       <div class="ap-themes-grid">
         <button type="button" class="ap-theme-card active" data-theme="nocturne">
           <div class="ap-theme-swatch" style="background:linear-gradient(135deg,#0c0a12,#241e30)"></div>
