@@ -1033,5 +1033,3 @@ window.buildPanel = buildPanel;
 window.bindFooterActions = bindFooterActions;
 window.loadFontGrid = loadFontGrid;
 window.openPanel = openPanel;
-
-}
