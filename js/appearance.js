@@ -1018,12 +1018,6 @@ window.addEventListener('load', () => {
   loadState();
   applyAll();
   applyQuoteRole();
-  buildPanel();
-  bindFooterActions();
-  loadFontGrid('', 'all');
-  document.querySelectorAll('[data-open-appearance], #settingsBtn, .settings-btn').forEach(btn => {
-    btn.addEventListener('click', openPanel);
-  });
 });
 
 }
