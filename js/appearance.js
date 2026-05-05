@@ -78,7 +78,7 @@ window.__andyAppearanceState = window.__andyAppearanceState || {
 let AppState = window.__andyAppearanceState.AppState;
 let _undoStack = window.__andyAppearanceState.undoStack;
 const UNDO_LIMIT = 40;
-  
+
 function cloneState(obj) {
   return JSON.parse(JSON.stringify(obj));
 }
@@ -91,15 +91,14 @@ function pushUndoState() {
 function showToast(message = 'Listo') {
   const toast = document.getElementById('andy-toast');
   if (!toast) return;
-
   toast.textContent = message;
   toast.classList.add('show');
-
- clearTimeout(window.__andyAppearanceState.toastTimer);
-window.__andyAppearanceState.toastTimer = setTimeout(() => {
-  toast.classList.remove('show');
-}, 1800);
+  clearTimeout(window.__andyAppearanceState.toastTimer);
+  window.__andyAppearanceState.toastTimer = setTimeout(() => {
+    toast.classList.remove('show');
+  }, 1800);
 }
+
 function makePageDefault(pageId) {
   return {
     theme: 'nocturne',
@@ -117,7 +116,6 @@ function makePageDefault(pageId) {
 
 function normalizeFonts(fonts = {}, pageId = PAGE_ID) {
   const base = JSON.parse(JSON.stringify(pageId === 'muse' ? MUSE_FONT_DEFAULTS : FONT_DEFAULTS));
-
   return {
     display: fonts.display || base.display,
     quote: fonts.quote || fonts.subtitle || base.quote,
@@ -129,19 +127,15 @@ function normalizeFonts(fonts = {}, pageId = PAGE_ID) {
 function getPS(pageId) {
   if (!AppState[pageId]) AppState[pageId] = makePageDefault(pageId);
   AppState[pageId].fonts = normalizeFonts(AppState[pageId].fonts, pageId);
-
   if (!AppState[pageId].effect) AppState[pageId].effect = EFFECT_DEFAULTS.effect;
   if (AppState[pageId].fxIntensity == null) AppState[pageId].fxIntensity = EFFECT_DEFAULTS.intensity;
   if (!AppState[pageId].fxSpeed) AppState[pageId].fxSpeed = EFFECT_DEFAULTS.speed;
   if (!AppState[pageId].surface) AppState[pageId].surface = 'glass';
-
   return AppState[pageId];
 }
 
 function saveState() {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(AppState));
-  } catch (e) {}
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(AppState)); } catch (e) {}
 }
 
 function loadState() {
@@ -154,22 +148,14 @@ function loadState() {
 function commitAppearanceChange(mutator, pageId = PAGE_ID) {
   pushUndoState();
   mutator(getPS(pageId));
-
-  if (pageId === PAGE_ID) {
-    applyAll();
-  }
-
+  if (pageId === PAGE_ID) applyAll();
   syncPanel();
   saveState();
   previewCurrentStateFor(pageId);
 }
 
 function undoAppearance() {
-  if (!_undoStack.length) {
-    showToast('Nada que deshacer');
-    return;
-  }
-
+  if (!_undoStack.length) { showToast('Nada que deshacer'); return; }
   AppState = _undoStack.pop();
   applyAll();
   syncPanel();
@@ -179,10 +165,7 @@ function undoAppearance() {
 }
 
 function resetCurrentPageAppearance() {
-  commitAppearanceChange(ps => {
-    Object.assign(ps, makePageDefault(PAGE_ID));
-  }, PAGE_ID);
-
+  commitAppearanceChange(ps => { Object.assign(ps, makePageDefault(PAGE_ID)); }, PAGE_ID);
   showToast('Reset aplicado');
 }
 
@@ -211,9 +194,7 @@ async function fetchFonts() {
     const r = await fetch(`https://www.googleapis.com/webfonts/v1/webfonts?key=${GFONTS_KEY}&sort=popularity`);
     _allFonts = (await r.json()).items || [];
     _fontsReady = true;
-  } catch (e) {
-    console.warn('GFonts:', e);
-  }
+  } catch (e) { console.warn('GFonts:', e); }
   return _allFonts;
 }
 
@@ -233,59 +214,20 @@ function applyTheme(themeId) {
 
 function applyFonts(fonts) {
   if (!fonts) return;
-
   const f = normalizeFonts(fonts, PAGE_ID);
   const r = document.documentElement;
-
-  if (f.display?.css) {
-    r.style.setProperty('--font-display', f.display.css);
-    r.style.setProperty('--serif', f.display.css);
-    loadGFont(f.display.name);
-  }
-
-  if (f.quote?.css) {
-    r.style.setProperty('--font-quote', f.quote.css);
-    r.style.setProperty('--font-subtitle', f.quote.css);
-    loadGFont(f.quote.name);
-  }
-
-  if (f.body?.css) {
-    r.style.setProperty('--font-body', f.body.css);
-    r.style.setProperty('--font-ui', f.body.css);
-    r.style.setProperty('--sans', f.body.css);
-    loadGFont(f.body.name);
-  }
-
-  if (f.mono?.css) {
-    r.style.setProperty('--font-mono', f.mono.css);
-    r.style.setProperty('--mono', f.mono.css);
-    loadGFont(f.mono.name);
-  }
-
+  if (f.display?.css) { r.style.setProperty('--font-display', f.display.css); r.style.setProperty('--serif', f.display.css); loadGFont(f.display.name); }
+  if (f.quote?.css) { r.style.setProperty('--font-quote', f.quote.css); r.style.setProperty('--font-subtitle', f.quote.css); loadGFont(f.quote.name); }
+  if (f.body?.css) { r.style.setProperty('--font-body', f.body.css); r.style.setProperty('--font-ui', f.body.css); r.style.setProperty('--sans', f.body.css); loadGFont(f.body.name); }
+  if (f.mono?.css) { r.style.setProperty('--font-mono', f.mono.css); r.style.setProperty('--mono', f.mono.css); loadGFont(f.mono.name); }
   applyQuoteRole();
 }
 
 function applyQuoteRole(scope = document) {
-  const quoteFont = getComputedStyle(document.documentElement)
-    .getPropertyValue('--font-quote')
-    .trim();
-
+  const quoteFont = getComputedStyle(document.documentElement).getPropertyValue('--font-quote').trim();
   if (!quoteFont) return;
-
-  const selectors = [
-    'blockquote',
-    '.quote',
-    '.hero-quote',
-    '.quote-text',
-    '.manifesto-line',
-    '[data-quote]',
-    '#heroQuote',
-    '.hero-eyebrow'
-  ];
-
-  scope.querySelectorAll(selectors.join(',')).forEach(el => {
-    el.style.fontFamily = quoteFont;
-  });
+  const selectors = ['blockquote','.quote','.hero-quote','.quote-text','.manifesto-line','[data-quote]','#heroQuote','.hero-eyebrow'];
+  scope.querySelectorAll(selectors.join(',')).forEach(el => { el.style.fontFamily = quoteFont; });
 }
 
 function mkBgLayer() {
@@ -311,9 +253,7 @@ function clearBackgroundLayers() {
 
 function applyBackground(ps) {
   clearBackgroundLayers();
-
   const body = document.body;
-
   if (ps.bgType === 'color') {
     body.style.backgroundColor = ps.bgValue || '#0c0a12';
   } else if (ps.bgType === 'gradient') {
@@ -352,22 +292,10 @@ function ensureFxKeyframes() {
   const s = document.createElement('style');
   s.id = 'andy-fx-keyframes';
   s.textContent = `
-    @keyframes andyFxFloat {
-      0% { transform: translateY(0) translateX(0) scale(1); }
-      100% { transform: translateY(-16px) translateX(10px) scale(1.04); }
-    }
-    @keyframes andyFxDrift {
-      0% { transform: translate3d(0,0,0); }
-      100% { transform: translate3d(18px,-12px,0); }
-    }
-    @keyframes andyFxAurora {
-      0% { transform: translateX(-2%) translateY(0) scale(1); }
-      100% { transform: translateX(2%) translateY(-2%) scale(1.06); }
-    }
-    @keyframes andyFxMist {
-      0% { transform: translateX(-1%) translateY(0) scale(1); opacity:.75; }
-      100% { transform: translateX(2%) translateY(-1%) scale(1.06); opacity:1; }
-    }
+    @keyframes andyFxFloat { 0% { transform: translateY(0) translateX(0) scale(1); } 100% { transform: translateY(-16px) translateX(10px) scale(1.04); } }
+    @keyframes andyFxDrift { 0% { transform: translate3d(0,0,0); } 100% { transform: translate3d(18px,-12px,0); } }
+    @keyframes andyFxAurora { 0% { transform: translateX(-2%) translateY(0) scale(1); } 100% { transform: translateX(2%) translateY(-2%) scale(1.06); } }
+    @keyframes andyFxMist { 0% { transform: translateX(-1%) translateY(0) scale(1); opacity:.75; } 100% { transform: translateX(2%) translateY(-1%) scale(1.06); opacity:1; } }
   `;
   document.head.appendChild(s);
 }
@@ -375,62 +303,25 @@ function ensureFxKeyframes() {
 function applyEffects(ps) {
   const fx = document.getElementById('andy-fx-layer');
   if (fx) fx.remove();
-
   const effect = ps.effect || 'none';
   if (effect === 'none') return;
-
   const layer = ensureFxLayer();
   const intensity = Math.max(0, Math.min(100, Number(ps.fxIntensity ?? 50)));
   const speed = ps.fxSpeed || 'slow';
-
   const dur = speed === 'fast' ? '8s' : speed === 'medium' ? '14s' : '22s';
   const alpha = (0.08 + (intensity / 100) * 0.26).toFixed(3);
 
   if (effect === 'bubbles') {
-    layer.innerHTML = `
-      <div style="position:absolute;inset:0;
-        background:
-          radial-gradient(circle at 18% 25%, rgba(255,255,255,${alpha}) 0 2%, transparent 8%),
-          radial-gradient(circle at 72% 28%, rgba(155,122,184,${alpha}) 0 3%, transparent 10%),
-          radial-gradient(circle at 58% 70%, rgba(90,122,170,${alpha}) 0 2.5%, transparent 9%),
-          radial-gradient(circle at 28% 78%, rgba(244,167,185,${alpha}) 0 2.2%, transparent 8%);
-        filter: blur(${8 + intensity * 0.12}px);
-        animation: andyFxFloat ${dur} ease-in-out infinite alternate;"></div>`;
+    layer.innerHTML = `<div style="position:absolute;inset:0;background:radial-gradient(circle at 18% 25%, rgba(255,255,255,${alpha}) 0 2%, transparent 8%),radial-gradient(circle at 72% 28%, rgba(155,122,184,${alpha}) 0 3%, transparent 10%),radial-gradient(circle at 58% 70%, rgba(90,122,170,${alpha}) 0 2.5%, transparent 9%),radial-gradient(circle at 28% 78%, rgba(244,167,185,${alpha}) 0 2.2%, transparent 8%);filter:blur(${8 + intensity * 0.12}px);animation:andyFxFloat ${dur} ease-in-out infinite alternate;"></div>`;
   } else if (effect === 'constellation') {
-    layer.innerHTML = `
-      <div style="position:absolute;inset:0;opacity:${0.35 + intensity / 220};
-        background-image:
-          radial-gradient(rgba(255,255,255,.9) 1px, transparent 1.5px),
-          radial-gradient(rgba(155,122,184,.75) 1px, transparent 1.5px);
-        background-size: 120px 120px, 180px 180px;
-        background-position: 20px 30px, 70px 100px;
-        animation: andyFxDrift ${dur} linear infinite;"></div>`;
+    layer.innerHTML = `<div style="position:absolute;inset:0;opacity:${0.35 + intensity / 220};background-image:radial-gradient(rgba(255,255,255,.9) 1px, transparent 1.5px),radial-gradient(rgba(155,122,184,.75) 1px, transparent 1.5px);background-size:120px 120px,180px 180px;background-position:20px 30px,70px 100px;animation:andyFxDrift ${dur} linear infinite;"></div>`;
   } else if (effect === 'aurora') {
-    layer.innerHTML = `
-      <div style="position:absolute;inset:-10%;
-        background:
-          radial-gradient(circle at 20% 30%, rgba(124,92,255,${alpha}) 0, transparent 35%),
-          radial-gradient(circle at 70% 25%, rgba(79,195,247,${alpha}) 0, transparent 38%),
-          radial-gradient(circle at 52% 80%, rgba(123,228,149,${alpha}) 0, transparent 42%);
-        filter: blur(${18 + intensity * 0.18}px);
-        animation: andyFxAurora ${dur} ease-in-out infinite alternate;"></div>`;
+    layer.innerHTML = `<div style="position:absolute;inset:-10%;background:radial-gradient(circle at 20% 30%, rgba(124,92,255,${alpha}) 0, transparent 35%),radial-gradient(circle at 70% 25%, rgba(79,195,247,${alpha}) 0, transparent 38%),radial-gradient(circle at 52% 80%, rgba(123,228,149,${alpha}) 0, transparent 42%);filter:blur(${18 + intensity * 0.18}px);animation:andyFxAurora ${dur} ease-in-out infinite alternate;"></div>`;
   } else if (effect === 'particles') {
-    layer.innerHTML = `
-      <div style="position:absolute;inset:0;opacity:${0.18 + intensity / 180};
-        background-image: radial-gradient(rgba(255,220,160,.9) 1px, transparent 1.5px);
-        background-size: ${22 - Math.min(10, Math.floor(intensity / 10))}px ${22 - Math.min(10, Math.floor(intensity / 10))}px;
-        animation: andyFxDrift ${dur} linear infinite;"></div>`;
+    layer.innerHTML = `<div style="position:absolute;inset:0;opacity:${0.18 + intensity / 180};background-image:radial-gradient(rgba(255,220,160,.9) 1px, transparent 1.5px);background-size:${22 - Math.min(10, Math.floor(intensity / 10))}px ${22 - Math.min(10, Math.floor(intensity / 10))}px;animation:andyFxDrift ${dur} linear infinite;"></div>`;
   } else if (effect === 'mist') {
-    layer.innerHTML = `
-      <div style="position:absolute;inset:-10%;
-        background:
-          radial-gradient(circle at 30% 40%, rgba(255,255,255,${(alpha * 0.6).toFixed(3)}) 0, transparent 35%),
-          radial-gradient(circle at 70% 50%, rgba(155,122,184,${alpha}) 0, transparent 35%),
-          radial-gradient(circle at 45% 72%, rgba(255,255,255,${(alpha * 0.45).toFixed(3)}) 0, transparent 28%);
-        filter: blur(${24 + intensity * 0.22}px);
-        animation: andyFxMist ${dur} ease-in-out infinite alternate;"></div>`;
+    layer.innerHTML = `<div style="position:absolute;inset:-10%;background:radial-gradient(circle at 30% 40%, rgba(255,255,255,${(alpha * 0.6).toFixed(3)}) 0, transparent 35%),radial-gradient(circle at 70% 50%, rgba(155,122,184,${alpha}) 0, transparent 35%),radial-gradient(circle at 45% 72%, rgba(255,255,255,${(alpha * 0.45).toFixed(3)}) 0, transparent 28%);filter:blur(${24 + intensity * 0.22}px);animation:andyFxMist ${dur} ease-in-out infinite alternate;"></div>`;
   }
-
   ensureFxKeyframes();
 }
 
@@ -473,7 +364,6 @@ function getPreviewPageUrl(pageId) {
     case 'hub': return 'hub.html';
     case 'studio': return 'studio.html';
     case 'muse': return 'muse.html';
-    case 'index':
     default: return 'index.html';
   }
 }
@@ -484,26 +374,22 @@ function openPanel() {
   _activeFxPage = PAGE_ID;
   _activeSurfacePage = PAGE_ID;
   _activeThemePage = PAGE_ID;
-
   const panel = document.getElementById('andy-appearance-panel');
-  panel?.removeAttribute('inert');
-  panel?.classList.add('open');
-  panel?.setAttribute('aria-hidden', 'false');
-
+  if (!panel) return;
+  panel.removeAttribute('inert');
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
   syncPanel();
   loadFontGrid('', 'all');
 }
 
 function closePanel() {
   const panel = document.getElementById('andy-appearance-panel');
-
-  if (document.activeElement && panel?.contains(document.activeElement)) {
-    document.activeElement.blur();
-  }
-
-  panel?.classList.remove('open');
-  panel?.setAttribute('aria-hidden', 'true');
-  panel?.setAttribute('inert', '');
+  if (!panel) return;
+  if (document.activeElement && panel.contains(document.activeElement)) document.activeElement.blur();
+  panel.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+  panel.setAttribute('inert', '');
 }
 
 function toggleExpand() {
@@ -511,7 +397,6 @@ function toggleExpand() {
   const overlay = document.getElementById('andy-appearance-panel');
   const btn = document.getElementById('ap-expand-btn');
   const pane = document.getElementById('ap-preview-pane');
-
   if (_expanded) {
     overlay?.classList.add('ap-fullscreen');
     if (btn) btn.textContent = '←';
@@ -527,48 +412,31 @@ function toggleExpand() {
 function initPreviewIframe(pageId = getPreviewPageId()) {
   const container = document.getElementById('ap-preview-iframe-wrap');
   if (!container) return null;
-
   const nextSrc = getPreviewPageUrl(pageId);
   let iframe = container.querySelector('iframe');
-
   if (!iframe) {
     iframe = document.createElement('iframe');
     iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:12px;background:#0c0a12;';
-    iframe.onload = () => {
-      _previewIframe = iframe;
-      sendPreviewState({ pageId: iframe.dataset.pageId || pageId });
-    };
+    iframe.onload = () => { _previewIframe = iframe; sendPreviewState({ pageId: iframe.dataset.pageId || pageId }); };
     container.innerHTML = '';
     container.appendChild(iframe);
   }
-
   _previewIframe = iframe;
-
-  if (iframe.dataset.pageId !== pageId) {
-    iframe.dataset.pageId = pageId;
-    iframe.src = nextSrc;
-  }
-
+  if (iframe.dataset.pageId !== pageId) { iframe.dataset.pageId = pageId; iframe.src = nextSrc; }
   return iframe;
 }
 
 function previewCurrentStateFor(pageId) {
   if (!_expanded) return;
-
   const iframe = initPreviewIframe(pageId);
   if (!iframe) return;
-
-  if (iframe.dataset.pageId === pageId && iframe.contentWindow) {
-    sendPreviewState({ pageId });
-  }
+  if (iframe.dataset.pageId === pageId && iframe.contentWindow) sendPreviewState({ pageId });
 }
 
 function sendPreviewState(overrides = {}) {
   if (!_previewIframe || !_previewIframe.contentWindow) return;
-
   const previewPageId = overrides.pageId || getPreviewPageId();
   const ps = getPS(previewPageId);
-
   try {
     _previewIframe.contentWindow.postMessage({
       type: 'andy-preview',
@@ -589,21 +457,10 @@ function sendPreviewState(overrides = {}) {
 
 window.addEventListener('message', e => {
   if (!e.data || e.data.type !== 'andy-preview') return;
-
   const d = e.data;
-
   applyTheme(d.theme);
-  applyBackground({
-    bgType: d.bgType,
-    bgValue: d.bgValue,
-    bgOpacity: d.bgOpacity,
-    bgBlur: d.bgBlur
-  });
-  applyEffects({
-    effect: d.effect,
-    fxIntensity: d.fxIntensity,
-    fxSpeed: d.fxSpeed
-  });
+  applyBackground({ bgType: d.bgType, bgValue: d.bgValue, bgOpacity: d.bgOpacity, bgBlur: d.bgBlur });
+  applyEffects({ effect: d.effect, fxIntensity: d.fxIntensity, fxSpeed: d.fxSpeed });
   applySurface(d.surface);
   applyFonts(d.fonts);
   applyQuoteRole();
@@ -631,59 +488,36 @@ function updateGradPreview() {
 }
 
 function syncPanel() {
-  document.querySelectorAll('#ap-font-page-tabs .ap-page-tab')
-    .forEach(b => b.classList.toggle('active', b.dataset.page === _activeFontPage));
-
-  document.querySelectorAll('#ap-bg-page-tabs .ap-page-tab')
-    .forEach(b => b.classList.toggle('active', b.dataset.page === _activeBgPage));
-
-  document.querySelectorAll('#ap-fx-page-tabs .ap-page-tab')
-    .forEach(b => b.classList.toggle('active', b.dataset.page === _activeFxPage));
-
-  document.querySelectorAll('#ap-theme-page-tabs .ap-page-tab')
-    .forEach(b => b.classList.toggle('active', b.dataset.page === _activeThemePage));
-
-  document.querySelectorAll('#ap-surface-page-tabs .ap-page-tab')
-    .forEach(b => b.classList.toggle('active', b.dataset.page === _activeSurfacePage));
-
-  document.querySelectorAll('.ap-font-type-btn')
-    .forEach(b => b.classList.toggle('active', b.dataset.type === _activeFontType));
-
+  document.querySelectorAll('#ap-font-page-tabs .ap-page-tab').forEach(b => b.classList.toggle('active', b.dataset.page === _activeFontPage));
+  document.querySelectorAll('#ap-bg-page-tabs .ap-page-tab').forEach(b => b.classList.toggle('active', b.dataset.page === _activeBgPage));
+  document.querySelectorAll('#ap-fx-page-tabs .ap-page-tab').forEach(b => b.classList.toggle('active', b.dataset.page === _activeFxPage));
+  document.querySelectorAll('#ap-theme-page-tabs .ap-page-tab').forEach(b => b.classList.toggle('active', b.dataset.page === _activeThemePage));
+  document.querySelectorAll('#ap-surface-page-tabs .ap-page-tab').forEach(b => b.classList.toggle('active', b.dataset.page === _activeSurfacePage));
+  document.querySelectorAll('.ap-font-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === _activeFontType));
   syncFontBtnPreviews();
 
   const bps = getPS(_activeBgPage);
-  document.querySelectorAll('.ap-bg-type-btn')
-    .forEach(b => b.classList.toggle('active', b.dataset.type === (bps.bgType || 'color')));
-  document.querySelectorAll('.ap-bg-panel')
-    .forEach(p => p.classList.toggle('active', p.dataset.type === (bps.bgType || 'color')));
-
+  document.querySelectorAll('.ap-bg-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === (bps.bgType || 'color')));
+  document.querySelectorAll('.ap-bg-panel').forEach(p => p.classList.toggle('active', p.dataset.type === (bps.bgType || 'color')));
   if (bps.bgType === 'color') {
     const pk = document.getElementById('ap-color-picker');
-    if (pk) {
-      pk.value = bps.bgValue || '#0c0a12';
-      updateColorSwatch(pk.value);
-    }
+    if (pk) { pk.value = bps.bgValue || '#0c0a12'; updateColorSwatch(pk.value); }
   }
 
   const tps = getPS(_activeThemePage);
-  document.querySelectorAll('.ap-theme-card')
-    .forEach(c => c.classList.toggle('active', c.dataset.theme === (tps.theme || 'nocturne')));
+  document.querySelectorAll('.ap-theme-card').forEach(c => c.classList.toggle('active', c.dataset.theme === (tps.theme || 'nocturne')));
 
   const fps = getPS(_activeFxPage);
-  document.querySelectorAll('.ap-fx-card')
-    .forEach(c => c.classList.toggle('active', c.dataset.effect === (fps.effect || 'none')));
-
+  document.querySelectorAll('.ap-fx-card').forEach(c => c.classList.toggle('active', c.dataset.effect === (fps.effect || 'none')));
   const fxInt = document.getElementById('ap-fx-intensity');
   const fxIntVal = document.getElementById('ap-fx-intensity-val');
   const fxSpeed = document.getElementById('ap-fx-speed');
-
   if (fxInt) fxInt.value = fps.fxIntensity ?? 50;
   if (fxIntVal) fxIntVal.textContent = fps.fxIntensity ?? 50;
   if (fxSpeed) fxSpeed.value = fps.fxSpeed || 'slow';
 
   const sps = getPS(_activeSurfacePage);
-  document.querySelectorAll('.ap-surface-card[data-surface]')
-    .forEach(c => c.classList.toggle('active', c.dataset.surface === (sps.surface || 'glass')));
+  document.querySelectorAll('.ap-surface-card[data-surface]').forEach(c => c.classList.toggle('active', c.dataset.surface === (sps.surface || 'glass')));
 }
 
 function syncFontBtnPreviews() {
@@ -692,12 +526,8 @@ function syncFontBtnPreviews() {
     const f = ps.fonts?.[type];
     if (!f) return;
     const btn = document.querySelector(`.ap-font-type-btn[data-type="${type}"] .ap-font-type-btn-preview`);
-    if (btn) {
-      btn.style.fontFamily = f.css;
-      loadGFont(f.name);
-    }
+    if (btn) { btn.style.fontFamily = f.css; loadGFont(f.name); }
   });
-
   const current = ps.fonts?.[_activeFontType];
   const label = document.getElementById('ap-font-current-name');
   if (label && current) label.textContent = current.name;
@@ -706,24 +536,12 @@ function syncFontBtnPreviews() {
 async function loadFontGrid(query, cat) {
   const grid = document.getElementById('ap-font-grid');
   if (!grid) return;
-
   grid.innerHTML = `<div class="ap-font-loading">Cargando Google Fonts...</div>`;
   const fonts = await searchFonts(query, cat);
   const current = getPS(_activeFontPage).fonts?.[_activeFontType]?.name;
-
-  const sampleMap = {
-    display: 'Andy Net',
-    quote: 'Mientras se aplaza la vida, pasa.',
-    body: 'Texto de ejemplo',
-    mono: '01 · 08:42'
-  };
+  const sampleMap = { display: 'Andy Net', quote: 'Mientras se aplaza la vida, pasa.', body: 'Texto de ejemplo', mono: '01 · 08:42' };
   const sample = sampleMap[_activeFontType] || 'Andy Net';
-
-  if (!fonts.length) {
-    grid.innerHTML = `<div class="ap-font-loading">Sin resultados</div>`;
-    return;
-  }
-
+  if (!fonts.length) { grid.innerHTML = `<div class="ap-font-loading">Sin resultados</div>`; return; }
   grid.innerHTML = '';
   fonts.forEach(f => {
     loadGFont(f.family);
@@ -731,40 +549,21 @@ async function loadFontGrid(query, cat) {
     card.type = 'button';
     card.className = `ap-font-card ${f.family === current ? 'active' : ''}`;
     card.dataset.family = f.family;
-    card.innerHTML = `
-      <div class="ap-font-sample" style="font-family:'${f.family}', serif;">${sample}</div>
-      <div class="ap-font-name">${f.family}</div>
-      <div class="ap-font-cat">${f.category}</div>
-    `;
+    card.innerHTML = `<div class="ap-font-sample" style="font-family:'${f.family}', serif;">${sample}</div><div class="ap-font-name">${f.family}</div><div class="ap-font-cat">${f.category}</div>`;
     card.onclick = () => selectFont(f.family, f.category);
     grid.appendChild(card);
   });
 }
 
 function selectFont(family, category) {
-  const fallback = category === 'monospace'
-    ? 'monospace'
-    : category === 'serif' || category === 'display' || category === 'handwriting'
-      ? 'Georgia, serif'
-      : 'system-ui, sans-serif';
-
-  commitAppearanceChange(ps => {
-    ps.fonts[_activeFontType] = {
-      name: family,
-      css: `'${family}', ${fallback}`
-    };
-  }, _activeFontPage);
-
+  const fallback = category === 'monospace' ? 'monospace' : (category === 'serif' || category === 'display' || category === 'handwriting') ? 'Georgia, serif' : 'system-ui, sans-serif';
+  commitAppearanceChange(ps => { ps.fonts[_activeFontType] = { name: family, css: `'${family}', ${fallback}` }; }, _activeFontPage);
   syncFontBtnPreviews();
-  loadFontGrid(
-    document.getElementById('ap-font-search')?.value || '',
-    document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all'
-  );
+  loadFontGrid(document.getElementById('ap-font-search')?.value || '', document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all');
 }
 
 function handlePhotoUpload(file) {
   if (!file) return;
-
   const reader = new FileReader();
   reader.onload = e => {
     commitAppearanceChange(ps => {
@@ -773,14 +572,9 @@ function handlePhotoUpload(file) {
       ps.bgOpacity = parseInt(document.getElementById('ap-photo-opacity')?.value || 70, 10);
       ps.bgBlur = parseInt(document.getElementById('ap-photo-blur')?.value || 0, 10);
     }, _activeBgPage);
-
     const thumb = document.getElementById('ap-photo-thumb');
-    if (thumb) {
-      thumb.src = e.target.result;
-      thumb.style.display = 'block';
-    }
+    if (thumb) { thumb.src = e.target.result; thumb.style.display = 'block'; }
   };
-
   reader.readAsDataURL(file);
 }
 
@@ -788,9 +582,10 @@ function buildPanel() {
   const panel = document.getElementById('andy-appearance-panel');
   if (!panel) return;
 
-  panel.addEventListener('click', e => {
-    if (e.target === panel) closePanel();
-  });
+  // ← CLAVE: quitar inert para que el panel sea interactivo
+  panel.removeAttribute('inert');
+
+  panel.addEventListener('click', e => { if (e.target === panel) closePanel(); });
 
   panel.querySelectorAll('.ap-main-tab').forEach(btn => {
     btn.onclick = () => {
@@ -807,10 +602,7 @@ function buildPanel() {
     btn.onclick = () => {
       _activeFontPage = btn.dataset.page;
       syncPanel();
-      loadFontGrid(
-        document.getElementById('ap-font-search')?.value || '',
-        document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all'
-      );
+      loadFontGrid(document.getElementById('ap-font-search')?.value || '', document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all');
       previewCurrentStateFor(_activeFontPage);
     };
   });
@@ -819,21 +611,13 @@ function buildPanel() {
     btn.onclick = () => {
       _activeFontType = btn.dataset.type;
       syncPanel();
-      loadFontGrid(
-        document.getElementById('ap-font-search')?.value || '',
-        document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all'
-      );
+      loadFontGrid(document.getElementById('ap-font-search')?.value || '', document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all');
     };
   });
 
   document.getElementById('ap-font-search')?.addEventListener('input', function () {
     clearTimeout(_searchTimer);
-    _searchTimer = setTimeout(() => {
-      loadFontGrid(
-        this.value,
-        document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all'
-      );
-    }, 250);
+    _searchTimer = setTimeout(() => { loadFontGrid(this.value, document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all'); }, 250);
   });
 
   panel.querySelectorAll('.ap-filter-btn').forEach(btn => {
@@ -845,28 +629,16 @@ function buildPanel() {
   });
 
   panel.querySelectorAll('#ap-bg-page-tabs .ap-page-tab').forEach(btn => {
-    btn.onclick = () => {
-      _activeBgPage = btn.dataset.page;
-      syncPanel();
-      previewCurrentStateFor(_activeBgPage);
-    };
+    btn.onclick = () => { _activeBgPage = btn.dataset.page; syncPanel(); previewCurrentStateFor(_activeBgPage); };
   });
 
   panel.querySelectorAll('.ap-bg-type-btn').forEach(btn => {
-    btn.onclick = () => {
-      commitAppearanceChange(ps => {
-        ps.bgType = btn.dataset.type;
-      }, _activeBgPage);
-    };
+    btn.onclick = () => { commitAppearanceChange(ps => { ps.bgType = btn.dataset.type; }, _activeBgPage); };
   });
 
   document.getElementById('ap-color-picker')?.addEventListener('input', function () {
     updateColorSwatch(this.value);
-
-    commitAppearanceChange(ps => {
-      ps.bgType = 'color';
-      ps.bgValue = this.value;
-    }, _activeBgPage);
+    commitAppearanceChange(ps => { ps.bgType = 'color'; ps.bgValue = this.value; }, _activeBgPage);
   });
 
   ['ap-grad-1', 'ap-grad-2', 'ap-grad-3'].forEach(id => {
@@ -883,122 +655,70 @@ function buildPanel() {
   });
 
   document.getElementById('ap-grad-apply')?.addEventListener('click', () => {
-    commitAppearanceChange(ps => {
-      ps.bgType = 'gradient';
-      ps.bgValue = buildGradient();
-    }, _activeBgPage);
+    commitAppearanceChange(ps => { ps.bgType = 'gradient'; ps.bgValue = buildGradient(); }, _activeBgPage);
   });
 
   const zone = document.getElementById('ap-photo-zone');
   const inp = document.getElementById('ap-photo-input');
-
   if (zone && inp) {
     zone.onclick = () => inp.click();
-
-    zone.ondragover = e => {
-      e.preventDefault();
-      zone.classList.add('drag');
-    };
-
+    zone.ondragover = e => { e.preventDefault(); zone.classList.add('drag'); };
     zone.ondragleave = () => zone.classList.remove('drag');
-
-    zone.ondrop = e => {
-      e.preventDefault();
-      zone.classList.remove('drag');
-      handlePhotoUpload(e.dataTransfer.files[0]);
-    };
-
+    zone.ondrop = e => { e.preventDefault(); zone.classList.remove('drag'); handlePhotoUpload(e.dataTransfer.files[0]); };
     inp.onchange = () => handlePhotoUpload(inp.files[0]);
   }
 
   document.getElementById('ap-photo-opacity')?.addEventListener('input', function () {
     const t = document.getElementById('ap-opacity-val');
     if (t) t.textContent = this.value;
-
-    commitAppearanceChange(ps => {
-      ps.bgOpacity = parseInt(this.value, 10);
-    }, _activeBgPage);
+    commitAppearanceChange(ps => { ps.bgOpacity = parseInt(this.value, 10); }, _activeBgPage);
   });
 
   document.getElementById('ap-photo-blur')?.addEventListener('input', function () {
     const t = document.getElementById('ap-blur-val');
     if (t) t.textContent = `${this.value}px`;
-
-    commitAppearanceChange(ps => {
-      ps.bgBlur = parseInt(this.value, 10);
-    }, _activeBgPage);
+    commitAppearanceChange(ps => { ps.bgBlur = parseInt(this.value, 10); }, _activeBgPage);
   });
 
   panel.querySelectorAll('#ap-fx-page-tabs .ap-page-tab').forEach(btn => {
-    btn.onclick = () => {
-      _activeFxPage = btn.dataset.page;
-      syncPanel();
-      previewCurrentStateFor(_activeFxPage);
-    };
+    btn.onclick = () => { _activeFxPage = btn.dataset.page; syncPanel(); previewCurrentStateFor(_activeFxPage); };
   });
 
   panel.querySelectorAll('.ap-fx-card').forEach(card => {
-    card.onclick = () => {
-      commitAppearanceChange(ps => {
-        ps.effect = card.dataset.effect;
-      }, _activeFxPage);
-    };
+    card.onclick = () => { commitAppearanceChange(ps => { ps.effect = card.dataset.effect; }, _activeFxPage); };
   });
 
   document.getElementById('ap-fx-intensity')?.addEventListener('input', function () {
     const t = document.getElementById('ap-fx-intensity-val');
     if (t) t.textContent = this.value;
-
-    commitAppearanceChange(ps => {
-      ps.fxIntensity = parseInt(this.value, 10);
-    }, _activeFxPage);
+    commitAppearanceChange(ps => { ps.fxIntensity = parseInt(this.value, 10); }, _activeFxPage);
   });
 
   document.getElementById('ap-fx-speed')?.addEventListener('change', function () {
-    commitAppearanceChange(ps => {
-      ps.fxSpeed = this.value;
-    }, _activeFxPage);
+    commitAppearanceChange(ps => { ps.fxSpeed = this.value; }, _activeFxPage);
   });
 
   panel.querySelectorAll('#ap-surface-page-tabs .ap-page-tab').forEach(btn => {
-    btn.onclick = () => {
-      _activeSurfacePage = btn.dataset.page;
-      syncPanel();
-      previewCurrentStateFor(_activeSurfacePage);
-    };
+    btn.onclick = () => { _activeSurfacePage = btn.dataset.page; syncPanel(); previewCurrentStateFor(_activeSurfacePage); };
   });
 
   panel.querySelectorAll('.ap-surface-card[data-surface]').forEach(card => {
-    card.onclick = () => {
-      commitAppearanceChange(ps => {
-        ps.surface = card.dataset.surface;
-      }, _activeSurfacePage);
-    };
+    card.onclick = () => { commitAppearanceChange(ps => { ps.surface = card.dataset.surface; }, _activeSurfacePage); };
   });
 
   panel.querySelectorAll('#ap-theme-page-tabs .ap-page-tab').forEach(btn => {
-    btn.onclick = () => {
-      _activeThemePage = btn.dataset.page;
-      syncPanel();
-      previewCurrentStateFor(_activeThemePage);
-    };
+    btn.onclick = () => { _activeThemePage = btn.dataset.page; syncPanel(); previewCurrentStateFor(_activeThemePage); };
   });
 
   panel.querySelectorAll('.ap-theme-card').forEach(card => {
-    card.onclick = () => {
-      commitAppearanceChange(ps => {
-        ps.theme = card.dataset.theme;
-      }, _activeThemePage);
-    };
+    card.onclick = () => { commitAppearanceChange(ps => { ps.theme = card.dataset.theme; }, _activeThemePage); };
   });
 
   document.getElementById('ap-expand-btn')?.addEventListener('click', toggleExpand);
 
   document.getElementById('ap-export-btn')?.addEventListener('click', () => {
     const a = document.createElement('a');
-    a.href = URL.createObjectURL(
-      new Blob([JSON.stringify(AppState, null, 2)], { type: 'application/json' })
-    );
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(AppState, null, 2)], { type: 'application/json' }));
     a.download = 'andynet-appearance-v4.json';
     a.click();
   });
