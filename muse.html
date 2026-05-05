@@ -23,7 +23,6 @@
 <link rel="stylesheet" href="css/muse.css">
 <link rel="stylesheet" href="css/andy-fab.css">
 <link rel="stylesheet" href="css/appearance.css">
-<link rel="stylesheet" href="css/surfaces.css">
 </head>
 <body>
 
@@ -386,16 +385,18 @@
 
 <!-- PANEL DE APARIENCIA v4 -->
 <div id="ap-include"></div>
+<script src="js/appearance.js"></script>
 <script>
   fetch('appearance-panel.html')
     .then(r => r.text())
     .then(h => {
       document.getElementById('ap-include').innerHTML = h;
-      if (window.onAppearancePanelLoaded) window.onAppearancePanelLoaded();
+      buildPanel();
+      bindFooterActions();
+      loadFontGrid('', 'all');
     })
     .catch(err => console.error('Error cargando appearance-panel.html', err));
 </script>
-<script src="js/appearance.js"></script>
 
 </body>
 </html>
