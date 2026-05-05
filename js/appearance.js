@@ -265,19 +265,28 @@ function getPreviewUrl() {
 
 function sendToPreview() {
   if (!_expanded || !_iframe?.contentWindow) return;
-  try {
-    _iframe.contentWindow.postMessage({
-      type: 'andy-appearance-preview',
-      state: JSON.parse(JSON.stringify(Draft))
-    }, '*');
-  } catch(e) {}
+  const msg = { type: 'andy-appearance-preview', state: JSON.parse(JSON.stringify(Draft)) };
+  try { _iframe.contentWindow.postMessage(msg, '*'); } catch(e) {}
+  setTimeout(() => { try { _iframe?.contentWindow?.postMessage(msg, '*'); } catch(e) {} }, 900);
 }
 
 // Páginas dentro del iframe escuchan este mensaje y aplican
 window.addEventListener('message', e => {
-  if (e.data?.type !== 'andy-appearance-preview') return;
-  applyToPage(e.data.state);
+  // Iframe recibe estado del padre y lo aplica
+  if (e.data?.type === 'andy-appearance-preview') {
+    applyToPage(e.data.state);
+    return;
+  }
+  // Padre recibe aviso de que el iframe ya cargó
+  if (e.data?.type === 'andy-preview-ready' && _iframe) {
+    sendToPreview();
+  }
 });
+
+// Si esta página corre dentro de un iframe, avisar al padre
+if (window.parent !== window) {
+  window.parent.postMessage({ type: 'andy-preview-ready' }, '*');
+}
 
 function toggleExpand() {
   _expanded = !_expanded;
