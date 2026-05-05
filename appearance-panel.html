@@ -1,21 +1,17 @@
 <div id="andy-appearance-panel" class="ap-overlay" aria-hidden="true" inert>
-<aside class="ap-drawer" role="dialog" aria-modal="true" aria-label="Appearance panel">
-<header class="ap-header">
-<div>
-<div id="andy-appearance-panel" class="ap-overlay">
-  <aside class="ap-drawer">
+  <aside class="ap-drawer" role="dialog" aria-modal="true" aria-label="Appearance panel">
     <header class="ap-header">
       <div>
         <span class="ap-header-title">Appearance</span>
         <span class="ap-header-sub">Andy Net · Visual system</span>
       </div>
       <div style="display:flex;gap:8px;align-items:center">
-        <button id="ap-expand-btn" class="ap-close" type="button">⤢</button>
-        <button class="ap-close" type="button" onclick="closePanel()">✕</button>
+        <button id="ap-expand-btn" class="ap-close" type="button" aria-label="Expand preview">⤢</button>
+        <button class="ap-close" type="button" aria-label="Close" onclick="closePanel()">✕</button>
       </div>
     </header>
 
-    <nav class="ap-main-tabs">
+    <nav class="ap-main-tabs" aria-label="Appearance sections">
       <button type="button" class="ap-main-tab active" data-tab="fonts">Fonts</button>
       <button type="button" class="ap-main-tab" data-tab="background">Background</button>
       <button type="button" class="ap-main-tab" data-tab="effects">Effects</button>
@@ -61,7 +57,7 @@
         <span id="ap-font-current-name" class="ap-font-current-name">DM Serif Display</span>
       </div>
 
-      <input id="ap-font-search" class="ap-input" type="text" placeholder="Buscar fuente..." />
+      <input id="ap-font-search" class="ap-input" type="text" placeholder="Buscar fuente..." autocomplete="off" />
       
       <div class="ap-font-filters">
         <button type="button" class="ap-filter-btn active" data-cat="all">All</button>
@@ -281,10 +277,10 @@
       <button id="ap-close-corner" class="ap-close-corner" type="button">✕</button>
     </div>
 
-    <div id="andy-toast"></div>
+    <div id="andy-toast" aria-live="polite"></div>
   </aside>
 
-  <section id="ap-preview-pane">
+  <section id="ap-preview-pane" aria-label="Live preview">
     <div id="ap-preview-iframe-wrap"></div>
   </section>
 </div>
