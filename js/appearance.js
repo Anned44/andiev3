@@ -5,18 +5,17 @@ window.__andyAppearanceBooted = true;
 
 /* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
    APPEARANCE.JS — Andy.net v4
-   Estado global · aplica a todas las páginas
+   Preview en iframe · Aplicar al Guardar
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
 
 const GFONTS_KEY  = 'AIzaSyAvnT97F7A73UBhB3OYClMs6RyjUpHbrAY';
 const STORAGE_KEY = 'andynet_appearance_v5';
 
-/* ── Defaults ── */
 const FONT_DEFAULTS = {
-  display: { name: 'DM Serif Display',  css: "'DM Serif Display', Georgia, serif" },
-  quote:   { name: 'Cormorant Garamond',css: "'Cormorant Garamond', Georgia, serif" },
-  body:    { name: 'Inter',             css: "'Inter', system-ui, sans-serif" },
-  mono:    { name: 'IBM Plex Mono',     css: "'IBM Plex Mono', monospace" }
+  display: { name: 'DM Serif Display',   css: "'DM Serif Display', Georgia, serif" },
+  quote:   { name: 'Cormorant Garamond', css: "'Cormorant Garamond', Georgia, serif" },
+  body:    { name: 'Inter',              css: "'Inter', system-ui, sans-serif" },
+  mono:    { name: 'IBM Plex Mono',      css: "'IBM Plex Mono', monospace" }
 };
 
 const ROLE_META = {
@@ -77,54 +76,62 @@ const THEMES = {
   }
 };
 
-/* ── State ── */
-let S = DEFAULT_STATE();
-let _undoStack = [];
+/* ── Estado ──
+   S        = estado guardado (lo que está aplicado a la página)
+   Draft    = estado en edición (lo que se ve en el preview)
+*/
+let S     = DEFAULT_STATE(); // aplicado / guardado
+let Draft = DEFAULT_STATE(); // en edición en el panel
+
+let _undoStack  = [];
 let _toastTimer = null;
 
+/* ── Persistencia ── */
 function loadState() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    if (saved) S = { ...DEFAULT_STATE(), ...saved, fonts: { ...DEFAULT_STATE().fonts, ...(saved.fonts || {}) } };
+    if (saved) {
+      S = { ...DEFAULT_STATE(), ...saved, fonts: { ...DEFAULT_STATE().fonts, ...(saved.fonts || {}) } };
+      Draft = JSON.parse(JSON.stringify(S));
+    }
   } catch(e) {}
 }
 
-function saveState() {
-  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(S)); } catch(e) {}
+function saveAndApply() {
+  S = JSON.parse(JSON.stringify(Draft));
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(S));
+  applyToPage(S);
+  toast('Cambios guardados ✓');
 }
 
+/* ── Undo/Reset ── */
 function pushUndo() {
-  _undoStack.push(JSON.parse(JSON.stringify(S)));
+  _undoStack.push(JSON.parse(JSON.stringify(Draft)));
   if (_undoStack.length > 40) _undoStack.shift();
-}
-
-function commit(fn) {
-  pushUndo();
-  fn(S);
-  applyAll();
-  syncPanel();
-  saveState();
-  sendToPreview();
 }
 
 function undo() {
   if (!_undoStack.length) { toast('Nada que deshacer'); return; }
-  S = _undoStack.pop();
-  applyAll();
+  Draft = _undoStack.pop();
   syncPanel();
-  saveState();
   sendToPreview();
   toast('Deshecho');
 }
 
 function reset() {
   pushUndo();
-  S = DEFAULT_STATE();
-  applyAll();
+  Draft = DEFAULT_STATE();
   syncPanel();
-  saveState();
   sendToPreview();
   toast('Reset aplicado');
+}
+
+/* ── Mutar draft y mandar al preview ── */
+function mutate(fn) {
+  pushUndo();
+  fn(Draft);
+  syncPanel();
+  sendToPreview();
 }
 
 /* ── Toast ── */
@@ -134,10 +141,21 @@ function toast(msg) {
   el.textContent = msg;
   el.classList.add('show');
   clearTimeout(_toastTimer);
-  _toastTimer = setTimeout(() => el.classList.remove('show'), 1800);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 2000);
 }
 
-/* ── Apply functions ── */
+/* ━━ APPLY TO PAGE ━━
+   Solo se llama al Guardar o al cargar la página
+*/
+function applyToPage(state) {
+  applyTheme(state.theme);
+  applyBackground(state);
+  applyEffects(state);
+  applyFonts(state.fonts);
+  applySurface(state.surface);
+  applyQuoteSelectors();
+}
+
 function applyTheme(id) {
   const t = THEMES[id];
   if (!t) return;
@@ -155,13 +173,12 @@ function loadGFont(name) {
 }
 
 function applyFonts(fonts) {
+  if (!fonts) return;
   const r = document.documentElement;
-  const f = fonts || S.fonts;
-  if (f.display?.css) { r.style.setProperty('--font-display', f.display.css); r.style.setProperty('--serif', f.display.css); loadGFont(f.display.name); }
-  if (f.quote?.css)   { r.style.setProperty('--font-quote', f.quote.css);   r.style.setProperty('--font-subtitle', f.quote.css); loadGFont(f.quote.name); }
-  if (f.body?.css)    { r.style.setProperty('--font-body', f.body.css);     r.style.setProperty('--sans', f.body.css); loadGFont(f.body.name); }
-  if (f.mono?.css)    { r.style.setProperty('--font-mono', f.mono.css);     r.style.setProperty('--mono', f.mono.css); loadGFont(f.mono.name); }
-  applyQuoteSelectors();
+  if (fonts.display?.css) { r.style.setProperty('--font-display', fonts.display.css); r.style.setProperty('--serif', fonts.display.css); loadGFont(fonts.display.name); }
+  if (fonts.quote?.css)   { r.style.setProperty('--font-quote', fonts.quote.css);   r.style.setProperty('--font-subtitle', fonts.quote.css); loadGFont(fonts.quote.name); }
+  if (fonts.body?.css)    { r.style.setProperty('--font-body', fonts.body.css);     r.style.setProperty('--sans', fonts.body.css); loadGFont(fonts.body.name); }
+  if (fonts.mono?.css)    { r.style.setProperty('--font-mono', fonts.mono.css);     r.style.setProperty('--mono', fonts.mono.css); loadGFont(fonts.mono.name); }
 }
 
 function applyQuoteSelectors() {
@@ -172,49 +189,43 @@ function applyQuoteSelectors() {
   });
 }
 
-function applyBackground() {
-  // Clear
+function applyBackground(state) {
   document.body.style.backgroundImage = '';
   document.body.style.backgroundColor = '';
   document.body.style.backgroundAttachment = '';
   const old = document.getElementById('andy-bg-layer');
   if (old) old.remove();
 
-  if (S.bgType === 'color') {
-    document.body.style.backgroundColor = S.bgValue || '#0c0a12';
-  } else if (S.bgType === 'gradient') {
-    document.body.style.backgroundImage = S.bgValue;
+  if (state.bgType === 'color') {
+    document.body.style.backgroundColor = state.bgValue || '#0c0a12';
+  } else if (state.bgType === 'gradient') {
+    document.body.style.backgroundImage = state.bgValue;
     document.body.style.backgroundAttachment = 'fixed';
     document.body.style.backgroundColor = '#0c0a12';
-  } else if (S.bgType === 'photo' && S.bgValue) {
+  } else if (state.bgType === 'photo' && state.bgValue) {
     document.body.style.backgroundColor = '#0c0a12';
     const l = document.createElement('div');
     l.id = 'andy-bg-layer';
-    l.style.cssText = `position:fixed;inset:0;z-index:-1;pointer-events:none;background:url(${S.bgValue}) center/cover;opacity:${(S.bgOpacity||70)/100};filter:blur(${S.bgBlur||0}px);`;
+    l.style.cssText = `position:fixed;inset:0;z-index:-1;pointer-events:none;background:url(${state.bgValue}) center/cover;opacity:${(state.bgOpacity||70)/100};filter:blur(${state.bgBlur||0}px);`;
     document.body.prepend(l);
   }
 }
 
-function applySurface() {
-  document.documentElement.setAttribute('data-surface', S.surface || 'glass');
+function applySurface(surfaceId) {
+  document.documentElement.setAttribute('data-surface', surfaceId || 'glass');
 }
 
-function applyEffects() {
+function applyEffects(state) {
   const old = document.getElementById('andy-fx-layer');
   if (old) old.remove();
-  if (S.effect === 'none') return;
+  if (!state.effect || state.effect === 'none') return;
 
   const layer = document.createElement('div');
   layer.id = 'andy-fx-layer';
-  layer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;';
+  layer.style.cssText = 'position:fixed;inset:0;pointer-events:none;z-index:-1;overflow:hidden;';
   document.body.appendChild(layer);
 
-  const intensity = Math.max(0, Math.min(100, Number(S.fxIntensity ?? 50)));
-  const dur = S.fxSpeed === 'fast' ? '8s' : S.fxSpeed === 'medium' ? '14s' : '22s';
-  const a = (0.08 + (intensity / 100) * 0.26).toFixed(3);
-
-  const kf = document.getElementById('andy-fx-kf');
-  if (!kf) {
+  if (!document.getElementById('andy-fx-kf')) {
     const s = document.createElement('style');
     s.id = 'andy-fx-kf';
     s.textContent = `
@@ -226,54 +237,52 @@ function applyEffects() {
     document.head.appendChild(s);
   }
 
-  const effects = {
-    bubbles: `<div style="position:absolute;inset:0;background:radial-gradient(circle at 18% 25%,rgba(255,255,255,${a}) 0 2%,transparent 8%),radial-gradient(circle at 72% 28%,rgba(155,122,184,${a}) 0 3%,transparent 10%),radial-gradient(circle at 58% 70%,rgba(90,122,170,${a}) 0 2.5%,transparent 9%);filter:blur(${8+intensity*.12}px);animation:fxFloat ${dur} ease-in-out infinite alternate"></div>`,
+  const intensity = Math.max(0, Math.min(100, Number(state.fxIntensity ?? 50)));
+  const dur = state.fxSpeed === 'fast' ? '8s' : state.fxSpeed === 'medium' ? '14s' : '22s';
+  const a = (0.08 + (intensity / 100) * 0.26).toFixed(3);
+
+  const fx = {
+    bubbles:       `<div style="position:absolute;inset:0;background:radial-gradient(circle at 18% 25%,rgba(255,255,255,${a}) 0 2%,transparent 8%),radial-gradient(circle at 72% 28%,rgba(155,122,184,${a}) 0 3%,transparent 10%),radial-gradient(circle at 58% 70%,rgba(90,122,170,${a}) 0 2.5%,transparent 9%);filter:blur(${8+intensity*.12}px);animation:fxFloat ${dur} ease-in-out infinite alternate"></div>`,
     constellation: `<div style="position:absolute;inset:0;opacity:${.35+intensity/220};background-image:radial-gradient(rgba(255,255,255,.9) 1px,transparent 1.5px),radial-gradient(rgba(155,122,184,.75) 1px,transparent 1.5px);background-size:120px 120px,180px 180px;background-position:20px 30px,70px 100px;animation:fxDrift ${dur} linear infinite"></div>`,
-    aurora: `<div style="position:absolute;inset:-10%;background:radial-gradient(circle at 20% 30%,rgba(124,92,255,${a}) 0,transparent 35%),radial-gradient(circle at 70% 25%,rgba(79,195,247,${a}) 0,transparent 38%),radial-gradient(circle at 52% 80%,rgba(123,228,149,${a}) 0,transparent 42%);filter:blur(${18+intensity*.18}px);animation:fxAurora ${dur} ease-in-out infinite alternate"></div>`,
-    particles: `<div style="position:absolute;inset:0;opacity:${.18+intensity/180};background-image:radial-gradient(rgba(255,220,160,.9) 1px,transparent 1.5px);background-size:${22-Math.min(10,intensity/10|0)}px ${22-Math.min(10,intensity/10|0)}px;animation:fxDrift ${dur} linear infinite"></div>`,
-    mist: `<div style="position:absolute;inset:-10%;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,${(a*.6).toFixed(3)}) 0,transparent 35%),radial-gradient(circle at 70% 50%,rgba(155,122,184,${a}) 0,transparent 35%);filter:blur(${24+intensity*.22}px);animation:fxMist ${dur} ease-in-out infinite alternate"></div>`
+    aurora:        `<div style="position:absolute;inset:-10%;background:radial-gradient(circle at 20% 30%,rgba(124,92,255,${a}) 0,transparent 35%),radial-gradient(circle at 70% 25%,rgba(79,195,247,${a}) 0,transparent 38%),radial-gradient(circle at 52% 80%,rgba(123,228,149,${a}) 0,transparent 42%);filter:blur(${18+intensity*.18}px);animation:fxAurora ${dur} ease-in-out infinite alternate"></div>`,
+    particles:     `<div style="position:absolute;inset:0;opacity:${.18+intensity/180};background-image:radial-gradient(rgba(255,220,160,.9) 1px,transparent 1.5px);background-size:${22-Math.min(10,intensity/10|0)}px ${22-Math.min(10,intensity/10|0)}px;animation:fxDrift ${dur} linear infinite"></div>`,
+    mist:          `<div style="position:absolute;inset:-10%;background:radial-gradient(circle at 30% 40%,rgba(255,255,255,${(a*.6).toFixed(3)}) 0,transparent 35%),radial-gradient(circle at 70% 50%,rgba(155,122,184,${a}) 0,transparent 35%);filter:blur(${24+intensity*.22}px);animation:fxMist ${dur} ease-in-out infinite alternate"></div>`
   };
-
-  if (effects[S.effect]) layer.innerHTML = effects[S.effect];
+  if (fx[state.effect]) layer.innerHTML = fx[state.effect];
 }
 
-function applyAll() {
-  applyTheme(S.theme);
-  applyBackground();
-  applyEffects();
-  applyFonts();
-  applySurface();
-}
-
-/* ── Preview iframe ── */
-let _iframe = null;
+/* ━━ PREVIEW IFRAME ━━ */
+let _iframe   = null;
 let _expanded = false;
 
 function getPreviewUrl() {
   const p = location.pathname.split('/').pop();
-  if (p === 'hub.html') return 'hub.html';
+  if (p === 'hub.html')    return 'hub.html';
   if (p === 'studio.html') return 'studio.html';
-  if (p === 'muse.html') return 'muse.html';
+  if (p === 'muse.html')   return 'muse.html';
   return 'index.html';
 }
 
 function sendToPreview() {
   if (!_expanded || !_iframe?.contentWindow) return;
   try {
-    _iframe.contentWindow.postMessage({ type: 'andy-appearance', state: JSON.parse(JSON.stringify(S)) }, '*');
+    _iframe.contentWindow.postMessage({
+      type: 'andy-appearance-preview',
+      state: JSON.parse(JSON.stringify(Draft))
+    }, '*');
   } catch(e) {}
 }
 
+// Páginas dentro del iframe escuchan este mensaje y aplican
 window.addEventListener('message', e => {
-  if (e.data?.type !== 'andy-appearance') return;
-  S = e.data.state;
-  applyAll();
+  if (e.data?.type !== 'andy-appearance-preview') return;
+  applyToPage(e.data.state);
 });
 
 function toggleExpand() {
   _expanded = !_expanded;
   const overlay = document.getElementById('andy-appearance-panel');
-  const btn = document.getElementById('ap-expand-btn');
+  const btn  = document.getElementById('ap-expand-btn');
   const pane = document.getElementById('ap-preview-pane');
 
   if (_expanded) {
@@ -281,7 +290,6 @@ function toggleExpand() {
     if (btn) btn.textContent = '←';
     if (pane) {
       pane.style.display = 'flex';
-      // Init iframe
       if (!_iframe) {
         _iframe = document.createElement('iframe');
         _iframe.style.cssText = 'width:100%;height:100%;border:none;border-radius:12px;';
@@ -300,12 +308,12 @@ function toggleExpand() {
   }
 }
 
-/* ── Font grid ── */
-let _allFonts = [];
-let _fontsReady = false;
+/* ━━ FONT GRID ━━ */
+let _allFonts       = [];
+let _fontsReady     = false;
 let _activeFontType = 'display';
-let _searchTimer = null;
-let _gradDir = '135deg';
+let _searchTimer    = null;
+let _gradDir        = '135deg';
 
 async function fetchAllFonts() {
   if (_fontsReady) return _allFonts;
@@ -313,15 +321,15 @@ async function fetchAllFonts() {
     const r = await fetch(`https://www.googleapis.com/webfonts/v1/webfonts?key=${GFONTS_KEY}&sort=popularity`);
     _allFonts = (await r.json()).items || [];
     _fontsReady = true;
-  } catch(e) { console.warn('GFonts error:', e); }
+  } catch(e) { console.warn('GFonts:', e); }
   return _allFonts;
 }
 
 async function loadFontGrid(query = '', cat = 'all') {
   const grid = document.getElementById('ap-font-grid');
   if (!grid) return;
-
   grid.innerHTML = '<div class="ap-font-loading">Cargando Google Fonts...</div>';
+
   const all = await fetchAllFonts();
   const q = query.toLowerCase();
   const filtered = all.filter(f =>
@@ -331,7 +339,7 @@ async function loadFontGrid(query = '', cat = 'all') {
 
   if (!filtered.length) { grid.innerHTML = '<div class="ap-font-loading">Sin resultados</div>'; return; }
 
-  const current = S.fonts[_activeFontType]?.name;
+  const current  = Draft.fonts[_activeFontType]?.name;
   const isItalic = _activeFontType === 'display' || _activeFontType === 'quote';
   const sampleWord = ROLE_META[_activeFontType].sample.split(' ')[0];
 
@@ -358,26 +366,24 @@ function selectFont(family, category) {
     : (category === 'serif' || category === 'display' || category === 'handwriting') ? 'Georgia, serif'
     : 'system-ui, sans-serif';
   const css = `'${family}', ${fallback}`;
-
-  commit(s => { s.fonts[_activeFontType] = { name: family, css }; });
+  loadGFont(family);
+  mutate(d => { d.fonts[_activeFontType] = { name: family, css }; });
   updatePreviewBox(family, css);
   loadFontGrid(document.getElementById('ap-font-search')?.value || '', document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all');
 }
 
 function updatePreviewBox(name, css) {
   const role = ROLE_META[_activeFontType];
-  const f = S.fonts[_activeFontType];
+  const f    = Draft.fonts[_activeFontType];
   const isItalic = _activeFontType === 'display' || _activeFontType === 'quote';
-
   const el = document.getElementById('ap-preview-role-label');
   const pt = document.getElementById('ap-font-preview-text');
   const pm = document.getElementById('ap-font-preview-meta');
-
   if (el) el.textContent = role.label;
   if (pt) {
     pt.textContent = role.sample;
     pt.style.fontFamily = css || f?.css || 'serif';
-    pt.style.fontStyle = isItalic ? 'italic' : 'normal';
+    pt.style.fontStyle  = isItalic ? 'italic' : 'normal';
   }
   if (pm) pm.textContent = `${name || f?.name} · ${role.desc}`;
 }
@@ -397,34 +403,6 @@ function updateGradPreview() {
   if (p) p.style.background = buildGradient();
 }
 
-/* ── Sync panel UI to state ── */
-function syncPanel() {
-  // Role pills
-  document.querySelectorAll('.ap-role-pill').forEach(b => b.classList.toggle('active', b.dataset.type === _activeFontType));
-  updatePreviewBox();
-
-  // Background
-  document.querySelectorAll('.ap-bg-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === S.bgType));
-  document.querySelectorAll('.ap-bg-panel').forEach(p => p.classList.toggle('active', p.dataset.type === S.bgType));
-  const pk = document.getElementById('ap-color-picker');
-  if (pk && S.bgType === 'color') { pk.value = S.bgValue || '#0c0a12'; updateColorSwatch(pk.value); }
-
-  // Effects
-  document.querySelectorAll('.ap-fx-card').forEach(c => c.classList.toggle('active', c.dataset.effect === S.effect));
-  const fi = document.getElementById('ap-fx-intensity');
-  const fiv = document.getElementById('ap-fx-intensity-val');
-  const fs = document.getElementById('ap-fx-speed');
-  if (fi) fi.value = S.fxIntensity ?? 50;
-  if (fiv) fiv.textContent = S.fxIntensity ?? 50;
-  if (fs) fs.value = S.fxSpeed || 'slow';
-
-  // Theme
-  document.querySelectorAll('.ap-theme-card').forEach(c => c.classList.toggle('active', c.dataset.theme === S.theme));
-
-  // Surface
-  document.querySelectorAll('.ap-surface-card').forEach(c => c.classList.toggle('active', c.dataset.surface === S.surface));
-}
-
 function updateColorSwatch(hex) {
   const sw = document.getElementById('ap-color-swatch');
   const tx = document.getElementById('ap-color-hex');
@@ -432,16 +410,38 @@ function updateColorSwatch(hex) {
   if (tx) tx.textContent = hex;
 }
 
-/* ── Photo upload ── */
+/* ── Sync panel UI → Draft ── */
+function syncPanel() {
+  document.querySelectorAll('.ap-role-pill').forEach(b => b.classList.toggle('active', b.dataset.type === _activeFontType));
+  updatePreviewBox();
+
+  document.querySelectorAll('.ap-bg-type-btn').forEach(b => b.classList.toggle('active', b.dataset.type === Draft.bgType));
+  document.querySelectorAll('.ap-bg-panel').forEach(p => p.classList.toggle('active', p.dataset.type === Draft.bgType));
+  const pk = document.getElementById('ap-color-picker');
+  if (pk && Draft.bgType === 'color') { pk.value = Draft.bgValue || '#0c0a12'; updateColorSwatch(pk.value); }
+
+  document.querySelectorAll('.ap-fx-card').forEach(c => c.classList.toggle('active', c.dataset.effect === Draft.effect));
+  const fi  = document.getElementById('ap-fx-intensity');
+  const fiv = document.getElementById('ap-fx-intensity-val');
+  const fs  = document.getElementById('ap-fx-speed');
+  if (fi)  fi.value = Draft.fxIntensity ?? 50;
+  if (fiv) fiv.textContent = Draft.fxIntensity ?? 50;
+  if (fs)  fs.value = Draft.fxSpeed || 'slow';
+
+  document.querySelectorAll('.ap-theme-card').forEach(c => c.classList.toggle('active', c.dataset.theme === Draft.theme));
+  document.querySelectorAll('.ap-surface-card').forEach(c => c.classList.toggle('active', c.dataset.surface === Draft.surface));
+}
+
+/* ── Photo ── */
 function handlePhoto(file) {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = e => {
-    commit(s => {
-      s.bgType = 'photo';
-      s.bgValue = e.target.result;
-      s.bgOpacity = parseInt(document.getElementById('ap-photo-opacity')?.value || 70);
-      s.bgBlur = parseInt(document.getElementById('ap-photo-blur')?.value || 0);
+    mutate(d => {
+      d.bgType    = 'photo';
+      d.bgValue   = e.target.result;
+      d.bgOpacity = parseInt(document.getElementById('ap-photo-opacity')?.value || 70);
+      d.bgBlur    = parseInt(document.getElementById('ap-photo-blur')?.value || 0);
     });
     const thumb = document.getElementById('ap-photo-thumb');
     if (thumb) { thumb.src = e.target.result; thumb.style.display = 'block'; }
@@ -453,6 +453,8 @@ function handlePhoto(file) {
 function openPanel() {
   const panel = document.getElementById('andy-appearance-panel');
   if (!panel) return;
+  // Sync draft to current saved state when opening
+  Draft = JSON.parse(JSON.stringify(S));
   panel.removeAttribute('inert');
   panel.classList.add('open');
   panel.setAttribute('aria-hidden', 'false');
@@ -469,16 +471,14 @@ function closePanel() {
   panel.setAttribute('inert', '');
 }
 
-/* ── Build panel (called after HTML inject) ── */
+/* ── Build panel ── */
 function buildPanel() {
   const panel = document.getElementById('andy-appearance-panel');
   if (!panel) return;
   panel.removeAttribute('inert');
 
-  // Close on overlay click
   panel.addEventListener('click', e => { if (e.target === panel) closePanel(); });
 
-  // Main tabs
   panel.querySelectorAll('.ap-main-tab').forEach(btn => {
     btn.onclick = () => {
       panel.querySelectorAll('.ap-main-tab').forEach(b => b.classList.remove('active'));
@@ -488,7 +488,6 @@ function buildPanel() {
     };
   });
 
-  // Role pills
   panel.querySelectorAll('.ap-role-pill').forEach(btn => {
     btn.onclick = () => {
       _activeFontType = btn.dataset.type;
@@ -497,13 +496,11 @@ function buildPanel() {
     };
   });
 
-  // Font search
   document.getElementById('ap-font-search')?.addEventListener('input', function() {
     clearTimeout(_searchTimer);
     _searchTimer = setTimeout(() => loadFontGrid(this.value, document.querySelector('.ap-filter-btn.active')?.dataset.cat || 'all'), 280);
   });
 
-  // Filter chips
   panel.querySelectorAll('.ap-filter-btn').forEach(btn => {
     btn.onclick = () => {
       panel.querySelectorAll('.ap-filter-btn').forEach(b => b.classList.remove('active'));
@@ -512,21 +509,19 @@ function buildPanel() {
     };
   });
 
-  // Background type
   panel.querySelectorAll('.ap-bg-type-btn').forEach(btn => {
-    btn.onclick = () => commit(s => { s.bgType = btn.dataset.type; });
+    btn.onclick = () => mutate(d => { d.bgType = btn.dataset.type; });
   });
 
-  // Color picker
   document.getElementById('ap-color-picker')?.addEventListener('input', function() {
     updateColorSwatch(this.value);
-    commit(s => { s.bgType = 'color'; s.bgValue = this.value; });
+    mutate(d => { d.bgType = 'color'; d.bgValue = this.value; });
   });
 
-  // Gradient
   ['ap-grad-1','ap-grad-2','ap-grad-3'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updateGradPreview);
   });
+
   panel.querySelectorAll('.ap-grad-dir-btn').forEach(btn => {
     btn.onclick = () => {
       panel.querySelectorAll('.ap-grad-dir-btn').forEach(b => b.classList.remove('active'));
@@ -535,52 +530,52 @@ function buildPanel() {
       updateGradPreview();
     };
   });
+
   document.getElementById('ap-grad-apply')?.addEventListener('click', () => {
-    commit(s => { s.bgType = 'gradient'; s.bgValue = buildGradient(); });
+    mutate(d => { d.bgType = 'gradient'; d.bgValue = buildGradient(); });
   });
 
-  // Photo
   const zone = document.getElementById('ap-photo-zone');
   const inp  = document.getElementById('ap-photo-input');
   if (zone && inp) {
     zone.onclick = () => inp.click();
-    zone.ondragover = e => { e.preventDefault(); zone.classList.add('drag'); };
+    zone.ondragover  = e => { e.preventDefault(); zone.classList.add('drag'); };
     zone.ondragleave = () => zone.classList.remove('drag');
-    zone.ondrop = e => { e.preventDefault(); zone.classList.remove('drag'); handlePhoto(e.dataTransfer.files[0]); };
-    inp.onchange = () => handlePhoto(inp.files[0]);
+    zone.ondrop      = e => { e.preventDefault(); zone.classList.remove('drag'); handlePhoto(e.dataTransfer.files[0]); };
+    inp.onchange     = () => handlePhoto(inp.files[0]);
   }
+
   document.getElementById('ap-photo-opacity')?.addEventListener('input', function() {
     document.getElementById('ap-opacity-val').textContent = this.value;
-    commit(s => { s.bgOpacity = +this.value; });
+    mutate(d => { d.bgOpacity = +this.value; });
   });
+
   document.getElementById('ap-photo-blur')?.addEventListener('input', function() {
     document.getElementById('ap-blur-val').textContent = this.value + 'px';
-    commit(s => { s.bgBlur = +this.value; });
+    mutate(d => { d.bgBlur = +this.value; });
   });
 
-  // Effects
   panel.querySelectorAll('.ap-fx-card').forEach(card => {
-    card.onclick = () => commit(s => { s.effect = card.dataset.effect; });
+    card.onclick = () => mutate(d => { d.effect = card.dataset.effect; });
   });
+
   document.getElementById('ap-fx-intensity')?.addEventListener('input', function() {
     document.getElementById('ap-fx-intensity-val').textContent = this.value;
-    commit(s => { s.fxIntensity = +this.value; });
+    mutate(d => { d.fxIntensity = +this.value; });
   });
+
   document.getElementById('ap-fx-speed')?.addEventListener('change', function() {
-    commit(s => { s.fxSpeed = this.value; });
+    mutate(d => { d.fxSpeed = this.value; });
   });
 
-  // Surface
   panel.querySelectorAll('.ap-surface-card').forEach(card => {
-    card.onclick = () => commit(s => { s.surface = card.dataset.surface; });
+    card.onclick = () => mutate(d => { d.surface = card.dataset.surface; });
   });
 
-  // Theme
   panel.querySelectorAll('.ap-theme-card').forEach(card => {
-    card.onclick = () => commit(s => { s.theme = card.dataset.theme; });
+    card.onclick = () => mutate(d => { d.theme = card.dataset.theme; });
   });
 
-  // Expand
   document.getElementById('ap-expand-btn')?.addEventListener('click', toggleExpand);
 
   updateGradPreview();
@@ -588,23 +583,23 @@ function buildPanel() {
 }
 
 function bindFooterActions() {
-  document.getElementById('ap-save-btn')?.addEventListener('click', () => { saveState(); toast('Cambios guardados'); });
+  document.getElementById('ap-save-btn')?.addEventListener('click', saveAndApply);
   document.getElementById('ap-reset-btn')?.addEventListener('click', reset);
   document.getElementById('ap-undo-btn')?.addEventListener('click', undo);
   document.getElementById('ap-close-corner')?.addEventListener('click', closePanel);
 }
 
-/* ── Expose globals ── */
-window.buildPanel       = buildPanel;
+/* ── Globals ── */
+window.buildPanel        = buildPanel;
 window.bindFooterActions = bindFooterActions;
-window.loadFontGrid     = loadFontGrid;
-window.openPanel        = openPanel;
-window.closePanel       = closePanel;
+window.loadFontGrid      = loadFontGrid;
+window.openPanel         = openPanel;
+window.closePanel        = closePanel;
 
-/* ── Init on load ── */
+/* ── Init ── */
 window.addEventListener('load', () => {
   loadState();
-  applyAll();
+  applyToPage(S);
   applyQuoteSelectors();
   document.querySelectorAll('[data-open-appearance], #settingsBtn, .settings-btn').forEach(btn => {
     btn.addEventListener('click', openPanel);
