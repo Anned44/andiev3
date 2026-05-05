@@ -1035,5 +1035,3 @@ window.loadFontGrid = loadFontGrid;
 window.openPanel = openPanel;
 
 }
-
-}
