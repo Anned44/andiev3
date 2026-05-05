@@ -22,11 +22,7 @@
 <link rel="stylesheet" href="css/andy-fab.css">
 <link rel="stylesheet" href="css/studio-layout.css">
 <link rel="stylesheet" href="css/studio-proyectos.css">
-
-  <!-- Próximamente -->
-<!-- <link rel="stylesheet" href="css/hub-metas.css"> -->
-<!-- <link rel="stylesheet" href="css/hub-finanzas.css"> -->
-<!-- <link rel="stylesheet" href="css/hub-health.css"> -->
+<link rel="stylesheet" href="css/appearance.css">
 
 <style>
 /* FAB campos condicionales */
@@ -353,11 +349,6 @@ input[type=range]{flex:1;accent-color:var(--hub);}
 <script src="js/hub-inbox.js" defer></script>
 <script src="js/studio-proyectos.js" defer></script>
 
-<!-- Próximamente -->
-<!-- <script src="js/hub-metas.js" defer></script> -->
-<!-- <script src="js/hub-finanzas.js" defer></script> -->
-<!-- <script src="js/hub-health.js" defer></script> -->
-
 <script>
 window.HubMetas    = { init(){}, refresh(){}, showAddForm(){ document.getElementById('addMetaForm').style.display='block'; }, save(){} };
 window.HubHealth   = { init(){}, refresh(){}, saveNotas(){} };
@@ -382,16 +373,18 @@ window.addEventListener('load', () => {
 
 <!-- PANEL DE APARIENCIA v4 -->
 <div id="ap-include"></div>
+<script src="js/appearance.js"></script>
 <script>
   fetch('appearance-panel.html')
     .then(r => r.text())
     .then(h => {
       document.getElementById('ap-include').innerHTML = h;
-      if (window.onAppearancePanelLoaded) window.onAppearancePanelLoaded();
+      buildPanel();
+      bindFooterActions();
+      loadFontGrid('', 'all');
     })
     .catch(err => console.error('Error cargando appearance-panel.html', err));
 </script>
-<script src="js/appearance.js"></script>
 
 </body>
 </html>
