@@ -1028,9 +1028,12 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 });
 
-window.onAppearancePanelLoaded = function () {
-  // ya corrió arriba, esto es para páginas que lo cargan después
-  // si buildPanel() ya se ejecutó, no hace nada
-};
+window.onAppearancePanelLoaded = function () {};
+window.buildPanel = buildPanel;
+window.bindFooterActions = bindFooterActions;
+window.loadFontGrid = loadFontGrid;
+window.openPanel = openPanel;
+
+}
 
 }
