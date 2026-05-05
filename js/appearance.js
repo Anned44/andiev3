@@ -724,7 +724,7 @@ function buildPanel() {
   });
 
   updateGradPreview();
-  syncPanel();
+ syncPanel();
 }
 
 function bindFooterActions() {
@@ -733,6 +733,12 @@ function bindFooterActions() {
   document.getElementById('ap-undo-btn')?.addEventListener('click', undoAppearance);
   document.getElementById('ap-close-corner')?.addEventListener('click', closePanel);
 }
+
+window.buildPanel = buildPanel;
+window.bindFooterActions = bindFooterActions;
+window.loadFontGrid = loadFontGrid;
+window.openPanel = openPanel;
+window.closePanel = closePanel;
 
 window.addEventListener('load', () => {
   loadState();
