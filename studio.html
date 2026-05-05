@@ -18,7 +18,6 @@
 <link rel="stylesheet" href="css/studio-proyectos.css">
 <link rel="stylesheet" href="css/andy-fab.css">
 <link rel="stylesheet" href="css/appearance.css">
-<link rel="stylesheet" href="css/surfaces.css">
 
 <style>
 .stub-page{padding:60px 0;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em;}
@@ -87,7 +86,6 @@
   <!-- DASHBOARD -->
   <div id="page-dashboard" class="studio-page active">
 
-    <!-- Saludo + frase -->
     <div class="sdash-welcome">
       <div>
         <div class="sdash-greeting" id="sdashGreeting"></div>
@@ -96,7 +94,6 @@
       </div>
     </div>
 
-    <!-- Hero operativo — 1 fila -->
     <div class="sdash-hero">
       <div class="sdash-hero-label">studio</div>
       <div class="sdash-hero-stats" id="sdashStats"></div>
@@ -107,34 +104,27 @@
       </div>
     </div>
 
-    <!-- Grid 3 cols -->
     <div class="sdash-grid">
-      <!-- Proyectos span 2 -->
       <div class="sdash-widget sdash-w2">
         <div class="sdash-wlabel">◈ proyectos <button class="sdash-wlink" onclick="StudioCore.navTo(document.querySelector('[title=Proyectos]'),'proyectos')">ver todos →</button></div>
         <div id="sdwProyectos"></div>
       </div>
-      <!-- Resumen -->
       <div class="sdash-widget">
         <div class="sdash-wlabel">resumen</div>
         <div id="sdwResumen"></div>
       </div>
-      <!-- Aprendizaje -->
       <div class="sdash-widget">
         <div class="sdash-wlabel">◎ aprendizaje <button class="sdash-wlink" onclick="StudioCore.navTo(document.querySelector('[title=Aprendizaje]'),'aprendizaje')">→</button></div>
         <div class="sdash-stub">próximamente ✦</div>
       </div>
-      <!-- Notas/Ideas -->
       <div class="sdash-widget">
         <div class="sdash-wlabel">✦ notas / ideas <button class="sdash-wlink" onclick="StudioCore.navTo(document.querySelector('[title=Notas]'),'notas')">→</button></div>
         <div class="sdash-stub">próximamente ✦</div>
       </div>
-      <!-- Biblioteca -->
       <div class="sdash-widget">
         <div class="sdash-wlabel">📚 biblioteca <button class="sdash-wlink" onclick="StudioCore.navTo(document.querySelector('[title=Biblioteca]'),'biblioteca')">→</button></div>
         <div class="sdash-stub">próximamente ✦</div>
       </div>
-      <!-- Actividad span 3 -->
       <div class="sdash-widget sdash-w3">
         <div class="sdash-wlabel">actividad reciente</div>
         <div id="sdwActividad" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px"></div>
@@ -146,12 +136,10 @@
   <div id="page-proyectos" class="studio-page">
     <div class="studio-page-h1">Proyectos</div>
     <div class="studio-page-sub">crea · construye · lanza</div>
-
     <div class="proy-toolbar">
       <div class="proy-toolbar-spacer"></div>
       <button class="proy-new-btn" onclick="StudioProyectos.newProyecto()">+ nuevo proyecto</button>
     </div>
-
     <div id="proyGallery"></div>
     <div id="proyDetail" style="display:none"></div>
   </div>
@@ -188,7 +176,6 @@
 <script src="js/theme.js"></script>
 
 <script>
-/* ── StudioCore ── */
 window.StudioCore = (function() {
   function navTo(btn, page) {
     document.querySelectorAll('.studio-nav-btn').forEach(b=>b.classList.remove('active'));
@@ -200,7 +187,6 @@ window.StudioCore = (function() {
     document.querySelectorAll('.studio-page').forEach(p=>p.classList.remove('active'));
     const el = document.getElementById('page-'+page);
     if (el) el.classList.add('active');
-
     const sb = document.querySelector('.studio-sidebar');
     if (sb) { sb.classList.add('collapsed'); setTimeout(()=>sb.classList.remove('collapsed'),800); }
   }
@@ -230,9 +216,7 @@ window.StudioCore = (function() {
 })();
 
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') {
-    StudioProyectos.backToGallery?.();
-  }
+  if (e.key === 'Escape') StudioProyectos.backToGallery?.();
 });
 
 window.addEventListener('load', () => {
@@ -266,8 +250,8 @@ function renderStudioDash() {
   const proyectos = JSON.parse(localStorage.getItem('hub_proyectos') || localStorage.getItem('studio_proyectos') || '[]');
   const now = new Date();
   const h = now.getHours();
-
   const saludo = h < 12 ? 'Buenos días' : h < 19 ? 'Buenas tardes' : 'Buenas noches';
+
   const greetEl = document.getElementById('sdashGreeting');
   const dateEl  = document.getElementById('sdashDate');
   const fraseEl = document.getElementById('sdashFrase');
@@ -275,9 +259,9 @@ function renderStudioDash() {
   if (dateEl)  dateEl.textContent  = DF_ES[now.getDay()] + ', ' + now.getDate() + ' de ' + MN_ES[now.getMonth()] + ' de ' + now.getFullYear();
   if (fraseEl) fraseEl.textContent = '"' + FRASES_PLAN[(now.getDate() + now.getHours()) % FRASES_PLAN.length] + '"';
 
-  const actN   = proyectos.filter(p=>p.estado==='construyendo').length;
-  const urgN   = proyectos.filter(p=>p.urgente).length;
-  const pendN  = proyectos.reduce((s,p)=>(s+(p.cards||[]).filter(c=>c.colId!==p.cols?.[p.cols.length-1]?.id).length),0);
+  const actN  = proyectos.filter(p=>p.estado==='construyendo').length;
+  const urgN  = proyectos.filter(p=>p.urgente).length;
+  const pendN = proyectos.reduce((s,p)=>(s+(p.cards||[]).filter(c=>c.colId!==p.cols?.[p.cols.length-1]?.id).length),0);
   const statsEl = document.getElementById('sdashStats');
   if (statsEl) statsEl.innerHTML = `
     <div class="sdash-hs"><span class="sdash-hs-n">${actN}</span><span class="sdash-hs-l">activos</span></div>
@@ -332,16 +316,18 @@ function renderStudioDash() {
 
 <!-- PANEL DE APARIENCIA v4 -->
 <div id="ap-include"></div>
+<script src="js/appearance.js"></script>
 <script>
   fetch('appearance-panel.html')
     .then(r => r.text())
     .then(h => {
       document.getElementById('ap-include').innerHTML = h;
-      if (window.onAppearancePanelLoaded) window.onAppearancePanelLoaded();
+      buildPanel();
+      bindFooterActions();
+      loadFontGrid('', 'all');
     })
     .catch(err => console.error('Error cargando appearance-panel.html', err));
 </script>
-<script src="js/appearance.js"></script>
 
 </body>
 </html>
