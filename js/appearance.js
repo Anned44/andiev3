@@ -1025,3 +1025,5 @@ window.addEventListener('load', () => {
     btn.addEventListener('click', openPanel);
   });
 });
+
+}
