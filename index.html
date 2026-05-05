@@ -1068,19 +1068,22 @@ setInterval(updateTime, 60000);
 })();
 </script>
 
+<!-- ANDY FAB -->
+<script src="js/andy-fab.js"></script>
+
 <!-- PANEL DE APARIENCIA v4 -->
 <div id="ap-include"></div>
+<script src="js/appearance.js"></script>
 <script>
   fetch('appearance-panel.html')
     .then(r => r.text())
     .then(h => {
       document.getElementById('ap-include').innerHTML = h;
+      buildPanel();
+      bindFooterActions();
+      loadFontGrid('', 'all');
     })
     .catch(err => console.error('Error cargando appearance-panel.html', err));
-</script>
-<script src="js/appearance.js"></script>
-</body>
-</html>
 </script>
 </body>
 </html>
