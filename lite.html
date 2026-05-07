@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>andy.lite</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0e0e11;
+  --surface: #16161a;
+  --surface2: #1e1e24;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.12);
+  --text: #f0eee8;
+  --muted: #6b6b72;
+  --accent: #c9a96e;
+  --accent2: #7c6af5;
+  --danger: #e05252;
+  --success: #52c47a;
+  --font-display: 'DM Serif Display', serif;
+  --font-sans: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', monospace;
+}
+body { background: var(--bg); font-family: var(--font-sans); color: var(--text); min-height: 100vh; display: flex; flex-direction: column; max-width: 480px; margin: 0 auto; }
+.header { padding: 20px 20px 0; display: flex; align-items: center; justify-content: space-between; }
+.logo { font-family: var(--font-display); font-size: 22px; color: var(--accent); }
+.logo span { color: var(--muted); font-style: italic; }
+.date-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+.nav { display: flex; gap: 2px; padding: 16px 20px 0; border-bottom: 0.5px solid var(--border); }
+.nav-btn { flex: 1; padding: 10px 4px; background: none; border: none; font-family: var(--font-mono); font-size: 10px; color: var(--muted); cursor: pointer; letter-spacing: 0.5px; text-transform: uppercase; border-bottom: 1.5px solid transparent; transition: all 0.2s; margin-bottom: -0.5px; }
+.nav-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.nav-btn:hover:not(.active) { color: var(--text); }
+.content { flex: 1; padding: 20px; }
+.section { display: none; }
+.section.active { display: block; }
+.quick-capture { background: var(--surface); border: 0.5px solid var(--border2); border-radius: 12px; padding: 14px; margin-bottom: 20px; display: flex; gap: 10px; align-items: center; }
+.quick-capture input { flex: 1; background: none; border: none; outline: none; font-family: var(--font-sans); font-size: 13px; color: var(--text); }
+.quick-capture input::placeholder { color: var(--muted); }
+.capture-btn { background: var(--accent); border: none; border-radius: 8px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #0e0e11; font-size: 18px; flex-shrink: 0; transition: opacity 0.2s; font-weight: 700; }
+.capture-btn:hover { opacity: 0.85; }
+.row-label { font-family: var(--font-mono); font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; margin-bottom: 10px; margin-top: 18px; }
+.row-label:first-child { margin-top: 0; }
+.task-item { background: var(--surface); border: 0.5px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 6px; display: flex; align-items: center; gap: 12px; transition: border-color 0.2s; }
+.task-item:hover { border-color: var(--border2); }
+.task-check { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--border2); cursor: pointer; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.2s; }
+.task-check.done { background: var(--success); border-color: var(--success); }
+.task-check.done::after { content: '✓'; font-size: 10px; color: #0e0e11; font-weight: 700; }
+.task-text { flex: 1; font-size: 13px; line-height: 1.4; }
+.task-text.done { text-decoration: line-through; color: var(--muted); }
+.task-proj { font-family: var(--font-mono); font-size: 9px; color: var(--muted); background: var(--surface2); border-radius: 4px; padding: 2px 7px; border-left: 2px solid var(--muted); }
+.task-del { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 12px; opacity: 0; transition: opacity 0.2s; }
+.task-item:hover .task-del { opacity: 1; }
+.proj-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.proj-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: 12px; padding: 16px; }
+.proj-dot { width: 8px; height: 8px; border-radius: 50%; margin-bottom: 12px; }
+.proj-name { font-size: 13px; font-weight: 500; margin-bottom: 4px; }
+.proj-count { font-family: var(--font-mono); font-size: 10px; color: var(--muted); }
+.proj-bar { height: 2px; background: var(--border2); border-radius: 2px; margin-top: 12px; overflow: hidden; }
+.proj-fill { height: 100%; border-radius: 2px; transition: width 0.5s; }
+.habit-row { background: var(--surface); border: 0.5px solid var(--border); border-radius: 10px; padding: 12px 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 12px; }
+.habit-icon { width: 32px; height: 32px; border-radius: 8px; background: var(--surface2); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; }
+.habit-name { font-size: 13px; }
+.habit-streak { font-family: var(--font-mono); font-size: 10px; color: var(--muted); margin-top: 2px; }
+.habit-toggle { width: 38px; height: 22px; border-radius: 11px; border: 1.5px solid var(--border2); cursor: pointer; background: none; position: relative; transition: all 0.25s; flex-shrink: 0; }
+.habit-toggle.on { background: var(--success); border-color: var(--success); }
+.habit-toggle::after { content: ''; position: absolute; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); top: 2px; left: 2px; transition: all 0.25s; }
+.habit-toggle.on::after { left: 20px; background: #0e0e11; }
+.note-item { background: var(--surface); border: 0.5px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 8px; }
+.note-text { font-size: 13px; line-height: 1.6; margin-bottom: 8px; }
+.note-meta { font-family: var(--font-mono); font-size: 9px; color: var(--muted); display: flex; justify-content: space-between; }
+.note-del { cursor: pointer; color: var(--danger); }
+.empty { text-align: center; padding: 40px 20px; }
+.empty p { font-family: var(--font-display); font-style: italic; font-size: 15px; color: var(--muted); }
+.sync-bar { padding: 12px 20px; border-top: 0.5px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.sync-status { font-family: var(--font-mono); font-size: 9px; color: var(--muted); }
+.sync-btn { background: none; border: 0.5px solid var(--border2); border-radius: 6px; padding: 5px 12px; font-family: var(--font-mono); font-size: 9px; color: var(--muted); cursor: pointer; transition: all 0.2s; }
+.sync-btn:hover { color: var(--accent); border-color: var(--accent); }
+select { background: var(--surface2); border: 0.5px solid var(--border2); border-radius: 6px; padding: 4px 6px; font-family: var(--font-mono); font-size: 10px; color: var(--muted); outline: none; }
+select option { background: var(--surface2); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="logo">andy<span>.lite</span></div>
+  <div class="date-label" id="date-label"></div>
+</div>
+
+<div class="nav">
+  <button class="nav-btn active" onclick="switchTab('tareas',this)">Tareas</button>
+  <button class="nav-btn" onclick="switchTab('proyectos',this)">Proyectos</button>
+  <button class="nav-btn" onclick="switchTab('habitos',this)">Hábitos</button>
+  <button class="nav-btn" onclick="switchTab('notas',this)">Notas</button>
+</div>
+
+<div class="content">
+
+  <div class="section active" id="sec-tareas">
+    <div class="quick-capture">
+      <input type="text" id="task-input" placeholder="Nueva tarea rápida..." onkeydown="if(event.key==='Enter')addTask()" />
+      <select id="task-proj-sel">
+        <option value="">— proj</option>
+        <option>Andy.net</option>
+        <option>Ágape</option>
+        <option>Toltia</option>
+        <option>Nemi</option>
+        <option>Personal</option>
+      </select>
+      <button class="capture-btn" onclick="addTask()">+</button>
+    </div>
+    <div class="row-label">Pendientes</div>
+    <div id="tasks-pending"></div>
+    <div class="row-label">Completadas</div>
+    <div id="tasks-done"></div>
+  </div>
+
+  <div class="section" id="sec-proyectos">
+    <div class="proj-grid" id="proj-grid"></div>
+  </div>
+
+  <div class="section" id="sec-habitos">
+    <div class="row-label">Hoy — <span id="habit-date"></span></div>
+    <div id="habits-list"></div>
+  </div>
+
+  <div class="section" id="sec-notas">
+    <div class="quick-capture">
+      <input type="text" id="note-input" placeholder="Captura una idea..." onkeydown="if(event.key==='Enter')addNote()" />
+      <button class="capture-btn" onclick="addNote()">+</button>
+    </div>
+    <div id="notes-list"></div>
+  </div>
+
+</div>
+
+<div class="sync-bar">
+  <span class="sync-status" id="sync-status">● local</span>
+  <button class="sync-btn" onclick="exportData()">exportar json</button>
+</div>
+
+<script>
+const PROJECTS = [
+  { name: 'Andy.net', color: '#7c6af5' },
+  { name: 'Ágape', color: '#c9a96e' },
+  { name: 'Toltia', color: '#52c47a' },
+  { name: 'Nemi', color: '#e05252' },
+  { name: 'Personal', color: '#6b8cca' },
+  { name: 'Sin proyecto', color: '#6b6b72' },
+];
+
+const DEFAULT_HABITS = [
+  { id: 'h1', name: 'Agua 8 vasos', icon: '💧', streak: 0, done: false },
+  { id: 'h2', name: 'Ejercicio', icon: '🏃', streak: 0, done: false },
+  { id: 'h3', name: 'Leer', icon: '📖', streak: 3, done: false },
+  { id: 'h4', name: 'Journaling', icon: '✏️', streak: 1, done: false },
+];
+
+function loadState() {
+  try {
+    return JSON.parse(localStorage.getItem('andylite_v1') || 'null') || { tasks: [], notes: [], habits: DEFAULT_HABITS };
+  } catch { return { tasks: [], notes: [], habits: DEFAULT_HABITS }; }
+}
+function saveState(s) { localStorage.setItem('andylite_v1', JSON.stringify(s)); }
+
+let state = loadState();
+
+document.getElementById('date-label').textContent = new Date().toLocaleDateString('es-MX', { day:'2-digit', month:'short', year:'2-digit' }).toUpperCase();
+document.getElementById('habit-date').textContent = new Date().toLocaleDateString('es-MX', { weekday:'long', day:'numeric', month:'short' });
+
+function switchTab(tab, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('sec-' + tab).classList.add('active');
+  btn.classList.add('active');
+  if (tab === 'proyectos') renderProjects();
+}
+
+function addTask() {
+  const inp = document.getElementById('task-input');
+  const proj = document.getElementById('task-proj-sel');
+  const text = inp.value.trim();
+  if (!text) return;
+  state.tasks.unshift({ id: Date.now(), text, proj: proj.value || 'Sin proyecto', done: false, created: new Date().toISOString() });
+  saveState(state); inp.value = ''; proj.value = '';
+  renderTasks();
+}
+
+function toggleTask(id) {
+  const t = state.tasks.find(t => t.id === id);
+  if (t) t.done = !t.done;
+  saveState(state); renderTasks();
+}
+
+function deleteTask(id) {
+  state.tasks = state.tasks.filter(t => t.id !== id);
+  saveState(state); renderTasks();
+}
+
+function renderTasks() {
+  const pending = state.tasks.filter(t => !t.done);
+  const done = state.tasks.filter(t => t.done);
+  const mkTask = (t) => {
+    const proj = PROJECTS.find(p => p.name === t.proj) || PROJECTS[5];
+    const d = document.createElement('div');
+    d.className = 'task-item';
+    d.innerHTML = `
+      <div class="task-check ${t.done?'done':''}" onclick="toggleTask(${t.id})"></div>
+      <span class="task-text ${t.done?'done':''}">${t.text}</span>
+      <span class="task-proj" style="border-left-color:${proj.color}">${t.proj}</span>
+      <button class="task-del" onclick="deleteTask(${t.id})">✕</button>
+    `;
+    return d;
+  };
+  const pp = document.getElementById('tasks-pending');
+  const pd = document.getElementById('tasks-done');
+  pp.innerHTML = ''; pd.innerHTML = '';
+  if (!pending.length) pp.innerHTML = '<div class="empty"><p>sin pendientes ✦</p></div>';
+  else pending.forEach(t => pp.appendChild(mkTask(t)));
+  done.slice(0,5).forEach(t => pd.appendChild(mkTask(t)));
+}
+
+function renderProjects() {
+  const counts = {};
+  state.tasks.forEach(t => {
+    if (!counts[t.proj]) counts[t.proj] = { total:0, done:0 };
+    counts[t.proj].total++;
+    if (t.done) counts[t.proj].done++;
+  });
+  const grid = document.getElementById('proj-grid');
+  grid.innerHTML = '';
+  PROJECTS.slice(0,5).forEach(p => {
+    const c = counts[p.name] || { total:0, done:0 };
+    const pct = c.total ? Math.round((c.done/c.total)*100) : 0;
+    const card = document.createElement('div');
+    card.className = 'proj-card';
+    card.innerHTML = `
+      <div class="proj-dot" style="background:${p.color}"></div>
+      <div class="proj-name">${p.name}</div>
+      <div class="proj-count">${c.total} tareas · ${pct}%</div>
+      <div class="proj-bar"><div class="proj-fill" style="width:${pct}%;background:${p.color}"></div></div>
+    `;
+    grid.appendChild(card);
+  });
+}
+
+function renderHabits() {
+  const list = document.getElementById('habits-list');
+  list.innerHTML = '';
+  state.habits.forEach(h => {
+    const row = document.createElement('div');
+    row.className = 'habit-row';
+    row.innerHTML = `
+      <div class="habit-icon">${h.icon}</div>
+      <div style="flex:1">
+        <div class="habit-name">${h.name}</div>
+        <div class="habit-streak">🔥 ${h.streak} días</div>
+      </div>
+      <button class="habit-toggle ${h.done?'on':''}" onclick="toggleHabit('${h.id}')"></button>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function toggleHabit(id) {
+  const h = state.habits.find(h => h.id === id);
+  if (!h) return;
+  h.done = !h.done;
+  if (h.done) h.streak++; else if (h.streak > 0) h.streak--;
+  saveState(state); renderHabits();
+}
+
+function addNote() {
+  const inp = document.getElementById('note-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  state.notes.unshift({ id: Date.now(), text, created: new Date().toISOString() });
+  saveState(state); inp.value = '';
+  renderNotes();
+}
+
+function deleteNote(id) {
+  state.notes = state.notes.filter(n => n.id !== id);
+  saveState(state); renderNotes();
+}
+
+function renderNotes() {
+  const list = document.getElementById('notes-list');
+  if (!state.notes.length) { list.innerHTML = '<div class="empty"><p>captura tu primera idea</p></div>'; return; }
+  list.innerHTML = '';
+  state.notes.forEach(n => {
+    const d = document.createElement('div');
+    d.className = 'note-item';
+    const dt = new Date(n.created).toLocaleDateString('es-MX', { day:'2-digit', month:'short', hour:'2-digit', minute:'2-digit' });
+    d.innerHTML = `<div class="note-text">${n.text}</div><div class="note-meta"><span>${dt}</span><span class="note-del" onclick="deleteNote(${n.id})">borrar</span></div>`;
+    list.appendChild(d);
+  });
+}
+
+function exportData() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'andylite-' + new Date().toISOString().slice(0,10) + '.json';
+  a.click();
+  document.getElementById('sync-status').textContent = '● exportado ' + new Date().toLocaleTimeString('es-MX', {hour:'2-digit',minute:'2-digit'});
+}
+
+renderTasks(); renderHabits(); renderNotes();
+</script>
+
+</body>
+</html>
