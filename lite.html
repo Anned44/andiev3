@@ -305,7 +305,7 @@ async function init() {
 }
 
 init();
-if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('/sw.js').catch(()=>{}));
+if('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('/sw-lite.js').catch(()=>{}));
 </script>
 </body>
 </html>
