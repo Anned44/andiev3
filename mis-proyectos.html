@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mis Proyectos — Anne</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0e0d0c; --surface: #161512; --surface2: #1d1b17;
+  --border: #2a2720; --border2: #3a3630;
+  --text: #e8e0d0; --text2: #9a9080; --text3: #5a5448;
+  --cat-negocio: #c4975a; --cat-app: #7ab8a0;
+  --cat-creativo: #b07ab8; --cat-personal: #b87a7a; --cat-externo: #7a9ab8;
+  --status-activo: #7ab8a0; --status-pausa: #c4975a;
+  --status-idea: #9a9080; --status-listo: #a0c47a;
+}
+body { background:var(--bg); color:var(--text); font-family:'DM Mono',monospace; min-height:100vh; padding:48px 32px; }
+body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; }
+.wrap { position:relative; z-index:1; max-width:1200px; margin:0 auto; }
+
+header { margin-bottom:48px; }
+h1 { font-family:'Syne',sans-serif; font-size:clamp(36px,5vw,60px); font-weight:800; letter-spacing:-0.03em; line-height:1; }
+h1 em { font-family:'Instrument Serif',serif; font-style:italic; font-weight:400; color:var(--cat-negocio); }
+.sub { font-size:10px; color:var(--text3); letter-spacing:0.15em; text-transform:uppercase; margin-top:12px; }
+
+.legend { display:flex; flex-wrap:wrap; gap:8px 24px; margin-bottom:36px; padding-bottom:20px; border-bottom:1px solid var(--border); }
+.li { display:flex; align-items:center; gap:6px; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text2); }
+.ld { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+
+.stats { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); border:1px solid var(--border); margin-bottom:36px; border-radius:3px; overflow:hidden; }
+.stat { background:var(--surface); padding:16px 20px; text-align:center; }
+.sn { font-family:'Syne',sans-serif; font-size:30px; font-weight:800; line-height:1; margin-bottom:4px; }
+.sl { font-size:9px; color:var(--text3); letter-spacing:0.12em; text-transform:uppercase; }
+
+.filters { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:28px; }
+.fb { background:transparent; border:1px solid var(--border2); color:var(--text2); font-family:'DM Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; padding:6px 14px; cursor:pointer; border-radius:2px; transition:all .2s; }
+.fb:hover,.fb.active { border-color:var(--cat-negocio); color:var(--cat-negocio); background:rgba(196,151,90,.06); }
+
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:2px; }
+
+.card { background:var(--surface); border:1px solid var(--border); padding:22px; cursor:pointer; transition:all .2s; position:relative; overflow:hidden; }
+.card::before { content:''; position:absolute; top:0; left:0; width:3px; height:100%; background:var(--cc,var(--border2)); }
+.card:hover { background:var(--surface2); border-color:var(--border2); transform:translateY(-2px); }
+.card.hidden { display:none; }
+
+.ctop { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; }
+.ccat { font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--cc,var(--text3)); }
+.cst { font-size:9px; letter-spacing:0.07em; text-transform:uppercase; padding:3px 8px; border-radius:2px; background:rgba(255,255,255,.04); border:1px solid var(--sc,var(--border2)); color:var(--sc,var(--text3)); white-space:nowrap; }
+.cname { font-family:'Syne',sans-serif; font-size:17px; font-weight:700; letter-spacing:-0.02em; margin-bottom:6px; line-height:1.2; }
+.cdesc { font-size:11px; color:var(--text2); line-height:1.6; margin-bottom:14px; }
+.ctags { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:14px; }
+.tag { font-size:9px; padding:2px 7px; background:rgba(255,255,255,.04); border:1px solid var(--border); color:var(--text3); border-radius:2px; }
+.cbot { display:flex; justify-content:space-between; align-items:center; padding-top:12px; border-top:1px solid var(--border); }
+.cmoney { font-size:10px; color:var(--text3); display:flex; align-items:center; gap:6px; }
+.md { width:6px; height:6px; border-radius:50%; }
+.cpri { font-size:9px; letter-spacing:0.1em; color:var(--text3); text-transform:uppercase; }
+
+/* MODAL */
+.ov { position:fixed; inset:0; background:rgba(14,13,12,.88); z-index:100; display:flex; align-items:center; justify-content:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .2s; backdrop-filter:blur(4px); }
+.ov.open { opacity:1; pointer-events:all; }
+.modal { background:var(--surface); border:1px solid var(--border2); max-width:500px; width:100%; max-height:82vh; overflow-y:auto; border-radius:3px; transform:translateY(10px); transition:transform .2s; }
+.ov.open .modal { transform:translateY(0); }
+.mh { padding:26px 26px 18px; border-bottom:1px solid var(--border); position:sticky; top:0; background:var(--surface); }
+.mcat { font-size:9px; letter-spacing:0.14em; text-transform:uppercase; margin-bottom:5px; }
+.mname { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; letter-spacing:-0.02em; }
+.mcls { position:absolute; top:20px; right:20px; background:none; border:1px solid var(--border2); color:var(--text2); font-family:'DM Mono',monospace; font-size:10px; padding:4px 10px; cursor:pointer; border-radius:2px; transition:all .2s; }
+.mcls:hover { border-color:var(--text2); color:var(--text); }
+.mb { padding:22px 26px 26px; }
+.ms { margin-bottom:18px; }
+.mst { font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text3); margin-bottom:7px; padding-bottom:5px; border-bottom:1px solid var(--border); }
+.ms p { font-size:11px; color:var(--text2); line-height:1.7; }
+.ml { list-style:none; }
+.ml li { font-size:11px; color:var(--text2); padding:5px 0; border-bottom:1px solid var(--border); display:flex; gap:8px; }
+.ml li::before { content:'—'; color:var(--text3); flex-shrink:0; }
+.mbadge { display:inline-flex; align-items:center; gap:6px; font-size:10px; padding:5px 10px; border-radius:2px; margin-top:8px; }
+.mbadge.si { background:rgba(160,196,122,.08); border:1px solid rgba(160,196,122,.3); color:#a0c47a; }
+.mbadge.pot { background:rgba(196,151,90,.08); border:1px solid rgba(196,151,90,.3); color:var(--cat-negocio); }
+.mbadge.no { background:rgba(90,84,72,.2); border:1px solid var(--border); color:var(--text3); }
+
+@media(max-width:600px){ body{padding:24px 16px;} .grid{grid-template-columns:1fr;} .stats{grid-template-columns:repeat(2,1fr);} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>Mis <em>proyectos</em></h1>
+  <div class="sub">Anne · Inventario completo · Mayo 2026</div>
+</header>
+
+<div class="legend">
+  <div class="li"><div class="ld" style="background:var(--cat-negocio)"></div>Negocio / $</div>
+  <div class="li"><div class="ld" style="background:var(--cat-app)"></div>App / Dev</div>
+  <div class="li"><div class="ld" style="background:var(--cat-creativo)"></div>Creativo</div>
+  <div class="li"><div class="ld" style="background:var(--cat-personal)"></div>Personal</div>
+  <div class="li"><div class="ld" style="background:var(--cat-externo)"></div>Externo</div>
+  <div class="li" style="margin-left:auto"><div class="ld" style="background:var(--status-activo)"></div>Activo</div>
+  <div class="li"><div class="ld" style="background:var(--status-listo)"></div>Avanzado</div>
+  <div class="li"><div class="ld" style="background:var(--status-pausa)"></div>Pausa</div>
+  <div class="li"><div class="ld" style="background:var(--status-idea)"></div>Idea</div>
+</div>
+
+<div class="stats">
+  <div class="stat"><div class="sn" id="s0" style="color:var(--text)">0</div><div class="sl">Total</div></div>
+  <div class="stat"><div class="sn" id="s1" style="color:var(--status-activo)">0</div><div class="sl">Activos</div></div>
+  <div class="stat"><div class="sn" id="s2" style="color:var(--cat-negocio)">0</div><div class="sl">Potencial $</div></div>
+  <div class="stat"><div class="sn" id="s3" style="color:var(--status-pausa)">0</div><div class="sl">En pausa / idea</div></div>
+</div>
+
+<div class="filters">
+  <button class="fb active" data-f="all">Todos</button>
+  <button class="fb" data-f="negocio">Negocio</button>
+  <button class="fb" data-f="app">App / Dev</button>
+  <button class="fb" data-f="creativo">Creativo</button>
+  <button class="fb" data-f="personal">Personal</button>
+  <button class="fb" data-f="externo">Externo</button>
+</div>
+
+<div class="grid" id="grid"></div>
+</div>
+
+<div class="ov" id="ov" onclick="cls(event)">
+  <div class="modal">
+    <div class="mh">
+      <button class="mcls" onclick="cls()">cerrar ×</button>
+      <div class="mcat" id="mc"></div>
+      <div class="mname" id="mn"></div>
+    </div>
+    <div class="mb" id="mbody"></div>
+  </div>
+</div>
+
+<script>
+const P = [
+  { id:'agape', name:'Ágape', cat:'negocio', catL:'Negocio / $', st:'activo', stL:'Activo',
+    desc:'Tienda online de adaptógenos y hongos funcionales para el mercado mexicano. Marca propia, sin dropshipping.',
+    tags:['e-commerce','adaptógenos','marca propia','wellness'],
+    money:'pot', moneyL:'$ potencial alto', pri:'Alta',
+    av:'30% — 4 propuestas de landing, identidad en exploración, modelo de negocio por definir.',
+    pend:['Definir modelo: maquiladora propia vs consignación','Cerrar identidad visual','Contactar maquiladores MX','Elegir plataforma (Shopify / Tiendanube)','Calcular inversión inicial'],
+    mon:'Venta directa. Margen alto con maquiladora propia. Potencial de suscripción mensual.',
+    files:['agape-proyecto.html','4 versiones de landing','Ágape___Documento_de_Proyecto.html'] },
+
+  { id:'akasha', name:'Akasha Mushrooms', cat:'negocio', catL:'Negocio / $', st:'idea', stL:'Idea',
+    desc:'Marca de hongos funcionales — ¿sublínea de Ágape o proyecto separado?',
+    tags:['hongos','adaptógenos','marca'],
+    money:'pot', moneyL:'$ a definir', pri:'Baja',
+    av:'10% — solo preview de marca visual.',
+    pend:['Decidir si va dentro de Ágape o es marca independiente','Evaluar diferenciación'],
+    mon:'Pendiente definir. Podría absorberse en Ágape.',
+    files:['akasha_preview.html'] },
+
+  { id:'apstudio', name:'AP Studio', cat:'negocio', catL:'Negocio / $', st:'activo', stL:'Activo',
+    desc:'Estudio de diseño web, desarrollo y WordPress. Servicios: sitios a medida, temas WordPress custom, optimización de sitios lentos y plantillas premium para ThemeForest.',
+    tags:['freelance','diseño web','desarrollo','WordPress','ThemeForest','optimización'],
+    money:'pot', moneyL:'$ inmediato posible', pri:'Alta',
+    av:'60% — dos versiones de landing listas y pulidas.',
+    pend:['Definir servicios y precios concretos','Activar dominio y publicar','Portafolio con proyectos reales','Crear primera plantilla WordPress para ThemeForest','Definir paquetes de optimización WP'],
+    mon:'Servicios freelance (diseño/dev/WP), venta de templates en ThemeForest, optimización de sitios. Múltiples fuentes de ingreso bajo una sola marca.',
+    files:['index.html (EN)','index-latam.html (ES)'] },
+
+  { id:'nemi', name:'Nemi Studio', cat:'negocio', catL:'Negocio / $', st:'pausa', stL:'En pausa',
+    desc:'Templates digitales para personas con TDAH y neurodivergencia — agendas, planners, organizadores para vender online.',
+    tags:['templates','TDAH','neurodivergencia','productos digitales'],
+    money:'pot', moneyL:'$ pasivo potencial', pri:'Media',
+    av:'15% — concepto sólido, sin productos terminados aún.',
+    pend:['Diseñar primer template (agenda mensual)','Elegir plataforma (Gumroad / Etsy)','Investigar precio de competencia','Lanzar con 3 productos mínimo'],
+    mon:'Productos digitales. Ingreso pasivo. Bajo costo de producción una vez creados.',
+    files:[] },
+
+  { id:'andynet', name:'Andy.net v3', cat:'app', catL:'App / Dev', st:'listo', stL:'Avanzado',
+    desc:'App personal de productividad — Portal, Hub, Studio, Muse. Vanilla JS + Node.js en Railway. Tu proyecto más desarrollado técnicamente.',
+    tags:['productividad','vanilla JS','Railway','Firestore','Muse','Anet AI'],
+    money:'no', moneyL:'Uso personal', pri:'Alta',
+    av:'65% — Appearance Panel, tipografía, fondos, Muse con Moodboard y Music, cursor animado.',
+    pend:['Estabilizar Muse completo','Mejorar Anet AI assistant','Módulo Hub (finanzas, hábitos)','Performance y mobile','Pulir autenticación Martín'],
+    mon:'No genera $ directo. Podría convertirse en template SaaS a futuro.',
+    files:['GitHub: Anned44/andiev3','andy_lite.html','visual-dom-editor_1.html'] },
+
+  { id:'andylite', name:'Andy.lite', cat:'app', catL:'App / Dev', st:'activo', stL:'Activo',
+    desc:'Versión simplificada de Andy.net — app standalone de tareas y pendientes del día con diseño editorial refinado.',
+    tags:['tareas','día a día','standalone','mobile-first'],
+    money:'no', moneyL:'Uso personal', pri:'Media',
+    av:'70% — funcional y con diseño muy pulido.',
+    pend:['Decidir: fusionar con Andy.net o standalone','Persistencia real de datos'],
+    mon:'Podría empaquetarse como template público.',
+    files:['andy_lite.html'] },
+
+  { id:'toltia', name:'Toltia', cat:'app', catL:'App / Dev', st:'listo', stL:'Avanzado',
+    desc:'Plataforma educativa de reducción de daños en español. 4 pilares: El Cerebro, El Cuerpo, La Experiencia, La Práctica.',
+    tags:['harm reduction','neurociencia','farmacología','español','quiz + lessons'],
+    money:'pot', moneyL:'Grants / donaciones', pri:'Alta',
+    av:'60% — contenido cardiovascular completo, ecosistema mapeado, lessons-data + quiz-data listos.',
+    pend:['Completar combinaciones de sustancias','Protocolo de emergencias unificado','Widget interactivo','Definir modelo de sostenibilidad (grants, institución)'],
+    mon:'Sin fines de lucro. Potencial de grants de salud pública o instituciones educativas.',
+    files:['toltia_ecosistema.html','app.js','lessons-data.js','quiz-data.js'] },
+
+  { id:'dyc', name:'DyC App', cat:'externo', catL:'Externo / Trabajo', st:'activo', stL:'Activo',
+    desc:'App de gestión para Dirección y Control — empresa de mantenimiento eléctrico de Martín. Cliente principal: Honeywell.',
+    tags:['gestión','Martín','mantenimiento eléctrico','Honeywell'],
+    money:'si', moneyL:'$ negocio existente', pri:'Media',
+    av:'50% — app v2 funcional, pendientes de producción.',
+    pend:['Investigar nuevo nombre de Honeywell International','Resolver OC cerradas sin facturar','Contactar Jaime Barraza','Reactivar labores — ver facturas primero','Agregar funcionalidades a la app'],
+    mon:'El negocio ya genera $. La app es herramienta interna.',
+    files:['dyc_app_v2.html'] },
+
+  { id:'brandstudio', name:'Brand Studio', cat:'creativo', catL:'Creativo / Diseño', st:'activo', stL:'Activo',
+    desc:'Herramienta propia para crear identidades de marca. Incluye módulo de colorimetría personal y exploración de identidad creativa.',
+    tags:['branding','identidad','colorimetría','herramienta'],
+    money:'pot', moneyL:'$ si se ofrece como servicio', pri:'Media',
+    av:'40% — Brand Studio + Colorimetría Anne como exploraciones funcionales.',
+    pend:['Decidir: herramienta interna o servicio a clientes','Integrar en AP Studio como oferta de branding'],
+    mon:'Como servicio de branding dentro de AP Studio.',
+    files:['Brand_Studio.html','colorimetria_anne.html','identidad_creativa_1.html'] },
+
+  { id:'meditaciones', name:'Meditaciones Guiadas', cat:'creativo', catL:'Creativo / Diseño', st:'pausa', stL:'En pausa',
+    desc:'Meditaciones guiadas con base neurocientífica. Dos versiones de script/interfaz trabajadas.',
+    tags:['meditación','neurociencia','audio','bienestar'],
+    money:'pot', moneyL:'Venta / Patreon', pri:'Media',
+    av:'35% — dos versiones de interfaz, sin audio aún.',
+    pend:['Definir formato de distribución (app, audio, Patreon)','Grabar primeras meditaciones','Conectar con Toltia o como producto independiente'],
+    mon:'Venta de audios, suscripción, o contenido premium dentro de Toltia.',
+    files:['escribir-meditaciones-neuro.html','escribir-meditaciones-neuro_1.html'] },
+
+  { id:'fashion', name:'Fashion Design Studio', cat:'creativo', catL:'Creativo / Diseño', st:'idea', stL:'Idea',
+    desc:'App o herramienta de diseño de moda. Podría relacionarse con Nemi Studio o ser proyecto independiente.',
+    tags:['moda','diseño','app creativa'],
+    money:'pot', moneyL:'$ a explorar', pri:'Baja',
+    av:'15% — prototipo visual.',
+    pend:['Definir propósito y audiencia concreta','Decidir si avanza o se pausa definitivamente'],
+    mon:'A definir.',
+    files:['fashion-design-studio__1_.html'] },
+
+  { id:'mascaras', name:'Máscaras — Escritura', cat:'creativo', catL:'Creativo / Diseño', st:'idea', stL:'Idea',
+    desc:'App de escritura creativa con concepto de personajes/máscaras y narrativa.',
+    tags:['escritura','personajes','narrativa','app creativa'],
+    money:'no', moneyL:'Exploración', pri:'Baja',
+    av:'20% — concepto y UI inicial.',
+    pend:['Definir si es proyecto serio o exploración personal','Escribir el problema que resuelve'],
+    mon:'Podría ser herramienta para escritores.',
+    files:['mascaras_app.html'] },
+
+  { id:'sadrift', name:'S.A. Drift', cat:'creativo', catL:'Creativo / Diseño', st:'idea', stL:'Idea',
+    desc:'Proyecto creativo de Anne y Sebastián. Naturaleza por definir — puede ser musical, narrativo o visual.',
+    tags:['Sebas','colaboración','creativo'],
+    money:'no', moneyL:'Proyecto personal', pri:'Baja',
+    av:'10% — solo landing/concepto.',
+    pend:['Definir qué es exactamente','Conversar con Sebas sobre dirección'],
+    mon:'No planeada.',
+    files:['sadrift.html'] },
+
+  { id:'tarot', name:'El Grimorio · Tarot', cat:'app', catL:'App / Dev', st:'listo', stL:'Avanzado',
+    desc:'App de tarot con estética renacentista — una de las más avanzadas del inventario. En proceso de optimización para app pública.',
+    tags:['tarot','app pública','renacentista','espiritual','wellness'],
+    money:'pot', moneyL:'$ potencial (app pública)', pri:'Media',
+    av:'80% — muy avanzado y pulido como versión personal.',
+    pend:['Optimizar para app pública','Definir funcionalidades extra (diario, spreads, luna)','Modelo: freemium o suscripción','PWA o app móvil'],
+    mon:'App de tarot con suscripción o compras in-app. Nicho espiritual/wellness muy activo.',
+    files:['tarot-v2__1_.html'] },
+
+  { id:'garden', name:"Anne's Garden", cat:'personal', catL:'Personal / Vida', st:'activo', stL:'Activo',
+    desc:'Tracker personal de plantas de casa — riego, cuidados, colección.',
+    tags:['plantas','tracker','hogar','personal'],
+    money:'no', moneyL:'Uso personal', pri:'Baja',
+    av:'60% — funcional.',
+    pend:['Recordatorios de riego','Integrar con Andy.net Hub'],
+    mon:'No aplica.',
+    files:['mis_plantas333.html'] },
+
+  { id:'espacio', name:'Nuestro Espacio', cat:'app', catL:'App / Dev', st:'activo', stL:'Activo',
+    desc:'App de pareja para Anne y Martín — actualmente privada, con potencial de convertirse en app pública para parejas.',
+    tags:['Martín','pareja','React','app pública','potencial'],
+    money:'pot', moneyL:'$ potencial (app pública)', pri:'Media',
+    av:'50% — React app funcional como espacio privado.',
+    pend:['Definir funcionalidades core para parejas','Evaluar si se publica o permanece privada','Diseñar onboarding para otros usuarios','Modelo: freemium, pago único o suscripción'],
+    mon:'Si se publica: app de pareja con suscripción o pago único. Nicho con demanda real.',
+    files:['index.html (React app — Nuestro Espacio)'] },
+
+  { id:'calendario', name:'Mi Mes', cat:'personal', catL:'Personal / Vida', st:'activo', stL:'Activo',
+    desc:'Calendario mensual personal de Anne. Herramienta de organización del tiempo.',
+    tags:['calendario','organización','personal'],
+    money:'no', moneyL:'Uso personal', pri:'Media',
+    av:'70% — funcional.',
+    pend:['Integrar con Andy.net Hub'],
+    mon:'No aplica.',
+    files:['calendario_anne_mes.html'] },
+
+  { id:'notas', name:'Notas · Anne', cat:'personal', catL:'Personal / Vida', st:'activo', stL:'Activo',
+    desc:'App de notas personal standalone. Puede fusionarse con Andy.net o quedarse independiente.',
+    tags:['notas','escritura','personal'],
+    money:'no', moneyL:'Uso personal', pri:'Baja',
+    av:'65% — funcional.',
+    pend:['Decidir: fusionar con Andy.net o standalone'],
+    mon:'No aplica.',
+    files:['notas-final.html'] },
+
+  { id:'devpath', name:'Andinet Dev Path', cat:'negocio', catL:'Negocio / $', st:'activo', stL:'Activo',
+    desc:'Curso Full Stack propio — material de estudio personal y también contenido para enseñar a otros. Lessons + quiz data ya estructurados.',
+    tags:['curso','full stack','educación','contenido','JS'],
+    money:'pot', moneyL:'$ potencial (venta de curso)', pri:'Media',
+    av:'40% — estructura de lessons y quizzes listos, app funcional.',
+    pend:['Definir audiencia objetivo','Decidir plataforma de distribución (Gumroad, Teachable, standalone)','Completar contenido de módulos','Definir precio y modelo (pago único vs suscripción)'],
+    mon:'Venta de curso online. Ingreso pasivo una vez producido. Puede complementar AP Studio como oferta educativa.',
+    files:['index.html','app.js','main.css','lessons-data.js','quiz-data.js'] },
+
+  { id:'studiowireframe', name:'Studio Wireframe', cat:'creativo', catL:'Creativo / Diseño', st:'activo', stL:'Activo',
+    desc:'Herramienta de wireframing interactiva estilo Figma/Linear. Dark/light mode, zoom, dropdowns de nav, interacciones de canvas.',
+    tags:['wireframe','diseño','herramienta','Figma-like','canvas'],
+    money:'pot', moneyL:'$ si se publica', pri:'Media',
+    av:'50% — lógica interactiva y design system propios en app.js + style.css.',
+    pend:['Definir hasta dónde llega el scope','Decidir si es herramienta pública o interna','Integrar con Andy.net Studio o mantener independiente'],
+    mon:'Podría publicarse como herramienta de diseño o venderse como template.',
+    files:['index.html','app.js','style.css'] },
+];
+
+const CC = { negocio:'var(--cat-negocio)', app:'var(--cat-app)', creativo:'var(--cat-creativo)', personal:'var(--cat-personal)', externo:'var(--cat-externo)' };
+const SC = { activo:'var(--status-activo)', pausa:'var(--status-pausa)', idea:'var(--status-idea)', listo:'var(--status-listo)' };
+const MC = { pot:'#c4975a', si:'#a0c47a', no:'var(--text3)' };
+
+function render(f='all') {
+  const g = document.getElementById('grid');
+  g.innerHTML = '';
+  const vis = f==='all' ? P : P.filter(p=>p.cat===f);
+  vis.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'card';
+    d.style.setProperty('--cc', CC[p.cat]);
+    d.style.setProperty('--sc', SC[p.st]);
+    d.innerHTML = `
+      <div class="ctop"><span class="ccat">${p.catL}</span><span class="cst">${p.stL}</span></div>
+      <div class="cname">${p.name}</div>
+      <div class="cdesc">${p.desc}</div>
+      <div class="ctags">${p.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+      <div class="cbot">
+        <span class="cmoney"><span class="md" style="background:${MC[p.money]}"></span>${p.moneyL}</span>
+        <span class="cpri">↑ ${p.pri}</span>
+      </div>`;
+    d.onclick = () => { if (window.parent && window.parent !== window && window.parent.StudioProyectos) { window.parent.StudioProyectos.openDetail(p.id); } else { open(p); } };
+    g.appendChild(d);
+  });
+  const all = f==='all' ? P : vis;
+  document.getElementById('s0').textContent = all.length;
+  document.getElementById('s1').textContent = all.filter(p=>p.st==='activo'||p.st==='listo').length;
+  document.getElementById('s2').textContent = all.filter(p=>p.money!=='no').length;
+  document.getElementById('s3').textContent = all.filter(p=>p.st==='pausa'||p.st==='idea').length;
+}
+
+function open(p) {
+  document.getElementById('mc').textContent = p.catL;
+  document.getElementById('mc').style.color = CC[p.cat];
+  document.getElementById('mn').textContent = p.name;
+  const bc = p.money==='si'?'si':p.money==='pot'?'pot':'no';
+  const bl = p.money==='si'?'✓ Ya genera $':p.money==='pot'?'◎ Potencial de $':'— Sin modelo $ aún';
+  document.getElementById('mbody').innerHTML = `
+    <div class="ms"><div class="mst">Avance</div><p>${p.av}</p><span class="mbadge ${bc}">${bl}</span></div>
+    <div class="ms"><div class="mst">Cómo genera $</div><p>${p.mon}</p></div>
+    <div class="ms"><div class="mst">Pendientes clave</div><ul class="ml">${p.pend.map(x=>`<li>${x}</li>`).join('')}</ul></div>
+    ${p.files.length?`<div class="ms"><div class="mst">Archivos</div><ul class="ml">${p.files.map(x=>`<li>${x}</li>`).join('')}</ul></div>`:''}
+  `;
+  document.getElementById('ov').classList.add('open');
+}
+
+function cls(e) {
+  if (!e || e.target===document.getElementById('ov') || e.currentTarget.tagName==='BUTTON')
+    document.getElementById('ov').classList.remove('open');
+}
+
+document.querySelectorAll('.fb').forEach(b => b.onclick = () => {
+  document.querySelectorAll('.fb').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  render(b.dataset.f);
+});
+
+render();
+</script>
+</body>
+</html>
