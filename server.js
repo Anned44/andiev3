@@ -226,7 +226,7 @@ return;
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
+        'anthropic-version': '2024-06-15',
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
