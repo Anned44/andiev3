@@ -244,6 +244,15 @@ const server = http.createServer((req, res) => {
   }
 
   // ── Archivos estáticos ──
+  if (urlPath === '/sw-lite.js') {
+  const filePath = path.join(__dirname, 'sw-lite.js');
+  fs.readFile(filePath, (err, data) => {
+    if (err) { res.writeHead(404); res.end('Not found'); return; }
+    res.writeHead(200, { 'Content-Type': 'application/javascript' });
+    res.end(data);
+  });
+  return;
+}
   if (urlPath === '/lite') {
     const filePath = path.join(__dirname, 'lite.html');
     fs.readFile(filePath, (err, data) => {
