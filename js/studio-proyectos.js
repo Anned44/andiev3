@@ -1,1057 +1,814 @@
-/* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-   STUDIO-PROYECTOS.JS — Andy.net v3
-   Galería, detalle, kanban personalizable,
-   sub-proyectos, notas, links
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ */
+/* ══════════════════════════════════════════════════════
+   STUDIO-PROYECTOS.JS — Andy.net v4
+   Galería: estilo mis-proyectos (cards + filtros)
+   Detalle: kanban + notas vivas + archivos + progreso
+   Persistencia: localStorage (hub_proyectos compatible)
+══════════════════════════════════════════════════════ */
 
 window.StudioProyectos = (function () {
-  'use strict';
 
-  const lg  = (k,f) => { try { const v=localStorage.getItem(k); return v?JSON.parse(v):f; } catch{return f;} };
-  const ls  = (k,v) => { try { localStorage.setItem(k,JSON.stringify(v)); } catch{} };
-  const save = () => { ls('hub_proyectos', _proyectos); ls('studio_proyectos', _proyectos); };
+  /* ── STORAGE KEY ── */
+  const SK = 'studio_proyectos_v4';
 
-  const ESTADOS = ['idea','planificando','construyendo','pausado','terminado'];
-  const PRIOS   = ['alta','media','baja'];
-  const PRIO_COLOR = { alta:'#c86e8a', media:'#c8965a', baja:'#5a8a6a' };
+  /* ── COLORES POR CATEGORÍA ── */
+  const CAT_COLOR = {
+    negocio:  'var(--sp-negocio)',
+    app:      'var(--sp-app)',
+    creativo: 'var(--sp-creativo)',
+    personal: 'var(--sp-personal)',
+    externo:  'var(--sp-externo)',
+  };
+  const STATUS_COLOR = {
+    activo:  'var(--sp-activo)',
+    listo:   'var(--sp-listo)',
+    pausa:   'var(--sp-pausa)',
+    idea:    'var(--sp-idea)',
+  };
 
-  const DEFAULT_PROYECTOS = [
-    { id:1001, emoji:'🍄', nombre:'Cultivo P. Cub', desc:'Proyecto de cultivo de hongos psilocybe cubensis.', estado:'construyendo', prio:'media', inicio:'', deadline:'', progreso:10, cat:'personal', tags:[], cols:[{id:'c1',name:'Por hacer'},{id:'c2',name:'En proceso'},{id:'c3',name:'En revisión'},{id:'c4',name:'Hecho'}], cards:[], subs:[], notas:'', links:[], urgente:false },
-    { id:1002, emoji:'🌿', nombre:'Botánica Adáptogens', desc:'Tienda online de adáptogens para el mercado mexicano.', estado:'construyendo', prio:'alta', inicio:'', deadline:'', progreso:20, cat:'negocio', tags:['ecommerce','salud'], cols:[{id:'c1',name:'Por hacer'},{id:'c2',name:'En proceso'},{id:'c3',name:'En revisión'},{id:'c4',name:'Hecho'}], cards:[], subs:[], notas:'', links:[], urgente:false },
-    { id:1003, emoji:'✨', nombre:'New Age Project', desc:'Meditaciones, espiritualidad y contenido new age. Nombre por definir.', estado:'idea', prio:'baja', inicio:'', deadline:'', progreso:0, cat:'creativo', tags:['espiritual'], cols:[{id:'c1',name:'Por hacer'},{id:'c2',name:'En proceso'},{id:'c3',name:'Hecho'}], cards:[], subs:[], notas:'', links:[], urgente:false },
-    { id:1004, emoji:'🧠', nombre:'Ecosistema Neurocientífico: Toltia', desc:'Plataforma de neurociencia aplicada y desarrollo personal.', estado:'planificando', prio:'alta', inicio:'', deadline:'', progreso:5, cat:'negocio', tags:['neurociencia','educacion'], cols:[{id:'c1',name:'Por hacer'},{id:'c2',name:'En proceso'},{id:'c3',name:'En revisión'},{id:'c4',name:'Hecho'}], cards:[], subs:[], notas:'', links:[], urgente:false },
-    { id:1005, emoji:'⊛', nombre:'AP Studio', desc:'Diseño y desarrollo web, landing pages y proyectos digitales.', estado:'construyendo', prio:'alta', inicio:'', deadline:'', progreso:30, cat:'negocio', tags:['diseño','web'], cols:[{id:'c1',name:'Por hacer'},{id:'c2',name:'En proceso'},{id:'c3',name:'En revisión'},{id:'c4',name:'Hecho'}], cards:[], subs:[], notas:'', links:[], urgente:false },
-    { id:1006, emoji:'✍️', nombre:'Anne — Redacción & Contenido', desc:'Redacción, copywriting y contenido creativo.', estado:'construyendo', prio:'media', inicio:'', deadline:'', progreso:15, cat:'creativo', tags:['escritura','contenido'], cols:[{id:'c1',name:'Por hacer'},{id:'c2',name:'En proceso'},{id:'c3',name:'Hecho'}], cards:[], subs:[], notas:'', links:[], urgente:false },
-    { id:1007, emoji:'📱', nombre:'Apps', desc:'Todas las aplicaciones en desarrollo, incluyendo Andy.net v3.', estado:'construyendo', prio:'alta', inicio:'', deadline:'', progreso:40, cat:'tech', tags:['dev'], cols:[{id:'c1',name:'Por hacer'},{id:'c2',name:'En proceso'},{id:'c3',name:'En revisión'},{id:'c4',name:'Hecho'}], cards:[], subs:[{id:2001,nombre:'Andy.net v3',emoji:'❖',progreso:40},{id:2002,nombre:'Otra app',emoji:'📲',progreso:5}], notas:'', links:[], urgente:false },
-    { id:1008, emoji:'📚', nombre:'Editorial / Libros', desc:'Editorial personal. Incluye Máscaras y la Guía de Cultivo.', estado:'construyendo', prio:'media', inicio:'', deadline:'', progreso:20, cat:'creativo', tags:['libros','escritura'], cols:[{id:'c1',name:'Por hacer'},{id:'c2',name:'En proceso'},{id:'c3',name:'Revisión'},{id:'c4',name:'Publicado'}], cards:[], subs:[{id:2003,nombre:'Máscaras',emoji:'🎭',progreso:25},{id:2004,nombre:'Guía de Cultivo',emoji:'🍄',progreso:10}], notas:'', links:[], urgente:false },
+  /* ── DATOS BASE ── */
+  const BASE = [
+    { id:'agape', nombre:'Ágape', emoji:'🌿', cat:'negocio', catL:'Negocio / $', st:'activo', stL:'Activo',
+      desc:'Tienda online de adaptógenos y hongos funcionales para el mercado mexicano. Marca propia, sin dropshipping.',
+      tags:['e-commerce','adaptógenos','marca propia','wellness'],
+      money:'pot', moneyL:'$ potencial alto', pri:'Alta', progreso:30,
+      pend:['Definir modelo: maquiladora vs consignación vs inventario','Cerrar identidad visual (ya tienes 4 propuestas)','Contactar 3 maquiladores en México','Elegir plataforma: Shopify vs Tiendanube','Calcular inversión inicial y punto de equilibrio','Definir catálogo inicial (3-5 productos max)','Resolver relación con Akasha (¿sublínea o marca sep?)'],
+      mon:'Venta directa. Margen alto con maquiladora propia. Potencial de suscripción mensual.',
+      prompt:`Vamos a trabajar en Ágape, mi tienda online de adaptógenos y hongos funcionales para el mercado mexicano. Es una marca propia, no dropshipping.\n\nEstado actual:\n- Tengo 4 propuestas de landing page listas\n- Identidad visual en exploración\n- Modelo de negocio por definir (esa es la decisión más urgente)\n- Tengo también el concepto Akasha Mushrooms que podría ser sublínea o marca separada\n\nLo que necesito resolver hoy:\n1. Definir modelo de negocio: ¿maquiladora propia, consignación o inventario con proveedor?\n2. Evaluar pros/contras de cada opción para el mercado mexicano\n3. Definir catálogo inicial (qué 3-5 productos lanzar primero)\n\nContexto: estoy en Chihuahua, México. Quiero una marca con identidad fuerte, no genérica. Ayúdame de manera directa y práctica.` },
+
+    { id:'apstudio', nombre:'AP Studio', emoji:'⊛', cat:'negocio', catL:'Negocio / $', st:'activo', stL:'Activo',
+      desc:'Estudio de diseño web, desarrollo y WordPress. El camino más corto a generar dinero real.',
+      tags:['freelance','diseño web','desarrollo','WordPress','ThemeForest'],
+      money:'pot', moneyL:'$ inmediato posible', pri:'Alta', progreso:60,
+      pend:['Activar dominio y publicar landing','Definir 3 servicios concretos con precios','Portafolio con proyectos reales','Decidir idioma principal (EN / ES / ambos)','Crear perfil en Workana o LinkedIn','Primer cliente: alguien de tu red'],
+      mon:'Servicios freelance (diseño/dev/WP), venta de templates en ThemeForest, optimización de sitios.',
+      prompt:`Vamos a trabajar en AP Studio, mi estudio freelance de diseño web y desarrollo.\n\nEstado actual:\n- Tengo 2 landings listas: una en inglés y una en español (LATAM)\n- Aún no tengo dominio activo ni clientes\n- Quiero agregar WordPress como línea de servicios\n- Ya tengo proyectos reales que pueden ser portafolio: Toltia, Andy.net, DyC App\n\nServicios que quiero ofrecer:\n- Diseño y desarrollo web a medida\n- WordPress: temas custom, optimización de sitios lentos\n- Templates digitales\n\nLo que necesito resolver hoy:\n1. Definir 3 servicios concretos con precios reales para el mercado LATAM\n2. Estrategia para conseguir primeros clientes\n3. Decidir si la landing va en inglés, español o ambos\n\nEstoy en Chihuahua, México. Tengo buen nivel de diseño y desarrollo vanilla JS/HTML/CSS.` },
+
+    { id:'wp', nombre:'WordPress · AP', emoji:'⚡', cat:'negocio', catL:'Negocio / $', st:'activo', stL:'Activo',
+      desc:'Línea de servicios WordPress dentro de AP Studio: custom dev, optimización de sitios lentos y templates para ThemeForest.',
+      tags:['WordPress','ThemeForest','optimización','custom themes'],
+      money:'pot', moneyL:'$ inmediato potencial', pri:'Alta', progreso:10,
+      pend:['Aprender WordPress básico-intermedio (child themes, hooks, ACF)','Instalar LocalWP y experimentar','Auditar un sitio WP lento — practicar optimización','Definir paquetes de servicio y precios','Agregar línea WP a landing de AP Studio','Investigar qué templates venden en ThemeForest','Crear cuenta ThemeForest y leer guía de envío'],
+      mon:'Optimización de sitios (servicio), temas custom a medida, plantillas premium en ThemeForest.',
+      prompt:`Vamos a trabajar en la línea de servicios WordPress dentro de AP Studio.\n\nLas 3 líneas de ingreso que quiero desarrollar:\n1. Optimización de sitios WordPress lentos\n2. Diseño y código custom (temas a medida, ACF, hooks)\n3. Plantillas premium para ThemeForest\n\nMi perfil técnico:\n- Buena en HTML, CSS y vanilla JS\n- Experiencia en diseño web y frontend\n- WordPress aún lo estoy aprendiendo\n\nLo que necesito hoy:\n1. Ruta de aprendizaje práctica para ofrecer estos servicios\n2. Por dónde empezar: ¿optimización, custom dev o ThemeForest?\n3. Cómo estructurar y vender el servicio de optimización\n4. Qué nichos venden mejor en ThemeForest ahorita\n\nEstoy en México, mercado LATAM pero también apunto a inglés en ThemeForest.` },
+
+    { id:'meditaciones', nombre:'Meditaciones', emoji:'🌙', cat:'creativo', catL:'Creativo / Diseño', st:'pausa', stL:'En pausa',
+      desc:'Meditaciones guiadas con base neurocientífica. Pueden vivir dentro de Toltia o ser producto independiente.',
+      tags:['meditación','neurociencia','audio','bienestar'],
+      money:'pot', moneyL:'Venta / Patreon', pri:'Media', progreso:35,
+      pend:['Decidir: ¿producto independiente o dentro de Toltia?','Definir las 3 primeras meditaciones (tema, duración)','Grabar primer audio (test de voz y calidad)','Elegir plataforma de distribución (Patreon / Gumroad)','Definir modelo: pago por audio vs suscripción','Diseñar identidad visual propia si va como marca'],
+      mon:'Venta de audios individuales, suscripción mensual o contenido premium dentro de Toltia.',
+      prompt:`Vamos a trabajar en mi proyecto de meditaciones guiadas con base neurocientífica.\n\nEstado actual:\n- Tengo 2 versiones de interfaz/script exploradas\n- Aún no he grabado ningún audio\n- Tengo conocimiento sólido de neurociencia (trabajo también en Toltia)\n- No he definido si va dentro de Toltia o es producto independiente\n\nLo que necesito resolver hoy:\n1. Decidir: ¿producto independiente o módulo premium dentro de Toltia?\n2. Definir las primeras 3 meditaciones: tema, estructura, duración\n3. Plan concreto para grabar el primer audio\n4. Evaluar plataformas: Patreon vs Gumroad vs app propia\n\nMi voz es tranquila y quiero integrar neurociencia real — no quiero que suenen genéricas.` },
+
+    { id:'andynet', nombre:'Andy.net v3', emoji:'◈', cat:'app', catL:'App / Dev', st:'listo', stL:'Avanzado',
+      desc:'App personal de productividad — Portal, Hub, Studio, Muse. Vanilla JS + Node.js en Railway.',
+      tags:['productividad','vanilla JS','Railway','Firestore','Anet AI'],
+      money:'no', moneyL:'Uso personal', pri:'Alta', progreso:65,
+      pend:['Estabilizar Muse completo','Mejorar Anet AI assistant','Módulo Hub (finanzas, hábitos)','Performance y mobile','Pulir autenticación Martín'],
+      mon:'No genera $ directo. Podría convertirse en template SaaS a futuro.',
+      prompt:'' },
+
+    { id:'toltia', nombre:'Toltia', emoji:'🧠', cat:'app', catL:'App / Dev', st:'listo', stL:'Avanzado',
+      desc:'Plataforma educativa de reducción de daños en español. 4 pilares: El Cerebro, El Cuerpo, La Experiencia, La Práctica.',
+      tags:['harm reduction','neurociencia','farmacología','español'],
+      money:'pot', moneyL:'Grants / donaciones', pri:'Alta', progreso:60,
+      pend:['Completar combinaciones de sustancias','Protocolo de emergencias unificado','Widget interactivo','Definir modelo de sostenibilidad'],
+      mon:'Grants de salud pública o instituciones educativas.',
+      prompt:'' },
+
+    { id:'nemi', nombre:'Nemi Studio', emoji:'✦', cat:'negocio', catL:'Negocio / $', st:'pausa', stL:'En pausa',
+      desc:'Templates digitales para personas con TDAH y neurodivergencia — agendas, planners, organizadores para vender online.',
+      tags:['templates','TDAH','neurodivergencia','productos digitales'],
+      money:'pot', moneyL:'$ pasivo potencial', pri:'Media', progreso:15,
+      pend:['Diseñar primer template (agenda mensual)','Elegir plataforma (Gumroad / Etsy)','Investigar precio de competencia','Lanzar con 3 productos mínimo'],
+      mon:'Productos digitales. Ingreso pasivo una vez creados.',
+      prompt:'' },
+
+    { id:'akasha', nombre:'Akasha Mushrooms', emoji:'🍄', cat:'negocio', catL:'Negocio / $', st:'idea', stL:'Idea',
+      desc:'Marca de hongos funcionales — ¿sublínea de Ágape o proyecto separado?',
+      tags:['hongos','adaptógenos','marca'],
+      money:'pot', moneyL:'$ a definir', pri:'Baja', progreso:10,
+      pend:['Decidir si va dentro de Ágape o es marca independiente','Evaluar diferenciación de producto'],
+      mon:'Pendiente definir. Podría absorberse en Ágape.',
+      prompt:'' },
+
+    { id:'devpath', nombre:'Andinet Dev Path', emoji:'📚', cat:'negocio', catL:'Negocio / $', st:'activo', stL:'Activo',
+      desc:'Curso Full Stack propio — material de estudio personal y contenido para enseñar a otros.',
+      tags:['curso','full stack','educación','JS'],
+      money:'pot', moneyL:'$ venta de curso', pri:'Media', progreso:40,
+      pend:['Definir audiencia objetivo','Decidir plataforma (Gumroad / Teachable / standalone)','Completar contenido de módulos','Definir precio y modelo'],
+      mon:'Venta de curso online. Ingreso pasivo una vez producido.',
+      prompt:'' },
+
+    { id:'studiowireframe', nombre:'Studio Wireframe', emoji:'⬡', cat:'creativo', catL:'Creativo / Diseño', st:'activo', stL:'Activo',
+      desc:'Herramienta de wireframing interactiva estilo Figma/Linear. Dark/light mode, zoom, dropdowns, canvas.',
+      tags:['wireframe','diseño','herramienta','canvas'],
+      money:'pot', moneyL:'$ si se publica', pri:'Media', progreso:50,
+      pend:['Definir scope final','Decidir: herramienta pública o interna','Integrar con Andy.net Studio o standalone'],
+      mon:'Herramienta pública o template vendible.',
+      prompt:'' },
+
+    { id:'tarot', nombre:'El Grimorio · Tarot', emoji:'🔮', cat:'app', catL:'App / Dev', st:'listo', stL:'Avanzado',
+      desc:'App de tarot con estética renacentista. En proceso de optimización para app pública.',
+      tags:['tarot','app pública','renacentista','wellness'],
+      money:'pot', moneyL:'$ app pública', pri:'Media', progreso:80,
+      pend:['Optimizar para app pública','Definir funcionalidades extra (diario, spreads, luna)','Modelo: freemium o suscripción','PWA o app móvil'],
+      mon:'App de tarot con suscripción o compras in-app.',
+      prompt:'' },
+
+    { id:'espacio', nombre:'Nuestro Espacio', emoji:'🌹', cat:'app', catL:'App / Dev', st:'activo', stL:'Activo',
+      desc:'App de pareja para Anne y Martín — privada ahora, con potencial de app pública para parejas.',
+      tags:['Martín','pareja','React','app pública'],
+      money:'pot', moneyL:'$ potencial app pública', pri:'Media', progreso:50,
+      pend:['Definir funcionalidades core para parejas','Evaluar si se publica o permanece privada','Diseñar onboarding','Modelo: freemium o suscripción'],
+      mon:'App de pareja con suscripción. Nicho con demanda real.',
+      prompt:'' },
+
+    { id:'brandstudio', nombre:'Brand Studio', emoji:'◉', cat:'creativo', catL:'Creativo / Diseño', st:'activo', stL:'Activo',
+      desc:'Herramienta propia para crear identidades de marca. Incluye colorimetría y exploración de identidad creativa.',
+      tags:['branding','identidad','colorimetría'],
+      money:'pot', moneyL:'$ servicio de branding', pri:'Media', progreso:40,
+      pend:['Decidir: herramienta interna o servicio a clientes','Integrar en AP Studio como oferta de branding'],
+      mon:'Como servicio de branding dentro de AP Studio.',
+      prompt:'' },
+
+    { id:'dyc', nombre:'DyC App', emoji:'⚙', cat:'externo', catL:'Externo / Trabajo', st:'activo', stL:'Activo',
+      desc:'App de gestión para empresa de mantenimiento eléctrico de Martín. Cliente principal: Honeywell.',
+      tags:['gestión','Martín','mantenimiento eléctrico'],
+      money:'si', moneyL:'$ negocio existente', pri:'Media', progreso:50,
+      pend:['Investigar nuevo nombre de Honeywell International','Resolver OC cerradas sin facturar','Contactar Jaime Barraza','Agregar funcionalidades a la app'],
+      mon:'El negocio ya genera $. La app es herramienta interna.',
+      prompt:'' },
+
+    { id:'garden', nombre:"Anne's Garden", emoji:'🌱', cat:'personal', catL:'Personal / Vida', st:'activo', stL:'Activo',
+      desc:'Tracker personal de plantas de casa — riego, cuidados, colección.',
+      tags:['plantas','tracker','personal'],
+      money:'no', moneyL:'Uso personal', pri:'Baja', progreso:60,
+      pend:['Recordatorios de riego','Integrar con Andy.net Hub'],
+      mon:'No aplica.',
+      prompt:'' },
+
+    { id:'mascaras', nombre:'Máscaras', emoji:'🎭', cat:'creativo', catL:'Creativo / Diseño', st:'idea', stL:'Idea',
+      desc:'App de escritura creativa con concepto de personajes/máscaras.',
+      tags:['escritura','personajes','narrativa'],
+      money:'no', moneyL:'Exploración', pri:'Baja', progreso:20,
+      pend:['Definir si es proyecto serio o exploración','Escribir el problema que resuelve'],
+      mon:'Podría ser herramienta para escritores.',
+      prompt:'' },
+
+    { id:'sadrift', nombre:'S.A. Drift', emoji:'🌊', cat:'creativo', catL:'Creativo / Diseño', st:'idea', stL:'Idea',
+      desc:'Proyecto creativo de Anne y Sebastián. Naturaleza por definir.',
+      tags:['Sebas','colaboración','creativo'],
+      money:'no', moneyL:'Proyecto personal', pri:'Baja', progreso:10,
+      pend:['Definir qué es exactamente','Conversar con Sebas sobre dirección'],
+      mon:'No planeada.',
+      prompt:'' },
+
+    { id:'fashion', nombre:'Fashion Design Studio', emoji:'👗', cat:'creativo', catL:'Creativo / Diseño', st:'idea', stL:'Idea',
+      desc:'App o herramienta de diseño de moda.',
+      tags:['moda','diseño','app creativa'],
+      money:'pot', moneyL:'$ a explorar', pri:'Baja', progreso:15,
+      pend:['Definir propósito y audiencia','Decidir si avanza o se pausa'],
+      mon:'A definir.',
+      prompt:'' },
+
+    { id:'notas', nombre:'Notas · Anne', emoji:'📝', cat:'personal', catL:'Personal / Vida', st:'activo', stL:'Activo',
+      desc:'App de notas personal standalone.',
+      tags:['notas','escritura','personal'],
+      money:'no', moneyL:'Uso personal', pri:'Baja', progreso:65,
+      pend:['Decidir: fusionar con Andy.net o standalone'],
+      mon:'No aplica.',
+      prompt:'' },
+
+    { id:'calendario', nombre:'Mi Mes', emoji:'📅', cat:'personal', catL:'Personal / Vida', st:'activo', stL:'Activo',
+      desc:'Calendario mensual personal de Anne.',
+      tags:['calendario','organización','personal'],
+      money:'no', moneyL:'Uso personal', pri:'Media', progreso:70,
+      pend:['Integrar con Andy.net Hub'],
+      mon:'No aplica.',
+      prompt:'' },
   ];
 
-  let _proyectos = [];
-  let _filter    = 'all';
-  let _urgent    = false;
-  let _currentId = null;
-  let _dragSrc   = null;
+  /* ── COLS KANBAN DEFAULT ── */
+  const DEFAULT_COLS = [
+    { id:'todo',     label:'Por hacer' },
+    { id:'doing',    label:'En proceso' },
+    { id:'review',   label:'En revisión' },
+    { id:'done',     label:'Hecho' },
+  ];
 
-  /* ━━ DATA ━━ */
-  function init() {
-    _proyectos = lg('hub_proyectos', null) || lg('studio_proyectos', null) || DEFAULT_PROYECTOS;
-    // Asegurar estructura completa
-    _proyectos = _proyectos.map(p => ({
-      cols:[{id:'c1',name:'Por hacer'},{id:'c2',name:'En proceso'},{id:'c3',name:'Revisión'},{id:'c4',name:'Hecho'}],
-      cards:[], subs:[], notas:'', links:[], tags:[], urgente:false,
-      ...p
-    }));
-    save();
-    renderGallery();
+  /* ── STATE ── */
+  let _data = [];
+  let _filter = 'all';
+  let _currentId = null;
+  let _dragCard = null;
+  let _dragCol = null;
+
+  /* ── LOAD / SAVE ── */
+  function _load() {
+    try {
+      const raw = localStorage.getItem(SK);
+      if (raw) {
+        const saved = JSON.parse(raw);
+        // Merge: base tiene estructura, saved tiene estado persistido
+        _data = BASE.map(base => {
+          const s = saved.find(x => x.id === base.id) || {};
+          return {
+            ...base,
+            progreso: s.progreso ?? base.progreso,
+            tags:     s.tags     ?? base.tags,
+            pend:     s.pend     ?? base.pend,
+            cols:     s.cols     || DEFAULT_COLS.map(c => ({ ...c })),
+            cards:    s.cards    || [],
+            notas:    s.notas    ?? '',
+            archivos: s.archivos || [],
+            urgente:  s.urgente  ?? false,
+          };
+        });
+      } else {
+        _data = BASE.map(b => ({
+          ...b,
+          cols:     DEFAULT_COLS.map(c => ({ ...c })),
+          cards:    [],
+          notas:    '',
+          archivos: [],
+          urgente:  false,
+        }));
+      }
+    } catch (e) {
+      _data = BASE.map(b => ({ ...b, cols: DEFAULT_COLS.map(c=>({...c})), cards:[], notas:'', archivos:[], urgente:false }));
+    }
   }
 
-  function getP(id) { return _proyectos.find(p=>p.id===id); }
+  function _save() {
+    try {
+      localStorage.setItem(SK, JSON.stringify(_data.map(p => ({
+        id: p.id, progreso: p.progreso, tags: p.tags, pend: p.pend,
+        cols: p.cols, cards: p.cards, notas: p.notas, archivos: p.archivos, urgente: p.urgente,
+      }))));
+      StudioCore.triggerAutosave?.();
+    } catch(e) {}
+  }
 
-  /* ━━ GALERÍA ━━ */
-  function renderGallery() {
-    const container = document.getElementById('proyGallery');
-    const detail    = document.getElementById('proyDetail');
-    if (!container) return;
-    container.style.display = 'block';
-    if (detail) detail.style.display = 'none';
+  function _proj(id) { return _data.find(p => p.id === id); }
+
+  /* ════════════════════════════════════
+     GALERÍA
+  ════════════════════════════════════ */
+  function _renderGallery() {
+    const gal = document.getElementById('proyGallery');
+    const det = document.getElementById('proyDetail');
+    if (!gal || !det) return;
+    gal.style.display = '';
+    det.style.display = 'none';
     _currentId = null;
 
-    let items = [..._proyectos];
-    if (_filter !== 'all') items = items.filter(p=>p.estado===_filter);
-    if (_urgent) items = items.filter(p=>p.urgente);
+    const CC = { negocio:'var(--sp-negocio)', app:'var(--sp-app)', creativo:'var(--sp-creativo)', personal:'var(--sp-personal)', externo:'var(--sp-externo)' };
+    const SC = { activo:'var(--sp-activo)', listo:'var(--sp-listo)', pausa:'var(--sp-pausa)', idea:'var(--sp-idea)' };
+    const MC = { pot:'var(--sp-negocio)', si:'var(--sp-listo)', no:'var(--muted2)' };
 
-    if (!items.length) {
-      container.innerHTML = '<div style="padding:60px;text-align:center;font-family:var(--mono);font-size:10px;color:var(--muted);letter-spacing:.1em">sin proyectos</div>';
-      return;
-    }
+    let list = _data;
+    if (_filter !== 'all') list = _data.filter(p => p.cat === _filter);
 
-    // Separar protagonista del resto
-    const activos   = items.filter(p=>p.estado!=='terminado'&&p.estado!=='pausado');
-    const inactivos = items.filter(p=>p.estado==='terminado'||p.estado==='pausado');
-    const foco      = activos.sort((a,b)=>(b.urgente?1:0)-(a.urgente?1:0)||b.progreso-a.progreso)[0];
-    const resto     = items.filter(p=>p.id!==foco?.id);
+    // Filtros UI
+    const filters = [
+      { k:'all', l:'Todos' },
+      { k:'negocio', l:'Negocio / $' },
+      { k:'app', l:'App / Dev' },
+      { k:'creativo', l:'Creativo' },
+      { k:'personal', l:'Personal' },
+      { k:'externo', l:'Externo' },
+    ];
 
-    let html = '';
-    if (foco) html += buildCardHero(foco);
-    if (resto.length) {
-      const normales  = resto.filter(p=>p.estado!=='terminado'&&p.estado!=='pausado');
-      const pausados  = resto.filter(p=>p.estado==='pausado'||p.estado==='terminado');
-      html += `<div class="proy-gallery-grid">${normales.map(buildCard).join('')}</div>`;
-      if (pausados.length) html += `
-        <div class="proy-gallery-divider">
-          <span>pausados · terminados</span>
-        </div>
-        <div class="proy-gallery-grid proy-gallery-dim">${pausados.map(buildCard).join('')}</div>`;
-    }
+    // Stats
+    const actN  = _data.filter(p => p.st === 'activo' || p.st === 'listo').length;
+    const monN  = _data.filter(p => p.money !== 'no').length;
+    const pausN = _data.filter(p => p.st === 'pausa' || p.st === 'idea').length;
 
-    container.innerHTML = html;
-    setTimeout(() => {
-      container.querySelectorAll('[data-w]').forEach(el => el.style.width = el.dataset.w + '%');
-    }, 80);
-  }
+    gal.innerHTML = `
+      <style>
+        :root {
+          --sp-negocio: #c4975a;
+          --sp-app:     #7ab8a0;
+          --sp-creativo:#b07ab8;
+          --sp-personal:#b87a7a;
+          --sp-externo: #7a9ab8;
+          --sp-activo:  #7ab8a0;
+          --sp-listo:   #a0c47a;
+          --sp-pausa:   #c4975a;
+          --sp-idea:    var(--muted2);
+        }
+        .sp-legend{display:flex;flex-wrap:wrap;gap:6px 20px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--bord)}
+        .sp-li{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+        .sp-ld{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+        .sp-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--bord);border:1px solid var(--bord);border-radius:3px;margin-bottom:20px;overflow:hidden}
+        .sp-stat{background:var(--s2);padding:14px 16px;text-align:center}
+        .sp-sn{font-family:var(--serif);font-size:26px;font-weight:300;line-height:1;margin-bottom:3px}
+        .sp-sl{font-family:var(--mono);font-size:8px;color:var(--muted2);letter-spacing:.12em;text-transform:uppercase}
+        .sp-filters{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:20px}
+        .sp-fb{background:transparent;border:1px solid var(--bord2);color:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:5px 12px;cursor:pointer;border-radius:2px;transition:all .15s}
+        .sp-fb:hover,.sp-fb.active{border-color:var(--sp-negocio);color:var(--sp-negocio);background:rgba(196,151,90,.06)}
+        .sp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:2px}
+        .sp-card{background:var(--s2);border:1px solid var(--bord);padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden}
+        .sp-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:var(--cc,var(--bord2))}
+        .sp-card:hover{background:var(--s3);border-color:var(--bord2);transform:translateY(-2px)}
+        .sp-ctop{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px}
+        .sp-ccat{font-family:var(--mono);font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--cc,var(--muted2))}
+        .sp-cst{font-family:var(--mono);font-size:8px;letter-spacing:.07em;text-transform:uppercase;padding:2px 7px;border-radius:2px;background:rgba(255,255,255,.04);border:1px solid var(--sc,var(--bord2));color:var(--sc,var(--muted2));white-space:nowrap}
+        .sp-cemoji{font-size:18px;margin-bottom:6px;display:block}
+        .sp-cname{font-family:var(--serif);font-style:italic;font-size:16px;font-weight:300;margin-bottom:5px;line-height:1.2}
+        .sp-cdesc{font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.6;margin-bottom:12px}
+        .sp-ctags{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:12px}
+        .sp-tag{font-family:var(--mono);font-size:8px;padding:2px 6px;background:rgba(255,255,255,.03);border:1px solid var(--bord);color:var(--muted2);border-radius:2px}
+        .sp-cbot{display:flex;justify-content:space-between;align-items:center;padding-top:10px;border-top:1px solid var(--bord)}
+        .sp-cmoney{font-family:var(--mono);font-size:9px;color:var(--muted2);display:flex;align-items:center;gap:5px}
+        .sp-md{width:5px;height:5px;border-radius:50%}
+        .sp-cpri{font-family:var(--mono);font-size:8px;letter-spacing:.1em;color:var(--muted2);text-transform:uppercase}
+        .sp-pbar{height:2px;background:var(--bord2);border-radius:2px;margin:8px 0 0;overflow:hidden}
+        .sp-pfill{height:100%;border-radius:2px;transition:width .6s ease}
+      </style>
 
-  function buildCardHero(p) {
-    const totalCards = (p.cards||[]).length;
-    const doneCards  = (p.cards||[]).filter(c=>c.colId===p.cols?.[p.cols.length-1]?.id).length;
-    const vencido    = p.deadline && new Date(p.deadline) < new Date();
-    const bg = p.coverUrl ? `background-image:url('${p.coverUrl}');background-size:cover;background-position:center` : '';
-    return `<div class="proy-card-hero${p.urgente?' urgent':''}" onclick="StudioProyectos.openDetail(${p.id})" style="${bg}">
-      ${bg ? '<div class="proy-hero-overlay"></div>' : ''}
-      <div class="proy-card-hero-content">
-        <div class="proy-card-hero-top">
-          <div style="display:flex;align-items:center;gap:12px">
-            <span style="font-size:2rem;line-height:1">${p.emoji||'◈'}</span>
-            <div>
-              <div class="proy-card-hero-name">${escHtml(p.nombre)}</div>
-              <div class="proy-card-hero-desc">${escHtml(p.desc||'')}</div>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;flex-shrink:0">
-            ${p.urgente?'<span style="font-size:14px">⚡</span>':''}
-            <span class="proy-card-estado estado-${p.estado||'idea'}">${p.estado||'idea'}</span>
-          </div>
-        </div>
-        <div class="proy-card-hero-meta">
-          <span class="proy-card-prio prio-${p.prio||'media'}">${p.prio||'media'}</span>
-          ${p.deadline?`<span class="proy-card-deadline${vencido?' vencido':''}">📅 ${formatDate(p.deadline)}</span>`:''}
-          ${(p.tags||[]).slice(0,2).map(t=>`<span class="proy-sub-chip">${t}</span>`).join('')}
-        </div>
-        <div class="proy-card-hero-progress">
-          <div class="proy-card-hero-bar"><div data-w="${p.progreso||0}" style="width:0;height:100%;background:var(--studio);border-radius:2px;transition:width .8s cubic-bezier(.4,0,.2,1)"></div></div>
-          <span class="proy-card-hero-pct">${p.progreso||0}% · ${doneCards}/${totalCards} tareas</span>
-        </div>
+      <div class="sp-legend">
+        <div class="sp-li"><div class="sp-ld" style="background:var(--sp-negocio)"></div>Negocio / $</div>
+        <div class="sp-li"><div class="sp-ld" style="background:var(--sp-app)"></div>App / Dev</div>
+        <div class="sp-li"><div class="sp-ld" style="background:var(--sp-creativo)"></div>Creativo</div>
+        <div class="sp-li"><div class="sp-ld" style="background:var(--sp-personal)"></div>Personal</div>
+        <div class="sp-li"><div class="sp-ld" style="background:var(--sp-externo)"></div>Externo</div>
+        <div class="sp-li" style="margin-left:auto"><div class="sp-ld" style="background:var(--sp-activo)"></div>Activo</div>
+        <div class="sp-li"><div class="sp-ld" style="background:var(--sp-listo)"></div>Avanzado</div>
+        <div class="sp-li"><div class="sp-ld" style="background:var(--sp-pausa)"></div>Pausa</div>
+        <div class="sp-li"><div class="sp-ld" style="background:var(--sp-idea)"></div>Idea</div>
       </div>
-    </div>`;
-  }
 
-  function buildCard(p) {
-    const totalCards = (p.cards||[]).length;
-    const doneCards  = (p.cards||[]).filter(c=>c.colId===p.cols?.[p.cols.length-1]?.id).length;
-    const vencido    = p.deadline && new Date(p.deadline) < new Date();
-    const bg = p.coverUrl ? `background-image:url('${p.coverUrl}');background-size:cover;background-position:center` : '';
-
-    return `<div class="proy-card${p.urgente?' urgent':''}" onclick="StudioProyectos.openDetail(${p.id})" style="${bg}">
-      ${bg ? '<div class="proy-hero-overlay" style="background:linear-gradient(to top,rgba(6,4,12,.92),rgba(6,4,12,.3))"></div>' : ''}
-      <div style="position:relative;z-index:2">
-        <div class="proy-card-header">
-          <div style="display:flex;align-items:flex-start;gap:8px;flex:1;min-width:0">
-            <span class="proy-card-emoji">${p.emoji||'◈'}</span>
-            <div class="proy-card-info">
-              <div class="proy-card-name">${escHtml(p.nombre)}</div>
-              <div class="proy-card-desc">${escHtml(p.desc||'')}</div>
-            </div>
-          </div>
-          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0">
-            <span class="proy-card-estado estado-${p.estado||'idea'}">${p.estado||'idea'}</span>
-            ${p.urgente?'<span style="font-size:11px">⚡</span>':''}
-          </div>
-        </div>
-        <div class="proy-card-meta" style="margin-top:8px">
-          <span class="proy-card-prio prio-${p.prio||'media'}">${p.prio||'media'}</span>
-          ${p.deadline?`<span class="proy-card-deadline${vencido?' vencido':''}">📅 ${formatDate(p.deadline)}</span>`:''}
-          ${(p.tags||[]).slice(0,2).map(t=>`<span class="proy-sub-chip">${t}</span>`).join('')}
-        </div>
-        <div class="proy-card-progress" style="margin-top:12px">
-          <div class="proy-card-progress-bar">
-            <div class="proy-card-progress-fill" data-w="${p.progreso||0}" style="width:0"></div>
-          </div>
-          <div class="proy-card-progress-txt"><span>${p.progreso||0}%</span><span>${doneCards}/${totalCards}</span></div>
-        </div>
+      <div class="sp-stats">
+        <div class="sp-stat"><div class="sp-sn">${_data.length}</div><div class="sp-sl">Total</div></div>
+        <div class="sp-stat"><div class="sp-sn" style="color:var(--sp-activo)">${actN}</div><div class="sp-sl">Activos</div></div>
+        <div class="sp-stat"><div class="sp-sn" style="color:var(--sp-negocio)">${monN}</div><div class="sp-sl">Potencial $</div></div>
+        <div class="sp-stat"><div class="sp-sn" style="color:var(--sp-pausa)">${pausN}</div><div class="sp-sl">Pausa / idea</div></div>
       </div>
-    </div>`;
+
+      <div class="sp-filters">
+        ${filters.map(f=>`<button class="sp-fb${_filter===f.k?' active':''}" onclick="StudioProyectos.setFilter(null,'${f.k}')">${f.l}</button>`).join('')}
+      </div>
+
+      <div class="sp-grid">
+        ${list.map(p => `
+          <div class="sp-card" style="--cc:${CC[p.cat]||'var(--bord2)'};--sc:${SC[p.st]||'var(--muted2)'}"
+               onclick="StudioProyectos.openDetail('${p.id}')">
+            <div class="sp-ctop">
+              <span class="sp-ccat">${p.catL}</span>
+              <span class="sp-cst">${p.stL}</span>
+            </div>
+            <span class="sp-cemoji">${p.emoji||'◈'}</span>
+            <div class="sp-cname">${p.nombre}</div>
+            <div class="sp-cdesc">${p.desc}</div>
+            <div class="sp-ctags">${(p.tags||[]).map(t=>`<span class="sp-tag">${t}</span>`).join('')}</div>
+            <div class="sp-cbot">
+              <span class="sp-cmoney">
+                <span class="sp-md" style="background:${MC[p.money]||'var(--muted2)'}"></span>
+                ${p.moneyL}
+              </span>
+              <span class="sp-cpri">↑ ${p.pri}</span>
+            </div>
+            <div class="sp-pbar"><div class="sp-pfill" style="width:${p.progreso||0}%;background:${CC[p.cat]||'var(--bord2)'}"></div></div>
+          </div>`).join('')}
+      </div>
+    `;
   }
 
-  /* ━━ FILTROS ━━ */
-  function setFilter(btn, filter) {
-    document.querySelectorAll('.studio-nav-sub:not(.urgente)').forEach(b=>b.classList.remove('active'));
-    document.querySelectorAll('.proy-filter-btn').forEach(b=>b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    else {
-      const def = document.querySelector('.studio-nav-sub[data-f="all"]');
-      if (def) def.classList.add('active');
-    }
-    _filter = filter;
-    // Asegurar que estamos en la página de proyectos
-    const page = document.getElementById('page-proyectos');
-    if (page && !page.classList.contains('active')) {
-      StudioCore.navTo(document.getElementById('snavProyectos'), 'proyectos');
-    }
-    renderGallery();
-  }
-
-  function toggleUrgent(btn) {
-    _urgent = !_urgent;
-    if (btn) btn.classList.toggle('active', _urgent);
-    const sideBtn = document.getElementById('snavUrgente');
-    if (sideBtn) sideBtn.classList.toggle('active', _urgent);
-    renderGallery();
-  }
-
-  /* ━━ DETALLE ━━ */
+  /* ════════════════════════════════════
+     DETALLE
+  ════════════════════════════════════ */
   function openDetail(id) {
-    _currentId = id;
-    const p = getP(id);
+    const p = _proj(id);
     if (!p) return;
-    document.getElementById('proyGallery').style.display = 'none';
-    const detail = document.getElementById('proyDetail');
-    detail.style.display = 'block';
-    renderDetail(p);
+    _currentId = id;
+
+    const gal = document.getElementById('proyGallery');
+    const det = document.getElementById('proyDetail');
+    if (!gal || !det) return;
+    gal.style.display = 'none';
+    det.style.display = '';
+
+    const CC = { negocio:'var(--sp-negocio)', app:'var(--sp-app)', creativo:'var(--sp-creativo)', personal:'var(--sp-personal)', externo:'var(--sp-externo)' };
+    const accent = CC[p.cat] || 'var(--sp-negocio)';
+
+    det.innerHTML = `
+      <style>
+        .det-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:12px;margin-bottom:28px;padding-bottom:20px;border-bottom:1px solid var(--bord)}
+        .det-back{background:none;border:1px solid var(--bord2);color:var(--muted);font-family:var(--mono);font-size:9px;letter-spacing:.1em;padding:5px 12px;cursor:pointer;border-radius:2px;transition:all .15s;text-transform:uppercase}
+        .det-back:hover{color:var(--text);border-color:var(--muted)}
+        .det-emoji{font-size:28px;margin-bottom:6px;display:block}
+        .det-cat{font-family:var(--mono);font-size:9px;letter-spacing:.15em;text-transform:uppercase;margin-bottom:5px}
+        .det-title{font-family:var(--serif);font-style:italic;font-size:clamp(22px,3vw,34px);font-weight:300;letter-spacing:-.01em;line-height:1}
+        .det-desc{font-family:var(--mono);font-size:10px;color:var(--muted);margin-top:6px;line-height:1.7;max-width:500px}
+        .det-actions{display:flex;gap:8px;flex-wrap:wrap}
+        .det-btn{background:transparent;border:1px solid ${accent};color:${accent};font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;padding:7px 14px;cursor:pointer;border-radius:2px;transition:all .15s}
+        .det-btn:hover{background:rgba(255,255,255,.04)}
+        .det-btn.primary{background:${accent};color:var(--bg);border-color:${accent}}
+        .det-btn.primary:hover{opacity:.85}
+
+        .det-meta{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:4px;margin-bottom:4px}
+        .det-mbox{background:var(--s2);border:1px solid var(--bord);padding:12px 16px;border-radius:2px;font-family:var(--mono)}
+        .det-ml{font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted2);margin-bottom:4px}
+        .det-mv{font-size:11px;color:var(--text)}
+
+        .det-prog{background:var(--s2);border:1px solid var(--bord);padding:16px 20px;border-radius:2px;margin-bottom:4px}
+        .det-prog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+        .det-prog-label{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2)}
+        .det-prog-pct{font-family:var(--serif);font-size:22px;font-weight:300;color:${accent}}
+        .det-prog-range{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:var(--bord2);border-radius:2px;cursor:pointer;outline:none;border:none}
+        .det-prog-range::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:${accent};cursor:pointer;border:2px solid var(--bg)}
+        .det-prog-range::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:${accent};cursor:pointer;border:2px solid var(--bg)}
+
+        .det-grid2{display:grid;grid-template-columns:1fr 1fr;gap:4px;margin-bottom:4px}
+        .det-section{background:var(--s2);border:1px solid var(--bord);padding:18px 20px;border-radius:2px}
+        .det-stitle{font-family:var(--mono);font-size:8px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted2);margin-bottom:12px;padding-bottom:8px;border-bottom:1px solid var(--bord);display:flex;justify-content:space-between;align-items:center}
+        .det-stitle button{background:none;border:none;color:var(--muted);cursor:pointer;font-family:var(--mono);font-size:9px;padding:0;transition:color .15s}
+        .det-stitle button:hover{color:${accent}}
+
+        .pend-list{list-style:none}
+        .pend-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid var(--bord);font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.5;cursor:pointer;transition:color .15s}
+        .pend-item:last-child{border-bottom:none}
+        .pend-item:hover{color:var(--text)}
+        .pend-item.done{text-decoration:line-through;color:var(--muted2)}
+        .pend-check{width:13px;height:13px;border:1px solid var(--bord2);border-radius:2px;flex-shrink:0;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+        .pend-item.done .pend-check{background:${accent};border-color:${accent}}
+        .pend-item.done .pend-check::after{content:'✓';font-size:7px;color:var(--bg)}
+
+        .kanban{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:4px}
+        .k-col{background:var(--s2);border:1px solid var(--bord);border-radius:2px;padding:12px;min-height:140px;transition:background .15s}
+        .k-col.drag-over{background:var(--s3);border-color:${accent}}
+        .k-col-header{font-family:var(--mono);font-size:8px;letter-spacing:.15em;text-transform:uppercase;color:var(--muted2);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+        .k-col-n{background:var(--bord2);color:var(--muted);font-size:8px;padding:1px 5px;border-radius:10px;font-family:var(--mono)}
+        .k-cards{min-height:60px}
+        .k-card{background:var(--s3);border:1px solid var(--bord2);border-radius:2px;padding:8px 10px;margin-bottom:5px;font-family:var(--mono);font-size:10px;color:var(--text);cursor:grab;transition:all .15s;position:relative}
+        .k-card:active{cursor:grabbing}
+        .k-card:hover{border-color:${accent};transform:translateY(-1px)}
+        .k-card.dragging{opacity:.4}
+        .k-card-del{position:absolute;top:4px;right:6px;background:none;border:none;color:var(--muted2);cursor:pointer;font-size:10px;opacity:0;transition:opacity .15s}
+        .k-card:hover .k-card-del{opacity:1}
+        .k-add{background:none;border:1px dashed var(--bord2);color:var(--muted2);font-family:var(--mono);font-size:9px;width:100%;padding:6px;cursor:pointer;border-radius:2px;letter-spacing:.05em;transition:all .15s;margin-top:4px}
+        .k-add:hover{border-color:${accent};color:${accent}}
+
+        .nota-area{width:100%;background:var(--s3);border:1px solid var(--bord2);color:var(--text);font-family:var(--mono);font-size:10px;line-height:1.7;padding:12px;border-radius:2px;resize:vertical;min-height:90px;outline:none;transition:border-color .2s}
+        .nota-area:focus{border-color:${accent}}
+        .nota-area::placeholder{color:var(--muted2)}
+
+        .arch-list{list-style:none;margin-bottom:10px}
+        .arch-item{display:flex;align-items:center;justify-content:space-between;padding:5px 0;border-bottom:1px solid var(--bord);font-family:var(--mono);font-size:10px;color:var(--muted)}
+        .arch-item:last-child{border-bottom:none}
+        .arch-del{background:none;border:none;color:var(--muted2);cursor:pointer;font-size:10px;transition:color .15s}
+        .arch-del:hover{color:#e07a7a}
+        .arch-add-row{display:flex;gap:6px}
+        .arch-input{flex:1;background:var(--s3);border:1px solid var(--bord2);color:var(--text);font-family:var(--mono);font-size:10px;padding:6px 10px;border-radius:2px;outline:none;transition:border-color .2s}
+        .arch-input:focus{border-color:${accent}}
+        .arch-input::placeholder{color:var(--muted2)}
+        .arch-save{background:none;border:1px solid ${accent};color:${accent};font-family:var(--mono);font-size:9px;padding:6px 12px;cursor:pointer;border-radius:2px;transition:all .15s;white-space:nowrap}
+        .arch-save:hover{background:rgba(255,255,255,.04)}
+
+        .prompt-block{background:var(--s3);border:1px solid var(--bord);border-radius:2px;padding:14px;font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.8;white-space:pre-wrap;margin-bottom:10px;max-height:200px;overflow-y:auto}
+        .no-prompt{font-family:var(--mono);font-size:10px;color:var(--muted2);font-style:italic}
+
+        @media(max-width:900px){
+          .kanban{grid-template-columns:1fr 1fr}
+          .det-grid2{grid-template-columns:1fr}
+          .det-meta{grid-template-columns:1fr 1fr}
+        }
+        @media(max-width:600px){
+          .kanban{grid-template-columns:1fr}
+          .det-meta{grid-template-columns:1fr}
+        }
+      </style>
+
+      <!-- HEADER -->
+      <div class="det-header">
+        <div>
+          <button class="det-back" onclick="StudioProyectos.backToGallery()">← proyectos</button>
+          <span class="det-emoji" style="margin-top:14px">${p.emoji||'◈'}</span>
+          <div class="det-cat" style="color:${accent}">${p.catL}</div>
+          <div class="det-title">${p.nombre}</div>
+          <div class="det-desc">${p.desc}</div>
+        </div>
+        <div class="det-actions">
+          ${p.prompt ? `<button class="det-btn" onclick="StudioProyectos._copyPrompt('${p.id}')">⊛ Copiar prompt</button>` : ''}
+          <button class="det-btn${p.urgente?' primary':''}" onclick="StudioProyectos._toggleUrgent('${p.id}')">⚡ ${p.urgente?'Urgente':'Marcar urgente'}</button>
+        </div>
+      </div>
+
+      <!-- META -->
+      <div class="det-meta">
+        <div class="det-mbox"><div class="det-ml">Estado</div><div class="det-mv">${p.stL}</div></div>
+        <div class="det-mbox"><div class="det-ml">Prioridad</div><div class="det-mv">${p.pri}</div></div>
+        <div class="det-mbox"><div class="det-ml">Ingreso</div><div class="det-mv">${p.moneyL}</div></div>
+        <div class="det-mbox"><div class="det-ml">Monetización</div><div class="det-mv" style="font-size:9px">${p.mon}</div></div>
+      </div>
+
+      <!-- PROGRESO -->
+      <div class="det-prog">
+        <div class="det-prog-top">
+          <span class="det-prog-label">Progreso global</span>
+          <span class="det-prog-pct" id="det-pct-${p.id}">${p.progreso}%</span>
+        </div>
+        <input type="range" min="0" max="100" value="${p.progreso}" class="det-prog-range"
+          oninput="StudioProyectos._setProgreso('${p.id}',this.value)">
+      </div>
+
+      <!-- PENDIENTES + MONETIZACIÓN -->
+      <div class="det-grid2">
+        <div class="det-section">
+          <div class="det-stitle">
+            Pendientes clave
+            <button onclick="StudioProyectos._addPend('${p.id}')">+ agregar</button>
+          </div>
+          <ul class="pend-list" id="pend-list-${p.id}">
+            ${p.pend.map((t,i)=>`
+              <li class="pend-item${p._pendDone&&p._pendDone[i]?' done':''}" onclick="StudioProyectos._togglePend('${p.id}',${i})">
+                <span class="pend-check"></span>${t}
+              </li>`).join('')}
+          </ul>
+        </div>
+        <div class="det-section">
+          <div class="det-stitle">Cómo genera $</div>
+          <p style="font-family:var(--mono);font-size:10px;color:var(--muted);line-height:1.7">${p.mon}</p>
+          ${p.prompt ? `
+            <div class="det-stitle" style="margin-top:16px">Prompt de sesión <button onclick="StudioProyectos._copyPrompt('${p.id}')">copiar</button></div>
+            <div class="prompt-block">${p.prompt.slice(0,300)}${p.prompt.length>300?'…':''}</div>
+          ` : '<div class="no-prompt" style="margin-top:12px">Sin prompt de sesión aún.</div>'}
+        </div>
+      </div>
+
+      <!-- KANBAN -->
+      <div class="det-section" style="margin-bottom:4px">
+        <div class="det-stitle">
+          Tablero Kanban
+          <button onclick="StudioProyectos._addCol('${p.id}')">+ columna</button>
+        </div>
+        <div class="kanban" id="kanban-${p.id}"></div>
+      </div>
+
+      <!-- NOTAS + ARCHIVOS -->
+      <div class="det-grid2">
+        <div class="det-section">
+          <div class="det-stitle">Notas vivas <button onclick="StudioProyectos._saveNota('${p.id}')">guardar</button></div>
+          <textarea class="nota-area" id="nota-${p.id}" placeholder="Escribe aquí tus notas, decisiones, ideas..."
+            onblur="StudioProyectos._saveNota('${p.id}')">${p.notas||''}</textarea>
+        </div>
+        <div class="det-section">
+          <div class="det-stitle">Archivos & links <button onclick="StudioProyectos._showArchAdd('${p.id}')">+ agregar</button></div>
+          <ul class="arch-list" id="arch-list-${p.id}">
+            ${(p.archivos||[]).map((a,i)=>`
+              <li class="arch-item">
+                <a href="${a.url||'#'}" target="_blank" style="color:var(--muted);text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.label||a.url}</a>
+                <button class="arch-del" onclick="StudioProyectos._delArch('${p.id}',${i})">×</button>
+              </li>`).join('')}
+          </ul>
+          <div class="arch-add-row" id="arch-add-${p.id}" style="display:none">
+            <input class="arch-input" id="arch-url-${p.id}" placeholder="URL o nombre de archivo" />
+            <button class="arch-save" onclick="StudioProyectos._addArch('${p.id}')">+ agregar</button>
+          </div>
+        </div>
+      </div>
+    `;
+
+    _renderKanban(p.id);
   }
 
-  function backToGallery() {
-    saveCurrentDetail();
-    renderGallery();
-  }
+  /* ── KANBAN ── */
+  function _renderKanban(id) {
+    const p = _proj(id);
+    if (!p) return;
+    const kb = document.getElementById('kanban-' + id);
+    if (!kb) return;
 
-  function renderDetail(p) {
-    const detail = document.getElementById('proyDetail');
-    const estadoOpts = ESTADOS.map(e=>`<option value="${e}" ${p.estado===e?'selected':''}>${e}</option>`).join('');
-    const prioOpts   = PRIOS.map(pr=>`<option value="${pr}" ${p.prio===pr?'selected':''}>${pr}</option>`).join('');
-    const metas      = lg('hub_metas',[]);
-    const metaOpts   = `<option value="">sin meta</option>${metas.map(m=>`<option value="${m.id}" ${String(p.metaId)===String(m.id)?'selected':''}>${m.nombre}</option>`).join('')}`;
-    const totalCards = (p.cards||[]).length;
-    const doneCards  = (p.cards||[]).filter(c=>c.colId===p.cols?.[p.cols.length-1]?.id).length;
-    const bgStyle    = p.coverUrl ? `background-image:url('${p.coverUrl}')` : '';
-
-    detail.innerHTML = `
-      <button class="proy-detail-back" onclick="StudioProyectos.backToGallery()" style="margin-bottom:16px">← proyectos</button>
-
-      <!-- BLOQUE 1: HERO -->
-      <div class="proy-hero">
-        <div class="proy-hero-bg" id="detailHeroBg" style="${bgStyle};background-size:cover;background-position:center"></div>
-        <div class="proy-hero-overlay"></div>
-        <button class="proy-hero-cover-btn" onclick="StudioProyectos.toggleCoverForm()">🖼 portada</button>
-        <div class="proy-hero-cover-form" id="coverForm">
-          <input class="proy-hero-cover-input" id="coverUrlInput" placeholder="https://imagen.com/foto.jpg" value="${escAttr(p.coverUrl||'')}">
-          <button class="proy-hero-cover-save" onclick="StudioProyectos.saveCover()">aplicar</button>
-          <button class="proy-hero-cover-save" onclick="StudioProyectos.removeCover()" style="background:rgba(200,110,138,.1);border-color:rgba(200,110,138,.3);color:var(--pink)">quitar</button>
-        </div>
-        <div class="proy-hero-content">
-          <div class="proy-hero-top">
-            <div style="flex:1">
-              <span class="proy-hero-emoji" id="detailEmoji" onclick="StudioProyectos.changeEmoji()" title="cambiar emoji">${p.emoji||'◈'}</span>
-              <input class="proy-hero-name" id="detailNombre" value="${escAttr(p.nombre)}" placeholder="nombre del proyecto..." oninput="StudioProyectos._autoSave()">
-              <textarea class="proy-hero-desc" id="detailDesc" placeholder="descripción breve..." oninput="StudioProyectos._autoSave()">${escHtml(p.desc||'')}</textarea>
-            </div>
-            <div class="proy-hero-actions">
-              <button class="proy-hero-btn proy-hero-urgente${p.urgente?' on':''}" onclick="StudioProyectos.toggleUrgente()" title="urgente">⚡</button>
-              <button class="proy-hero-btn save" onclick="StudioProyectos.saveCurrentDetail()">guardar ✓</button>
-            </div>
+    kb.innerHTML = p.cols.map(col => {
+      const cards = (p.cards || []).filter(c => c.colId === col.id);
+      return `
+        <div class="k-col" id="kcol-${id}-${col.id}"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="StudioProyectos._dropCard('${id}','${col.id}',event)">
+          <div class="k-col-header">
+            <span>${col.label}</span>
+            <span class="k-col-n">${cards.length}</span>
           </div>
-          <div class="proy-hero-meta-row">
-            <select class="proy-hero-estado estado-${p.estado||'idea'}" id="detailEstado" onchange="StudioProyectos._autoSave()">${estadoOpts}</select>
-            <span class="proy-hero-meta-item">📅 <input type="date" class="proy-hero-meta-input" id="detailDeadline" value="${p.deadline||''}" oninput="StudioProyectos._autoSave()"></span>
-            <span class="proy-hero-meta-item">inicio <input type="date" class="proy-hero-meta-input" id="detailInicio" value="${p.inicio||''}" oninput="StudioProyectos._autoSave()"></span>
-            <span class="proy-hero-meta-item">prio <select class="proy-hero-meta-input" id="detailPrio" style="width:80px" onchange="StudioProyectos._autoSave()">${prioOpts}</select></span>
-            <span class="proy-hero-meta-item">meta <select class="proy-hero-meta-input" id="detailMeta" style="width:130px" onchange="StudioProyectos._autoSave()">${metaOpts}</select></span>
-            <span class="proy-hero-meta-item">cat <input class="proy-hero-meta-input" id="detailCat" value="${escAttr(p.cat||'')}" placeholder="negocio..." oninput="StudioProyectos._autoSave()"></span>
+          <div class="k-cards" id="kcards-${id}-${col.id}">
+            ${cards.map(c => `
+              <div class="k-card" draggable="true"
+                ondragstart="StudioProyectos._dragStart('${id}','${c.id}',event)"
+                ondragend="this.classList.remove('dragging')">
+                ${c.text}
+                <button class="k-card-del" onclick="StudioProyectos._delCard('${id}','${c.id}',event)">×</button>
+              </div>`).join('')}
           </div>
-          <div class="proy-hero-progress">
-            <div class="proy-hero-progress-bar"><div class="proy-hero-progress-fill" id="detailProgressFill" style="width:0"></div></div>
-            <div class="proy-hero-progress-row">
-              <input type="range" class="proy-hero-progress-range" min="0" max="100" value="${p.progreso||0}" id="detailProgreso"
-                oninput="document.getElementById('detailProgressNum').textContent=this.value+'%';document.getElementById('detailProgressFill').style.width=this.value+'%';StudioProyectos._autoSave()">
-              <span class="proy-hero-progress-num" id="detailProgressNum">${p.progreso||0}%</span>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- BLOQUE 2: KPIs -->
-      <div class="proy-kpis">
-        <div class="proy-kpi protagonist"><span class="proy-kpi-val">${p.progreso||0}%</span><span class="proy-kpi-lbl">progreso global</span></div>
-        <div class="proy-kpi"><span class="proy-kpi-val">${totalCards}</span><span class="proy-kpi-lbl">tareas totales</span></div>
-        <div class="proy-kpi"><span class="proy-kpi-val">${doneCards}</span><span class="proy-kpi-lbl">completadas</span></div>
-      </div>
-
-      <!-- TAGS -->
-      <div class="proy-tags-row" id="detailTagsRow" style="margin-bottom:20px">
-        ${(p.tags||[]).map(t=>`<span class="proy-tag" onclick="StudioProyectos.removeTag('${t}')">${t} ×</span>`).join('')}
-        <input class="proy-tag proy-tag-add" id="detailTagInput" placeholder="+ etiqueta" style="width:90px;border-style:dashed;cursor:text"
-          onkeydown="if(event.key==='Enter'||event.key===','){event.preventDefault();StudioProyectos.addTag()}">
-      </div>
-
-      <!-- BLOQUE 3: KANBAN -->
-      <div class="pd-bloque">
-        <div class="pd-bloque-label">tablero kanban <button class="pd-bloque-btn" onclick="StudioProyectos.addCol()">+ columna</button></div>
-        <div class="proy-kanban" id="detailKanban"></div>
-      </div>
-
-      <!-- BLOQUE 4: PANEL CONTEXTUAL (notas vivas + archivos) -->
-      <div class="pd-panel-grid">
-        <div class="pd-panel-col">
-          <div class="pd-bloque-label">notas vivas <button class="pd-bloque-btn" onclick="StudioProyectos.addNota()">+ nota</button></div>
-          <div id="detailNotas"></div>
-        </div>
-        <div class="pd-panel-col">
-          <div class="pd-bloque-label">archivos & links <button class="pd-bloque-btn" onclick="StudioProyectos.showAddLink()">+ agregar</button></div>
-          <div id="detailLinks"></div>
-          <div id="addLinkForm" style="display:none;margin-top:8px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:12px 14px">
-            <div style="display:flex;flex-direction:column;gap:6px">
-              <input class="proy-link-input" id="linkTitleInput" placeholder="título..." style="width:100%">
-              <input class="proy-link-input" id="linkUrlInput" placeholder="https://... o ruta/archivo" style="width:100%"
-                onkeydown="if(event.key==='Enter')StudioProyectos.addLink()">
-              <div style="display:flex;gap:6px;justify-content:flex-end">
-                <button class="proy-add-card-cancel" onclick="StudioProyectos.hideAddLink()">cancelar</button>
-                <button class="proy-add-card-save" onclick="StudioProyectos.addLink()">agregar</button>
-              </div>
-            </div>
-          </div>
-          <button class="proy-link-add-card" onclick="StudioProyectos.showAddLink()" style="margin-top:8px">
-            <span style="font-size:14px">+</span> agregar link o archivo
-          </button>
-        </div>
-      </div>
-
-      <!-- BLOQUE 5: TABLERO DE CONTENIDO -->
-      <div class="pd-bloque">
-        <div class="pd-bloque-label">tablero de contenido <button class="pd-bloque-btn" onclick="StudioProyectos.showAddContenido()">+ asset</button></div>
-        <div id="addContenidoForm" style="display:none;margin-bottom:12px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px">
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <input class="proy-link-input" id="contenidoTitleInput" placeholder="título del asset..." style="width:100%">
-            <input class="proy-link-input" id="contenidoUrlInput" placeholder="url o ruta (opcional)..." style="width:100%">
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-              ${['📄 documento','🖼 imagen','🔗 referencia','🎥 video','📅 calendario'].map(t=>{
-                const [ico,...rest]=t.split(' '); const tipo=rest.join(' ');
-                return `<button class="pd-tipo-chip" data-tipo="${tipo}" onclick="StudioProyectos.selContenidoTipo(this,'${tipo}')">${ico} ${tipo}</button>`;
-              }).join('')}
-            </div>
-            <div style="display:flex;gap:6px;justify-content:flex-end">
-              <button class="proy-add-card-cancel" onclick="StudioProyectos.hideAddContenido()">cancelar</button>
-              <button class="proy-add-card-save" onclick="StudioProyectos.addContenido()">agregar</button>
-            </div>
-          </div>
-        </div>
-        <div class="pd-contenido-grid" id="detailContenido"></div>
-      </div>
-
-      <!-- BLOQUE 6: PROCESO & AVANCES -->
-      <div class="pd-bloque">
-        <div class="pd-bloque-label">proceso & avances <button class="pd-bloque-btn" onclick="StudioProyectos.showAddProceso()">+ entrada</button></div>
-        <div id="addProcesoForm" style="display:none;margin-bottom:12px;background:var(--s1);border:1px solid var(--border);border-radius:12px;padding:14px">
-          <div style="display:flex;flex-direction:column;gap:8px">
-            <input class="proy-link-input" id="procesoTxtInput" placeholder="describe este avance o evento..." style="width:100%">
-            <div style="display:flex;gap:6px;flex-wrap:wrap">
-              ${['entrega','decisión','bloqueo','nota','inicio'].map(t=>`<button class="pd-tipo-chip" data-ptipo="${t}" onclick="StudioProyectos.selProcesoTipo(this,'${t}')">${t}</button>`).join('')}
-            </div>
-            <div style="display:flex;gap:6px;justify-content:flex-end">
-              <button class="proy-add-card-cancel" onclick="StudioProyectos.hideAddProceso()">cancelar</button>
-              <button class="proy-add-card-save" onclick="StudioProyectos.addProceso()">agregar</button>
-            </div>
-          </div>
-        </div>
-        <div id="detailProceso"></div>
-      </div>
-
-      <!-- BLOQUE 7: SUB-PROYECTOS -->
-      <div class="pd-bloque">
-        <div class="pd-bloque-label">sub-proyectos <button class="pd-bloque-btn" onclick="StudioProyectos.addSub()">+ agregar</button></div>
-        <div class="proy-subs-grid" id="detailSubs"></div>
-      </div>`;
-
-    renderKanban(p);
-    renderSubs(p);
-    renderLinks(p);
-    renderNotas(p);
-    renderContenido(p);
-    renderProceso(p);
-
-    setTimeout(() => {
-      const fill = document.getElementById('detailProgressFill');
-      if (fill) fill.style.width = (p.progreso||0) + '%';
-    }, 80);
-  }
-
-
-  /* ━━ KANBAN ━━ */
-  function renderKanban(p) {
-    const container = document.getElementById('detailKanban');
-    if (!container) return;
-    container.innerHTML = (p.cols||[]).map(col => {
-      const cards = (p.cards||[]).filter(c=>c.colId===col.id);
-      return `<div class="proy-col" id="col-${col.id}"
-          ondragover="StudioProyectos.onDragOver(event,'${col.id}')"
-          ondrop="StudioProyectos.onDrop(event,'${col.id}')">
-        <div class="proy-col-header">
-          <input class="proy-col-name" value="${escAttr(col.name)}"
-            onchange="StudioProyectos.renameCol('${col.id}',this.value)">
-          <span class="proy-col-count">${cards.length}</span>
-          <button class="proy-col-del" onclick="StudioProyectos.delCol('${col.id}')" title="eliminar columna">×</button>
-        </div>
-        <div class="proy-col-cards" id="cards-${col.id}">
-          ${cards.map(c=>buildKcard(c,col.id)).join('')}
-        </div>
-        <div id="addform-${col.id}" style="display:none">
-          <div class="proy-add-card-form">
-            <textarea class="proy-add-card-input" id="cardinput-${col.id}" placeholder="descripción de la tarea..."
-              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();StudioProyectos.saveCard('${col.id}')}"></textarea>
-            <div class="proy-add-card-row">
-              <button class="proy-add-card-prio alta" data-prio="alta" data-col="${col.id}" onclick="StudioProyectos.selCardPrio(this,'${col.id}')">alta</button>
-              <button class="proy-add-card-prio media sel" data-prio="media" data-col="${col.id}" onclick="StudioProyectos.selCardPrio(this,'${col.id}')">media</button>
-              <button class="proy-add-card-prio baja" data-prio="baja" data-col="${col.id}" onclick="StudioProyectos.selCardPrio(this,'${col.id}')">baja</button>
-              <input type="date" class="proy-add-card-date" id="carddate-${col.id}">
-              <button class="proy-add-card-cancel" onclick="StudioProyectos.cancelCard('${col.id}')">cancelar</button>
-              <button class="proy-add-card-save" onclick="StudioProyectos.saveCard('${col.id}')">agregar</button>
-            </div>
-          </div>
-        </div>
-        <button class="proy-col-add" onclick="StudioProyectos.showAddCard('${col.id}')">+ agregar tarea</button>
-      </div>`;
+          <button class="k-add" onclick="StudioProyectos._addCard('${id}','${col.id}')">+ agregar tarea</button>
+        </div>`;
     }).join('');
   }
 
-  function buildKcard(c, colId) {
-    return `<div class="proy-kcard" draggable="true" id="kcard-${c.id}"
-        ondragstart="StudioProyectos.onDragStart(event,'${c.id}','${colId}')"
-        ondragend="StudioProyectos.onDragEnd(event)">
-      <div class="proy-kcard-text">${escHtml(c.text)}</div>
-      <div class="proy-kcard-meta">
-        <div class="proy-kcard-prio" style="background:${PRIO_COLOR[c.prio]||PRIO_COLOR.media}"></div>
-        ${c.tag ? `<span class="proy-kcard-tag">${escHtml(c.tag)}</span>` : ''}
-        ${c.date ? `<span class="proy-kcard-date">${formatDate(c.date)}</span>` : ''}
-      </div>
-      <button class="proy-kcard-del" onclick="event.stopPropagation();StudioProyectos.delCard('${c.id}','${colId}')">×</button>
-    </div>`;
+  function _dragStart(projId, cardId, e) {
+    _dragCard = cardId;
+    _dragCol = projId;
+    setTimeout(() => {
+      const el = e.target.closest('.k-card');
+      if (el) el.classList.add('dragging');
+    }, 0);
   }
 
-  function showAddCard(colId) {
-    document.querySelectorAll('[id^="addform-"]').forEach(f=>f.style.display='none');
-    const form = document.getElementById('addform-'+colId);
-    if (form) { form.style.display='block'; setTimeout(()=>document.getElementById('cardinput-'+colId)?.focus(),50); }
-  }
-
-  function cancelCard(colId) {
-    const form = document.getElementById('addform-'+colId);
-    if (form) form.style.display='none';
-  }
-
-  function selCardPrio(btn, colId) {
-    document.querySelectorAll(`.proy-add-card-prio[data-col="${colId}"]`).forEach(b=>b.classList.remove('sel'));
-    btn.classList.add('sel');
-  }
-
-  function saveCard(colId) {
-    const txt = document.getElementById('cardinput-'+colId)?.value.trim();
-    if (!txt) return;
-    const p = getP(_currentId);
-    if (!p) return;
-    const prioBtn = document.querySelector(`.proy-add-card-prio[data-col="${colId}"].sel`);
-    const date    = document.getElementById('carddate-'+colId)?.value || '';
-    p.cards = p.cards || [];
-    p.cards.push({ id: Date.now(), text: txt, colId, prio: prioBtn?.dataset.prio||'media', date, tag:'' });
-    save();
-    renderKanban(p);
-    cancelCard(colId);
-    _updateProgress(p);
-  }
-
-  function delCard(cardId, colId) {
-    const p = getP(_currentId);
-    if (!p) return;
-    p.cards = (p.cards||[]).filter(c=>String(c.id)!==String(cardId));
-    save();
-    const container = document.getElementById('cards-'+colId);
-    const card = document.getElementById('kcard-'+cardId);
-    if (card) card.remove();
-    const count = document.querySelector(`#col-${colId} .proy-col-count`);
-    if (count) count.textContent = (p.cards||[]).filter(c=>c.colId===colId).length;
-    _updateProgress(p);
-  }
-
-  function addCol() {
-    const p = getP(_currentId);
-    if (!p) return;
-    const name = prompt('Nombre de la columna:');
-    if (!name) return;
-    p.cols = p.cols || [];
-    p.cols.push({ id: 'c'+Date.now(), name });
-    save();
-    renderKanban(p);
-  }
-
-  function renameCol(colId, name) {
-    const p = getP(_currentId);
-    if (!p) return;
-    const col = (p.cols||[]).find(c=>c.id===colId);
-    if (col) { col.name = name; save(); }
-  }
-
-  function delCol(colId) {
-    const p = getP(_currentId);
-    if (!p) return;
-    if ((p.cards||[]).some(c=>c.colId===colId)) {
-      if (!confirm('Esta columna tiene tareas. ¿Eliminar?')) return;
-    }
-    p.cols  = (p.cols||[]).filter(c=>c.id!==colId);
-    p.cards = (p.cards||[]).filter(c=>c.colId!==colId);
-    save();
-    document.getElementById('col-'+colId)?.remove();
-  }
-
-  /* ━━ DRAG & DROP KANBAN ━━ */
-  function onDragStart(e, cardId, colId) {
-    _dragSrc = { cardId, colId };
-    document.getElementById('kcard-'+cardId)?.classList.add('dragging');
-    e.dataTransfer.effectAllowed = 'move';
-  }
-
-  function onDragEnd(e) {
-    document.querySelectorAll('.proy-kcard.dragging').forEach(el=>el.classList.remove('dragging'));
-    document.querySelectorAll('.proy-col-cards.drag-over').forEach(el=>el.classList.remove('drag-over'));
-    _dragSrc = null;
-  }
-
-  function onDragOver(e, colId) {
+  function _dropCard(projId, colId, e) {
     e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-    document.querySelectorAll('.proy-col-cards').forEach(el=>el.classList.remove('drag-over'));
-    document.getElementById('cards-'+colId)?.classList.add('drag-over');
-  }
-
-  function onDrop(e, targetColId) {
-    e.preventDefault();
-    if (!_dragSrc) return;
-    document.querySelectorAll('.proy-col-cards').forEach(el=>el.classList.remove('drag-over'));
-    if (_dragSrc.colId === targetColId) return;
-    const p = getP(_currentId);
+    document.querySelectorAll('.k-col').forEach(c => c.classList.remove('drag-over'));
+    if (!_dragCard) return;
+    const p = _proj(projId);
     if (!p) return;
-    const card = (p.cards||[]).find(c=>String(c.id)===String(_dragSrc.cardId));
-    if (!card) return;
-    card.colId = targetColId;
-    save();
-    renderKanban(p);
-    _updateProgress(p);
-    _dragSrc = null;
+    const card = p.cards.find(c => c.id === _dragCard);
+    if (card) { card.colId = colId; _save(); _renderKanban(projId); }
+    _dragCard = null;
   }
 
-  function _updateProgress(p) {
-    if (!p.cols?.length || !p.cards?.length) return;
-    const lastCol = p.cols[p.cols.length-1];
-    const done = (p.cards||[]).filter(c=>c.colId===lastCol.id).length;
-    const total = (p.cards||[]).length;
-    if (total > 0) {
-      p.progreso = Math.round((done/total)*100);
-      save();
-      const fill = document.getElementById('detailProgressFill');
-      const num  = document.getElementById('detailProgressNum');
-      const range = document.getElementById('detailProgreso');
-      if (fill)  fill.style.width = p.progreso + '%';
-      if (num)   num.textContent  = p.progreso + '%';
-      if (range) range.value = p.progreso;
-    }
-  }
-
-  /* ━━ SUB-PROYECTOS ━━ */
-  function renderSubs(p) {
-    const container = document.getElementById('detailSubs');
-    if (!container) return;
-    const subs = p.subs || [];
-    container.innerHTML = subs.map(s=>`
-      <div class="proy-sub-card" onclick="StudioProyectos.openSub(${p.id},${s.id})">
-        <div class="proy-sub-name"><span style="font-size:16px">${s.emoji||'◈'}</span>${escHtml(s.nombre)}</div>
-        <div class="proy-sub-progress-bar"><div class="proy-sub-progress-fill" style="width:${s.progreso||0}%"></div></div>
-      </div>`).join('') +
-      `<div class="proy-sub-card" style="border-style:dashed;display:flex;align-items:center;justify-content:center;color:var(--muted);font-family:var(--mono);font-size:9px"
-        onclick="StudioProyectos.addSub()">+ sub-proyecto</div>`;
-  }
-
-  function addSub() {
-    const p = getP(_currentId);
+  function _addCard(projId, colId) {
+    const text = prompt('Nueva tarea:');
+    if (!text || !text.trim()) return;
+    const p = _proj(projId);
     if (!p) return;
-    const nombre = prompt('Nombre del sub-proyecto:');
-    if (!nombre) return;
-    const emoji = prompt('Emoji (opcional):', '◈') || '◈';
-    p.subs = p.subs || [];
-    p.subs.push({ id: Date.now(), nombre, emoji, progreso: 0, notas:'', links:[], cols:[{id:'c1',name:'Por hacer'},{id:'c2',name:'En proceso'},{id:'c3',name:'Hecho'}], cards:[] });
-    save();
-    renderSubs(p);
+    if (!p.cards) p.cards = [];
+    p.cards.push({ id: 'c' + Date.now(), colId, text: text.trim() });
+    _save();
+    _renderKanban(projId);
   }
 
-  function openSub(proyId, subId) {
-    // TODO: abrir vista detalle del sub-proyecto
-    alert('Sub-proyecto próximamente con vista completa');
-  }
-
-  /* ━━ TAGS ━━ */
-  function addTag() {
-    const input = document.getElementById('detailTagInput');
-    const tag = input?.value.replace(/,/g,'').trim();
-    if (!tag) return;
-    const p = getP(_currentId);
+  function _delCard(projId, cardId, e) {
+    e.stopPropagation();
+    const p = _proj(projId);
     if (!p) return;
-    if (!p.tags) p.tags = [];
-    if (!p.tags.includes(tag)) p.tags.push(tag);
-    save();
+    p.cards = p.cards.filter(c => c.id !== cardId);
+    _save();
+    _renderKanban(projId);
+  }
+
+  function _addCol(projId) {
+    const label = prompt('Nombre de la columna:');
+    if (!label || !label.trim()) return;
+    const p = _proj(projId);
+    if (!p) return;
+    p.cols.push({ id: 'col' + Date.now(), label: label.trim() });
+    _save();
+    _renderKanban(projId);
+  }
+
+  /* ── PENDING ── */
+  function _togglePend(projId, idx) {
+    const p = _proj(projId);
+    if (!p) return;
+    if (!p._pendDone) p._pendDone = {};
+    p._pendDone[idx] = !p._pendDone[idx];
+    _save();
+    const items = document.querySelectorAll(`#pend-list-${projId} .pend-item`);
+    items.forEach((el, i) => el.classList.toggle('done', !!p._pendDone[i]));
+  }
+
+  function _addPend(projId) {
+    const text = prompt('Nueva tarea pendiente:');
+    if (!text || !text.trim()) return;
+    const p = _proj(projId);
+    if (!p) return;
+    p.pend.push(text.trim());
+    _save();
+    openDetail(projId);
+  }
+
+  /* ── PROGRESO ── */
+  function _setProgreso(projId, val) {
+    const p = _proj(projId);
+    if (!p) return;
+    p.progreso = parseInt(val);
+    const pctEl = document.getElementById('det-pct-' + projId);
+    if (pctEl) pctEl.textContent = val + '%';
+    _save();
+  }
+
+  /* ── NOTAS ── */
+  function _saveNota(projId) {
+    const p = _proj(projId);
+    if (!p) return;
+    const el = document.getElementById('nota-' + projId);
+    if (el) { p.notas = el.value; _save(); }
+  }
+
+  /* ── ARCHIVOS ── */
+  function _showArchAdd(projId) {
+    const row = document.getElementById('arch-add-' + projId);
+    if (row) row.style.display = row.style.display === 'none' ? 'flex' : 'none';
+  }
+
+  function _addArch(projId) {
+    const input = document.getElementById('arch-url-' + projId);
+    if (!input || !input.value.trim()) return;
+    const p = _proj(projId);
+    if (!p) return;
+    if (!p.archivos) p.archivos = [];
+    p.archivos.push({ label: input.value.trim(), url: input.value.trim() });
     input.value = '';
-    const row = document.getElementById('detailTagsRow');
-    const span = document.createElement('span');
-    span.className = 'proy-tag';
-    span.textContent = tag + ' ×';
-    span.onclick = () => removeTag(tag);
-    row.insertBefore(span, input);
+    _save();
+    _refreshArchList(projId);
   }
 
-  function removeTag(tag) {
-    const p = getP(_currentId);
+  function _delArch(projId, idx) {
+    const p = _proj(projId);
     if (!p) return;
-    p.tags = (p.tags||[]).filter(t=>t!==tag);
-    save();
-    const row = document.getElementById('detailTagsRow');
-    if (row) {
-      row.querySelectorAll('.proy-tag:not(.proy-tag-add)').forEach(el => {
-        if (el.textContent.replace(' ×','').trim()===tag) el.remove();
-      });
-    }
+    p.archivos.splice(idx, 1);
+    _save();
+    _refreshArchList(projId);
   }
 
-  /* ━━ URGENTE ━━ */
-  function toggleUrgente() {
-    const p = getP(_currentId);
+  function _refreshArchList(projId) {
+    const p = _proj(projId);
+    if (!p) return;
+    const el = document.getElementById('arch-list-' + projId);
+    if (!el) return;
+    el.innerHTML = (p.archivos || []).map((a, i) => `
+      <li class="arch-item">
+        <a href="${a.url || '#'}" target="_blank" style="color:var(--muted);text-decoration:none;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${a.label || a.url}</a>
+        <button class="arch-del" onclick="StudioProyectos._delArch('${projId}',${i})">×</button>
+      </li>`).join('');
+  }
+
+  /* ── PROMPT ── */
+  function _copyPrompt(projId) {
+    const p = _proj(projId);
+    if (!p || !p.prompt) return;
+    navigator.clipboard.writeText(p.prompt).then(() => {
+      StudioCore.showToast?.('Prompt copiado ✓');
+    });
+  }
+
+  /* ── URGENTE ── */
+  function _toggleUrgent(projId) {
+    const p = _proj(projId);
     if (!p) return;
     p.urgente = !p.urgente;
-    save();
-    const btn = document.querySelector('.proy-detail-header button[onclick*="toggleUrgente"]');
+    _save();
+    openDetail(projId);
+  }
+
+  function toggleUrgent(btn) {
+    // desde sidebar
+  }
+
+  /* ── FILTROS ── */
+  function setFilter(btn, f) {
+    _filter = f;
     if (btn) {
-      btn.style.color = p.urgente ? 'var(--pink)' : 'var(--muted)';
-      btn.style.borderColor = p.urgente ? 'rgba(200,110,138,.4)' : 'var(--border)';
+      document.querySelectorAll('.studio-nav-sub').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
     }
+    _renderGallery();
   }
 
-  /* ━━ EMOJI ━━ */
-  function changeEmoji() {
-    const emoji = prompt('Nuevo emoji:');
-    if (!emoji) return;
-    const p = getP(_currentId);
-    if (!p) return;
-    p.emoji = emoji;
-    save();
-    document.getElementById('detailEmoji').textContent = emoji;
+  /* ── BACK ── */
+  function backToGallery() {
+    _currentId = null;
+    const gal = document.getElementById('proyGallery');
+    const det = document.getElementById('proyDetail');
+    if (gal) gal.style.display = '';
+    if (det) det.style.display = 'none';
+    _renderGallery();
   }
 
-  /* ━━ LINKS ━━ */
-  /* ━━ NOTAS VIVAS ━━ */
-  const NOTA_TIPOS = {
-    idea:      { color:'rgba(200,150,90,.8)',  bg:'rgba(200,150,90,.1)',  border:'rgba(200,150,90,.25)'  },
-    decision:  { color:'rgba(90,122,170,.8)',  bg:'rgba(90,122,170,.1)',  border:'rgba(90,122,170,.25)'  },
-    pendiente: { color:'rgba(200,110,138,.75)',bg:'rgba(200,110,138,.1)', border:'rgba(200,110,138,.25)' },
-    hallazgo:  { color:'rgba(90,154,90,.8)',   bg:'rgba(90,154,90,.1)',   border:'rgba(90,154,90,.25)'   },
-  };
-
-  function renderNotas(p) {
-    const container = document.getElementById('detailNotas');
-    if (!container) return;
-    const notas = p.notasVivas || [];
-    container.innerHTML = notas.map((n,i)=>{
-      const t = NOTA_TIPOS[n.tipo] || NOTA_TIPOS.idea;
-      return `<div class="pd-nota-card" style="border-color:${t.border}">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
-          <span class="pd-nota-badge" style="background:${t.bg};color:${t.color}">${n.tipo}</span>
-          <button onclick="StudioProyectos.delNota(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px">×</button>
-        </div>
-        <textarea class="pd-nota-textarea" onchange="StudioProyectos.updateNota(${i},this.value)">${escHtml(n.texto||'')}</textarea>
-      </div>`;
-    }).join('') +
-    `<button class="pd-nota-add" onclick="StudioProyectos.addNota()">+ agregar nota</button>`;
-  }
-
-  function addNota() {
-    const p = getP(_currentId); if (!p) return;
-    if (!p.notasVivas) p.notasVivas = [];
-    // Ciclo de tipos
-    const tipos = Object.keys(NOTA_TIPOS);
-    const tipo = tipos[p.notasVivas.length % tipos.length];
-    p.notasVivas.unshift({ tipo, texto: '' });
-    save();
-    renderNotas(p);
-    setTimeout(()=>document.querySelector('.pd-nota-textarea')?.focus(),50);
-  }
-
-  function updateNota(idx, texto) {
-    const p = getP(_currentId); if (!p?.notasVivas?.[idx]===undefined) return;
-    p.notasVivas[idx].texto = texto;
-    save();
-  }
-
-  function delNota(idx) {
-    const p = getP(_currentId); if (!p) return;
-    p.notasVivas.splice(idx,1);
-    save(); renderNotas(p);
-  }
-
-  /* ━━ TABLERO DE CONTENIDO ━━ */
-  let _contenidoTipo = 'documento';
-  const CONTENIDO_ICOS = {
-    documento:'📄', imagen:'🖼', referencia:'🔗', video:'🎥', calendario:'📅'
-  };
-
-  function renderContenido(p) {
-    const container = document.getElementById('detailContenido');
-    if (!container) return;
-    const items = p.contenido || [];
-    if (!items.length) {
-      container.innerHTML = `<div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:20px 0;text-align:center">sin assets · agrega documentos, imágenes, referencias...</div>`;
-      return;
-    }
-    container.innerHTML = items.map((item,i)=>`
-      <div class="pd-content-card">
-        <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:6px">
-          <span style="font-size:22px">${CONTENIDO_ICOS[item.tipo]||'📄'}</span>
-          <button onclick="StudioProyectos.delContenido(${i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;opacity:0;transition:opacity .12s" class="pd-content-del">×</button>
-        </div>
-        <input class="pd-content-name-input" value="${escAttr(item.titulo||'')}" placeholder="título..."
-          onchange="StudioProyectos.updateContenido(${i},'titulo',this.value)">
-        <div class="pd-content-type-lbl">${item.tipo||'documento'}</div>
-        ${item.url?`<a href="${escAttr(item.url)}" target="_blank" style="font-family:var(--mono);font-size:8px;color:var(--hub);display:block;margin-top:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${item.url.slice(0,30)}...</a>`:''}
-      </div>`).join('');
-  }
-
-  function showAddContenido() {
-    const form = document.getElementById('addContenidoForm');
-    if (form) { form.style.display = form.style.display==='none'?'block':'none'; }
-    if (form?.style.display==='block') setTimeout(()=>document.getElementById('contenidoTitleInput')?.focus(),50);
-  }
-  function hideAddContenido() {
-    const form = document.getElementById('addContenidoForm');
-    if (form) form.style.display='none';
-  }
-  function selContenidoTipo(btn, tipo) {
-    document.querySelectorAll('.pd-tipo-chip[data-tipo]').forEach(b=>{b.classList.remove('active');});
-    btn.classList.add('active');
-    _contenidoTipo = tipo;
-  }
-  function addContenido() {
-    const titulo = document.getElementById('contenidoTitleInput')?.value.trim();
-    const url    = document.getElementById('contenidoUrlInput')?.value.trim();
-    if (!titulo) return;
-    const p = getP(_currentId); if (!p) return;
-    if (!p.contenido) p.contenido = [];
-    p.contenido.push({ titulo, url: url||'', tipo: _contenidoTipo });
-    save();
-    renderContenido(p);
-    hideAddContenido();
-    document.getElementById('contenidoTitleInput').value='';
-    document.getElementById('contenidoUrlInput').value='';
-  }
-  function updateContenido(idx, field, val) {
-    const p = getP(_currentId); if (!p?.contenido?.[idx]===undefined) return;
-    p.contenido[idx][field] = val; save();
-  }
-  function delContenido(idx) {
-    const p = getP(_currentId); if (!p) return;
-    p.contenido.splice(idx,1); save(); renderContenido(p);
-  }
-
-  /* ━━ PROCESO & AVANCES ━━ */
-  let _procesoTipo = 'nota';
-  const PROCESO_COLORS = {
-    entrega:  { color:'rgba(200,150,90,.8)',  bg:'rgba(200,150,90,.15)',  dot:'rgba(200,150,90,.6)'  },
-    decision: { color:'rgba(90,122,170,.8)',  bg:'rgba(90,122,170,.15)',  dot:'rgba(90,122,170,.6)'  },
-    bloqueo:  { color:'rgba(200,110,138,.75)',bg:'rgba(200,110,138,.15)', dot:'rgba(200,110,138,.6)' },
-    nota:     { color:'rgba(90,154,90,.8)',   bg:'rgba(90,154,90,.15)',   dot:'rgba(90,154,90,.6)'   },
-    inicio:   { color:'rgba(155,122,184,.8)', bg:'rgba(155,122,184,.15)', dot:'rgba(155,122,184,.6)' },
-  };
-
-  function renderProceso(p) {
-    const container = document.getElementById('detailProceso');
-    if (!container) return;
-    const items = (p.proceso || []).slice().reverse();
-    if (!items.length) {
-      container.innerHTML = `<div style="font-family:var(--mono);font-size:10px;color:var(--muted);padding:12px 0">sin entradas aún · registra decisiones, entregas y bloqueos</div>`;
-      return;
-    }
-    container.innerHTML = `<div class="pd-timeline">${items.map((item,i)=>{
-      const c = PROCESO_COLORS[item.tipo] || PROCESO_COLORS.nota;
-      const d = new Date(item.fecha||Date.now());
-      const dateStr = isNaN(d)?'':d.getDate()+'/'+(d.getMonth()+1);
-      return `<div class="pd-tl-item">
-        <div class="pd-tl-dot" style="background:${c.bg};border:1px solid ${c.dot}"></div>
-        <div class="pd-tl-content">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-            <span class="pd-tl-badge" style="background:${c.bg};color:${c.color}">${item.tipo}</span>
-            <span style="font-family:var(--mono);font-size:8px;color:var(--muted)">${dateStr}</span>
-            <button onclick="StudioProyectos.delProceso(${(p.proceso||[]).length-1-i})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:11px;margin-left:auto">×</button>
-          </div>
-          <div style="font-size:12px;color:var(--text2);line-height:1.5">${escHtml(item.texto||'')}</div>
-        </div>
-      </div>`;
-    }).join('')}</div>`;
-  }
-
-  function showAddProceso() {
-    const form = document.getElementById('addProcesoForm');
-    if (form) { form.style.display = form.style.display==='none'?'block':'none'; }
-    if (form?.style.display==='block') setTimeout(()=>document.getElementById('procesoTxtInput')?.focus(),50);
-  }
-  function hideAddProceso() {
-    document.getElementById('addProcesoForm').style.display='none';
-  }
-  function selProcesoTipo(btn, tipo) {
-    document.querySelectorAll('.pd-tipo-chip[data-ptipo]').forEach(b=>b.classList.remove('active'));
-    btn.classList.add('active');
-    _procesoTipo = tipo;
-  }
-  function addProceso() {
-    const txt = document.getElementById('procesoTxtInput')?.value.trim();
-    if (!txt) return;
-    const p = getP(_currentId); if (!p) return;
-    if (!p.proceso) p.proceso = [];
-    p.proceso.push({ tipo: _procesoTipo, texto: txt, fecha: new Date().toISOString() });
-    save();
-    renderProceso(p);
-    hideAddProceso();
-    document.getElementById('procesoTxtInput').value='';
-  }
-  function delProceso(idx) {
-    const p = getP(_currentId); if (!p) return;
-    p.proceso.splice(idx,1); save(); renderProceso(p);
-  }
-
-  /* ━━ PORTADA ━━ */
-  function toggleCoverForm() {
-    document.getElementById('coverForm')?.classList.toggle('open');
-  }
-  function saveCover() {
-    const url = document.getElementById('coverUrlInput')?.value.trim();
-    const p = getP(_currentId);
-    if (!p) return;
-    p.coverUrl = url;
-    save();
-    const bg = document.getElementById('detailHeroBg');
-    if (bg) bg.style.backgroundImage = url ? `url('${url}')` : '';
-    document.getElementById('coverForm')?.classList.remove('open');
-  }
-  function removeCover() {
-    const p = getP(_currentId);
-    if (!p) return;
-    p.coverUrl = '';
-    save();
-    const bg = document.getElementById('detailHeroBg');
-    if (bg) bg.style.backgroundImage = '';
-    document.getElementById('coverForm')?.classList.remove('open');
-  }
-
-  /* ━━ AUTOSAVE GENERAL ━━ */
-  let _autoSaveTimer;
-  function _autoSave() {
-    clearTimeout(_autoSaveTimer);
-    _autoSaveTimer = setTimeout(() => saveCurrentDetail(), 1200);
-  }
-
-  /* ━━ LINKS SHOW/HIDE ━━ */
-  function showAddLink() {
-    document.getElementById('addLinkForm').style.display = 'block';
-    setTimeout(() => document.getElementById('linkTitleInput')?.focus(), 50);
-  }
-  function hideAddLink() {
-    document.getElementById('addLinkForm').style.display = 'none';
-  }
-
-  function renderLinks(p) {
-    const container = document.getElementById('detailLinks');
-    if (!container) return;
-    const getIco = (url) => {
-      if (!url) return '📄';
-      if (url.includes('figma.com')) return '🎨';
-      if (url.includes('github.com')) return '📦';
-      if (url.includes('notion.so')) return '📓';
-      if (url.includes('drive.google')) return '📁';
-      if (url.includes('docs.google')) return '📝';
-      if (url.includes('railway.app')) return '🚂';
-      if (url.includes('vercel.app') || url.includes('netlify.app')) return '▲';
-      if (url.startsWith('http')) return '🔗';
-      return '📄';
-    };
-    container.innerHTML = (p.links||[]).map((l,i)=>`
-      <div class="proy-link-card">
-        ${l.image ? `<img src="${escAttr(l.image)}" style="width:48px;height:48px;object-fit:cover;border-radius:8px;flex-shrink:0" onerror="this.style.display='none'">` :
-          `<span class="proy-link-ico">${getIco(l.url)}</span>`}
-        <div class="proy-link-body">
-          <input class="proy-link-title-edit" value="${escAttr(l.title||'')}" placeholder="título..."
-            onchange="StudioProyectos.updateLink(${i},'title',this.value)">
-          ${l.description ? `<div style="font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">${escHtml(l.description.slice(0,80))}</div>` : ''}
-          <div style="display:flex;align-items:center;gap:6px">
-            <input class="proy-link-url-edit" value="${escAttr(l.url||'')}" placeholder="https://..."
-              onchange="StudioProyectos.updateLink(${i},'url',this.value)">
-            ${l.domain ? `<span style="font-family:var(--mono);font-size:8px;color:var(--muted);flex-shrink:0">${escHtml(l.domain)}</span>` : ''}
-          </div>
-        </div>
-        <button class="proy-link-card-del" onclick="StudioProyectos.delLink(${i})" title="eliminar">×</button>
-      </div>`).join('');
-  }
-
-  async function addLink() {
-    const titleInput = document.getElementById('linkTitleInput');
-    const urlInput   = document.getElementById('linkUrlInput');
-    const urlVal     = urlInput?.value.trim();
-    if (!urlVal) return;
-    const p = getP(_currentId);
-    if (!p) return;
-    p.links = p.links || [];
-
-    const linkObj = { title: titleInput?.value.trim() || urlVal, url: urlVal, image: '', description: '' };
-    p.links.push(linkObj);
-    save();
-    renderLinks(p);
-    if (titleInput) titleInput.value = '';
-    if (urlInput)   urlInput.value = '';
-    hideAddLink();
-
-    // Fetch preview en background si es URL http
-    if (urlVal.startsWith('http')) {
-      try {
-        const r = await fetch('/api/preview?url=' + encodeURIComponent(urlVal));
-        const data = await r.json();
-        if (data.title && !linkObj.title.startsWith('http')) return; // ya tiene título manual
-        linkObj.title = data.title || linkObj.title;
-        linkObj.description = data.description || '';
-        linkObj.image = data.image || '';
-        linkObj.domain = data.domain || '';
-        save();
-        renderLinks(p);
-      } catch {}
-    }
-  }
-
-  function updateLink(idx, field, val) {
-    const p = getP(_currentId);
-    if (!p?.links?.[idx]) return;
-    p.links[idx][field] = val;
-    save();
-  }
-
-  function delLink(idx) {
-    const p = getP(_currentId);
-    if (!p) return;
-    p.links.splice(idx,1);
-    save();
-    renderLinks(p);
-  }
-
-  /* ━━ NOTAS AUTO-SAVE ━━ */
-  let _noteTimer;
-  function _autoSaveNote() {
-    clearTimeout(_noteTimer);
-    _noteTimer = setTimeout(() => {
-      const p = getP(_currentId);
-      if (!p) return;
-      p.notas = document.getElementById('detailNotas')?.value || '';
-      save();
-    }, 800);
-  }
-
-  /* ━━ GUARDAR DETALLE ━━ */
-  function saveCurrentDetail() {
-    if (!_currentId) return;
-    const p = getP(_currentId);
-    if (!p) return;
-    p.nombre   = document.getElementById('detailNombre')?.value.trim() || p.nombre;
-    p.desc     = document.getElementById('detailDesc')?.value.trim() || '';
-    p.estado   = document.getElementById('detailEstado')?.value || p.estado;
-    p.prio     = document.getElementById('detailPrio')?.value || p.prio;
-    p.inicio   = document.getElementById('detailInicio')?.value || '';
-    p.deadline = document.getElementById('detailDeadline')?.value || '';
-    p.cat      = document.getElementById('detailCat')?.value.trim() || '';
-    p.progreso = parseInt(document.getElementById('detailProgreso')?.value||0);
-    p.notas    = document.getElementById('detailNotas')?.value || '';
-    const metaSel = document.getElementById('detailMeta');
-    p.metaId = metaSel?.value || '';
-    if (p.metaId) {
-      const meta = lg('hub_metas',[]).find(m=>String(m.id)===String(p.metaId));
-      p.metaNombre = meta?.nombre || '';
-    }
-    save();
-    // Notificar al dashboard del hub
-    if (window.HubDashboard?.renderDashProy) window.HubDashboard.renderDashProy();
-    if (window.HubCore?.showToast) window.HubCore.showToast('✓ proyecto guardado');
-    else if (window.StudioCore?.showToast) window.StudioCore.showToast('✓ proyecto guardado');
-  }
-
-  /* ━━ NUEVO PROYECTO ━━ */
+  /* ── NUEVO PROYECTO ── */
   function newProyecto() {
     const nombre = prompt('Nombre del proyecto:');
-    if (!nombre) return;
-    const p = {
-      id: Date.now(),
-      emoji: '◈',
-      nombre,
-      desc: '',
-      estado: 'idea',
-      prio: 'media',
-      inicio: '', deadline: '',
-      progreso: 0,
-      cat: '',
-      tags: [],
-      cols: [{id:'c1',name:'Por hacer'},{id:'c2',name:'En proceso'},{id:'c3',name:'Revisión'},{id:'c4',name:'Hecho'}],
-      cards: [],
-      subs: [],
-      notas: '',
-      links: [],
-      urgente: false,
-    };
-    _proyectos.push(p);
-    save();
-    openDetail(p.id);
+    if (!nombre || !nombre.trim()) return;
+    const id = 'proj_' + Date.now();
+    _data.push({
+      id, nombre: nombre.trim(), emoji: '◈', cat: 'personal', catL: 'Personal / Vida',
+      st: 'idea', stL: 'Idea', desc: '', tags: [], money: 'no', moneyL: 'Sin modelo $',
+      pri: 'Media', progreso: 0, pend: [], mon: '', prompt: '',
+      cols: DEFAULT_COLS.map(c => ({ ...c })), cards: [], notas: '', archivos: [], urgente: false,
+    });
+    _save();
+    _renderGallery();
+    StudioCore.showToast?.('Proyecto creado ✓');
   }
 
-  /* ━━ HELPERS ━━ */
-  function escHtml(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-  function escAttr(s) { return String(s||'').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-  function formatDate(d) {
-    if (!d) return '';
-    const dt = new Date(d+'T12:00:00');
-    return isNaN(dt) ? d : dt.getDate() + '/' + (dt.getMonth()+1) + '/' + dt.getFullYear();
-  }
-
-  /* ━━ DRAWER (desde hub) ━━ */
-  function renderDrawer() {
-    const body = document.getElementById('proyDrawerBody');
-    if (!body) return;
-    const items = lg('hub_proyectos', DEFAULT_PROYECTOS).filter(p=>p.estado!=='terminado').slice(0,6);
-    body.innerHTML = items.map(p=>`
-      <div class="proy-drawer-card" onclick="window.location.href='studio.html'">
-        <div class="proy-drawer-card-top">
-          <span class="proy-drawer-card-emoji">${p.emoji||'◈'}</span>
-          <span class="proy-drawer-card-name">${escHtml(p.nombre)}</span>
-          <span class="proy-card-estado estado-${p.estado||'idea'}" style="font-size:7px">${p.estado||'idea'}</span>
-        </div>
-        <div class="proy-drawer-card-bar"><div class="proy-drawer-card-fill" style="width:${p.progreso||0}%"></div></div>
-      </div>`).join('') +
-      `<div style="text-align:center;padding:12px 0">
-        <a href="studio.html" style="font-family:var(--mono);font-size:9px;color:var(--studio);letter-spacing:.1em;text-decoration:none">→ abrir Studio completo</a>
-      </div>`;
-  }
-
+  /* ── FOCO ── */
   function _goFoco() {
-    const proyectos = lg('hub_proyectos', DEFAULT_PROYECTOS);
-    const foco = proyectos.filter(p=>p.urgente||p.estado==='construyendo')
-      .sort((a,b)=>(b.urgente?1:0)-(a.urgente?1:0)||b.progreso-a.progreso)[0] || proyectos[0];
-    if (!foco) return;
-    if (window.StudioCore) StudioCore.navTo(document.querySelector('[title="Proyectos"]'),'proyectos');
-    setTimeout(() => openDetail(foco.id), 120);
+    const p = _data.find(x => x.urgente) || _data.find(x => x.st === 'activo' || x.st === 'listo');
+    if (p) openDetail(p.id);
   }
 
-  function refresh() { init(); }
+  /* ── INIT ── */
+  function init() {
+    _load();
+    _renderGallery();
+  }
 
   return {
-    init, refresh,
-    setFilter, toggleUrgent,
-    openDetail, backToGallery,
-    addCol, renameCol, delCol,
-    showAddCard, cancelCard, selCardPrio, saveCard, delCard,
-    onDragStart, onDragEnd, onDragOver, onDrop,
-    addSub, openSub,
-    addTag, removeTag,
-    toggleUrgente, changeEmoji,
-    addLink, delLink,
-    _autoSaveNote,
-    saveCurrentDetail,
-    newProyecto,
-    renderDrawer, _goFoco,
-    toggleCoverForm, saveCover, removeCover,
-    addNota, updateNota, delNota,
-    showAddContenido, hideAddContenido, selContenidoTipo, addContenido, updateContenido, delContenido,
-    showAddProceso, hideAddProceso, selProcesoTipo, addProceso, delProceso,
-    showAddLink, hideAddLink, updateLink,
-    _autoSave,
+    init, setFilter, openDetail, backToGallery, newProyecto,
+    toggleUrgent, _goFoco,
+    _togglePend, _addPend, _setProgreso, _saveNota,
+    _addCard, _delCard, _addCol, _dragStart, _dropCard,
+    _showArchAdd, _addArch, _delArch,
+    _copyPrompt, _toggleUrgent,
   };
+
 })();
